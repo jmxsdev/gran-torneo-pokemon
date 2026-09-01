@@ -56,11 +56,11 @@ Chain strategy: pending
 
 ## Fase F1 — Pokédex + tipos + datos
 
-- [ ] F1.1 Crear `src/tipos.c`: matriz `static float efectividad[18][18]` (MINOR-1), `tipos_inicializar`, `tipos_es_valido`, `tipos_a_texto`, `tipos_multiplicador` — RF-CMB-05/RF-PDX-03, §1.3.
-- [ ] F1.2 Crear `data/pokedex.txt` con las 150 especies (formato §5.1, separador `;`) — RF-PDX-01/02/06, §5.1.
-- [ ] F1.3 Crear `src/pokedex.c`: `pokedex_cargar` (150 líneas estrictas), búsquedas por número/nombre, mostrar — RF-PDX-01..06, §1.3.
-- [ ] F1.4 Cablear opción 1 (consultar Pokédex) en `main` — RF-MEN-01, RF-TEC-02.
-- [ ] F1.5 Verificación scriptada: carga 150, búsqueda existente/inexistente, archivo ausente — RF-PRB-01, §13/§8.2.
+- [x] F1.1 Crear `src/tipos.c`: matriz `static float efectividad[18][18]` (MINOR-1), `tipos_inicializar`, `tipos_es_valido`, `tipos_a_texto`, `tipos_multiplicador` — RF-CMB-05/RF-PDX-03, §1.3.
+- [x] F1.2 Crear `data/pokedex.txt` con las 150 especies (formato §5.1, separador `;`) — RF-PDX-01/02/06, §5.1.
+- [x] F1.3 Crear `src/pokedex.c`: `pokedex_cargar` (150 líneas estrictas), búsquedas por número/nombre, mostrar — RF-PDX-01..06, §1.3.
+- [x] F1.4 Cablear opción 1 (consultar Pokédex) en `main` — RF-MEN-01, RF-TEC-02.
+- [x] F1.5 Verificación scriptada: carga 150, búsqueda existente/inexistente, archivo ausente — RF-PRB-01, §13/§8.2.
 
 ## Fase F2 — Entrenadores y ejemplares (separación especie/ejemplar)
 

@@ -19,7 +19,7 @@
 | Fase | Contenido | Fechas | Estado |
 |------|-----------|--------|--------|
 | F0 | Convenciones (Doxyfile + guía), planificación, informe esqueleto, 10 headers, `main.c` con menú, Makefile | 2026-09-01 | ✅ Hecho |
-| F1 | Pokédex: `tipos.c` + `pokedex.c` + `data/pokedex.txt` (150 especies) | 2026-09-01 → 2026-09-02 | ⏳ Pendiente |
+| F1 | Pokédex: `tipos.c` + `pokedex.c` + `data/pokedex.txt` (150 especies) | 2026-09-01 → 2026-09-02 | ✅ Hecho |
 | F2 | Tipos y efectividad (matriz 18×18, multiplicador) | 2026-09-02 → 2026-09-03 | ⏳ Pendiente |
 | F3 | Entrenadores y ejemplares (separación especie/ejemplar, `entrenadores.txt`) | 2026-09-03 → 2026-09-04 | ⏳ Pendiente |
 | F4 | Combate (fórmula de daño D1, orden D3, empate D4/D5) | 2026-09-04 → 2026-09-06 | ⏳ Pendiente |
