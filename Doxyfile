@@ -1,0 +1,22 @@
+# Doxyfile — El Gran Torneo Pokemon
+# Configuracion minima de Doxygen para el proyecto (DOC-01).
+# Idioma de salida: espanol neutro. Codificacion de entrada: UTF-8.
+# Extraccion de documentacion: completa (todo bloque Doxygen se procesa).
+
+PROJECT_NAME           = "El Gran Torneo Pokemon"
+PROJECT_BRIEF          = "Sistema de consola en C99 para un torneo Pokemon (1.ª generacion)"
+
+OUTPUT_LANGUAGE        = Spanish
+INPUT_ENCODING         = UTF-8
+
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+
+INPUT                  = src docs
+RECURSIVE              = YES
+
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+
+# Se genera en html/ (ignorado por .gitignore via regla build/ o manual).
+# Para regenerar: doxygen Doxyfile
