@@ -1,0 +1,10 @@
+# SDD local registry (init scaffolding) — ignored per skill-registry convention
+.atl/
+
+# Build artifacts
+build/
+*.o
+*.out
+
+# Test output
+/tmp/out.txt

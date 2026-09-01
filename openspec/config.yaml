@@ -1,0 +1,46 @@
+schema: spec-driven
+
+context: |
+  Project: "El Gran Torneo Pokémon" — tournament management system.
+  Course: Programación I / Algoritmos I, Universidad de Carabobo.
+  Stack: C (ISO C99), gcc -std=c99 -Wall -Wextra; console application (stdin/stdout).
+  Testing: manual scripted I/O checks; no unit test framework installed.
+  Docs: project docs, code comments and Doxygen blocks in Spanish.
+  Code identifiers: English-neutral C naming.
+
+testing:
+  strict_tdd: false
+  test_command: |
+    # Build with strict warnings, then run with scripted stdin and diff stdout.
+    gcc -std=c99 -Wall -Wextra -o build/<binary> <src.c files>
+    echo "<scripted input>" | ./build/<binary> > /tmp/<out>.txt
+    diff <expected>.txt /tmp/<out>.txt
+  coverage_threshold: 0
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Write specs and scenarios in Spanish (project language)
+  design:
+    - Document architecture decisions with rationale
+    - Specify Doxygen conventions (@file, @brief, @param, @return, @author)
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    guidelines:
+      - Follow existing code patterns
+      - Comments and Doxygen docs MUST be written in Spanish
+      - Code identifiers in English-neutral C
+      - Build must pass with gcc -std=c99 -Wall -Wextra and zero warnings
+    tdd: false
+    test_command: ""
+  verify:
+    test_command: "gcc -std=c99 -Wall -Wextra -o build/<binary> <src files> && echo '<scripted input>' | ./build/<binary> > /tmp/out.txt && diff <expected>.txt /tmp/out.txt"
+    build_command: "gcc -std=c99 -Wall -Wextra -o build/<binary> <src files>"
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
