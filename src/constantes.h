@@ -43,6 +43,7 @@
 
 /* Rutas de los archivos de datos (D8): separador ';', UTF-8, sin encabezados. */
 #define RUTA_POKEDEX "data/pokedex.txt"
+#define RUTA_EFECTIVIDAD "data/efectividad.txt"
 #define RUTA_ENTRENADORES "data/entrenadores.txt"
 #define RUTA_RESULTADOS "data/resultados.txt"
 #define RUTA_CLASIFICACION "data/clasificacion.txt"
