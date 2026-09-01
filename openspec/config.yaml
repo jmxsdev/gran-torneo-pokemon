@@ -18,6 +18,11 @@ testing:
   coverage_threshold: 0
 
 rules:
+  commits:
+    - ALL commit messages MUST be written in Spanish (conventional commits
+      with Spanish subject, e.g. "feat: agregar motor de combate").
+      Conventional type prefixes (feat:, fix:, docs:, chore:, refactor:, test:)
+      are syntax, not content — keep the prefix, translate the description.
   proposal:
     - Include rollback plan for risky changes
   specs:
@@ -34,7 +39,10 @@ rules:
     guidelines:
       - Follow existing code patterns
       - Comments and Doxygen docs MUST be written in Spanish
-      - Code identifiers in English-neutral C
+      - Code identifiers MUST be written in Spanish (snake_case, sin acentos),
+        p.ej. entrenador, ejemplar, equipo, torneo — decisión formalizada tras
+        el validador de contrato del diseño (MINOR-2), alineada al requisito
+        explícito de proyecto 100% en español del usuario
       - Build must pass with gcc -std=c99 -Wall -Wextra and zero warnings
     tdd: false
     test_command: ""
