@@ -74,15 +74,12 @@ void equipo_fijar_contador_id(int id_maximo);
  * @brief Crea un ejemplar nuevo a partir de una especie de la Pokédex.
  *
  * Valida que la especie exista (RF-EQP-01) y el nivel (RF-EQP-05). Deriva
- * hp/ataque/defensa/velocidad con la fórmula D2 exacta:
- *
- *   variacion = (id_ejemplar * 7) % 16        (único valor, 4 stats)
- *   hp_max    = (hp_base * nivel / 50) + nivel + 10 + variacion
- *   stat      = (stat_base * nivel / 50) + nivel + 5 + variacion
- *
- * con división entera truncada de C, en ese orden, y hp_actual = hp_max.
- * Copia nombre, tipos y stats derivadas: la especie NO se muta (RF-EQP-03).
- * El ejemplar se asigna con malloc: el llamador es dueño de la memoria.
+ * las stats con la fórmula D2 exacta (división entera truncada de C, en ese
+ * orden): variacion = (id_ejemplar * 7) % 16; hp_max = (hp_base * nivel /
+ * 50) + nivel + 10 + variacion; stat = (stat_base * nivel / 50) + nivel + 5
+ * + variacion para ataque, defensa y velocidad; hp_actual = hp_max. La
+ * especie NO se muta: se copian nombre, tipos y stats (RF-EQP-03). El
+ * ejemplar se asigna con malloc: el llamador es dueño de la memoria.
  *
  * @param pd            Puntero a la Pokédex cargada (no debe ser NULL).
  * @param numero_especie Número de la especie base, 1..POKEDEX_MAX.
@@ -106,7 +103,7 @@ int equipo_contar(const Entrenador *ent);
 /**
  * @brief Agrega un ejemplar al equipo del entrenador respetando MAX_EQUIPO.
  *
- * Inserta el ejemplar al inicio de la lista enlazada del entrenador.
+ * Inserta al inicio de la lista enlazada del entrenador.
  *
  * @param ent   Puntero al entrenador (no debe ser NULL).
  * @param nuevo Ejemplar ya creado que pasa a ser propiedad del equipo.
@@ -118,9 +115,8 @@ bool equipo_agregar_ejemplar(Entrenador *ent, Ejemplar *nuevo);
 /**
  * @brief Valida que el equipo del entrenador cumpla las reglas (RF-EQP-05).
  *
- * Comprueba el tamaño (1..tamano_requerido; el torneo usa el equipo
- * completo, MAX_EQUIPO), que cada especie exista en la Pokédex (RF-EQP-01),
- * los niveles (1..100) y los tipos copiados en el ejemplar.
+ * Comprueba el tamaño (1..tamano_requerido), la existencia de cada especie
+ * en la Pokédex (RF-EQP-01), los niveles (1..100) y los tipos copiados.
  *
  * @param pd               Puntero a la Pokédex cargada (no debe ser NULL).
  * @param ent              Puntero al entrenador (no debe ser NULL).
@@ -143,8 +139,7 @@ void equipo_liberar(Entrenador *ent);
 /**
  * @brief Muestra por consola el equipo completo de un entrenador.
  *
- * Por cada ejemplar: id, apodo, especie, nivel, HP actual/máximo, stats y
- * tipos. Solo lectura: no modifica ningún dato (RF-EQP-03).
+ * Solo lectura: no modifica ningún dato (RF-EQP-03).
  *
  * @param pd  Puntero a la Pokédex cargada (no debe ser NULL).
  * @param ent Puntero al entrenador (no debe ser NULL).

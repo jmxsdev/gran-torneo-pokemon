@@ -24,7 +24,6 @@
 Entrenador *entrenador_buscar(RegistroEntrenadores *reg, int id)
 {
     int i;
-
     if (reg == NULL) {
         return NULL;
     }
@@ -39,9 +38,8 @@ Entrenador *entrenador_buscar(RegistroEntrenadores *reg, int id)
 /**
  * @brief Registra un entrenador nuevo con id único (RF-ENT-02).
  *
- * Valida id positivo, nombre no vacío, id no repetido (búsqueda O(n)
- * previa) y capacidad del registro. El equipo queda vacío y los contadores
- * de torneo en cero (RF-ENT-01).
+ * Valida id positivo, nombre no vacío, id no repetido (búsqueda previa) y
+ * capacidad del registro. El equipo queda vacío y los contadores en cero.
  *
  * @param reg    Puntero al registro (no debe ser NULL).
  * @param id     Identificador único propuesto (entero > 0).
@@ -56,19 +54,13 @@ bool entrenador_registrar(RegistroEntrenadores *reg, int id, const char *nombre)
     if (reg == NULL || nombre == NULL) {
         return false;
     }
-    if (id <= 0) {
-        return false;
-    }
-    if (nombre[0] == '\0') {
-        return false;
-    }
-    if (reg->cantidad >= MAX_ENTRENADORES) {
+    if (id <= 0 || nombre[0] == '\0' ||
+        reg->cantidad >= MAX_ENTRENADORES) {
         return false;
     }
     if (entrenador_buscar(reg, id) != NULL) {
         return false;   /* id duplicado: MUST NOT existir dos iguales */
     }
-
     ent = &reg->entrenadores[reg->cantidad];
     ent->id = id;
     snprintf(ent->nombre, sizeof(ent->nombre), "%s", nombre);
@@ -85,8 +77,8 @@ bool entrenador_registrar(RegistroEntrenadores *reg, int id, const char *nombre)
 /**
  * @brief Muestra por consola todos los entrenadores del registro.
  *
- * Incluye id, nombre, contadores de fase de grupos y si el entrenador ya
- * tiene equipo (RF-ENT-01).
+ * Incluye id, nombre, contadores de fase de grupos y tamaño del equipo
+ * (RF-ENT-01).
  *
  * @param reg Puntero al registro (no debe ser NULL).
  */
@@ -101,7 +93,6 @@ void entrenador_mostrar_todos(const RegistroEntrenadores *reg)
         printf("No hay entrenadores registrados.\n");
         return;
     }
-
     printf("--- Entrenadores registrados (%d/%d) ---\n",
            reg->cantidad, MAX_ENTRENADORES);
     for (i = 0; i < reg->cantidad; i++) {

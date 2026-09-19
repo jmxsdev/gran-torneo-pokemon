@@ -90,6 +90,22 @@ static void descartar_linea(void)
 }
 
 /**
+ * Lee un entero de stdin validando la conversión. Ante entrada no numérica
+ * imprime aviso, descarta la línea y devuelve false; el llamador decide si
+ * reintenta o abandona (RF-TEC-03: ninguna entrada termina el programa).
+ */
+static bool leer_entero(int *salida)
+{
+    if (scanf("%d", salida) != 1) {
+        printf("Entrada inválida.\n");
+        descartar_linea();
+        return false;
+    }
+    descartar_linea();
+    return true;
+}
+
+/**
  * Muestra el resultado de una busqueda en la Pokédex: si se encontro la
  * especie muestra su ficha completa; si no, informa que no existe (RF-PDX-05).
  */
@@ -139,12 +155,11 @@ static void consultar_pokedex(const Pokedex *pd)
                 pokedex_mostrar_todas(pd);
             }
             break;
-        case 2: {
+        case 2:
+        case 4: {
             int numero;
             printf("Ingrese el número de especie: ");
-            if (scanf("%d", &numero) != 1) {
-                printf("Entrada inválida.\n");
-                descartar_linea();
+            if (!leer_entero(&numero)) {
                 break;
             }
             mostrar_resultado_busqueda(pokedex_buscar_numero(pd, numero));
@@ -160,17 +175,6 @@ static void consultar_pokedex(const Pokedex *pd)
             }
             break;
         }
-        case 4: {
-            int numero;
-            printf("Ingrese el número de especie: ");
-            if (scanf("%d", &numero) != 1) {
-                printf("Entrada inválida.\n");
-                descartar_linea();
-                break;
-            }
-            mostrar_resultado_busqueda(pokedex_buscar_numero(pd, numero));
-            break;
-        }
         default:
             printf("Opción inválida. Intente de nuevo.\n");
             break;
@@ -181,9 +185,8 @@ static void consultar_pokedex(const Pokedex *pd)
 /**
  * @brief Opcion 2: registra un entrenador por teclado (RF-ENT-01/02).
  *
- * Lee id y nombre; valida que el id sea un entero positivo y único y que el
- * nombre no esté vacío. Ninguna entrada inválida termina el programa
- * (RF-TEC-03).
+ * Valida id entero positivo y único y nombre no vacío; ninguna entrada
+ * inválida termina el programa (RF-TEC-03).
  */
 static void registrar_entrenador(RegistroEntrenadores *reg)
 {
@@ -191,12 +194,9 @@ static void registrar_entrenador(RegistroEntrenadores *reg)
     char nombre[TAM_MAX_NOMBRE];
 
     printf("Ingrese el id del entrenador: ");
-    if (scanf("%d", &id) != 1) {
-        printf("Entrada inválida: el id debe ser un número.\n");
-        descartar_linea();
+    if (!leer_entero(&id)) {
         return;
     }
-    descartar_linea();
     if (id <= 0) {
         printf("Id inválido: debe ser un entero positivo.\n");
         return;
@@ -225,10 +225,9 @@ static void registrar_entrenador(RegistroEntrenadores *reg)
 /**
  * @brief Opcion 3: crea el equipo de un entrenador seleccionando especies.
  *
- * Solicita el id del entrenador, libera el equipo anterior si existe y
- * permite agregar ejemplares por número de especie y nivel (1..100). El id
- * del ejemplar lo asigna el módulo de equipos (único global). Termina con
- * especie 0 o cuando el equipo llega a MAX_EQUIPO (RF-EQP-05).
+ * Libera el equipo anterior si existe y agrega ejemplares por número de
+ * especie y nivel (1..100); el id del ejemplar lo asigna el módulo de
+ * equipos (único global). Termina con especie 0 o al llegar a MAX_EQUIPO.
  */
 static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
 {
@@ -236,13 +235,9 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
     Entrenador *ent;
 
     printf("Ingrese el id del entrenador: ");
-    if (scanf("%d", &id_ent) != 1) {
-        printf("Entrada inválida.\n");
-        descartar_linea();
+    if (!leer_entero(&id_ent)) {
         return;
     }
-    descartar_linea();
-
     ent = entrenador_buscar(reg, id_ent);
     if (ent == NULL) {
         printf("No existe un entrenador con id %d.\n", id_ent);
@@ -262,12 +257,9 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
         Ejemplar *ej;
 
         printf("Ingrese el número de especie (0 para terminar): ");
-        if (scanf("%d", &numero) != 1) {
-            printf("Entrada inválida.\n");
-            descartar_linea();
+        if (!leer_entero(&numero)) {
             continue;
         }
-        descartar_linea();
         if (numero == 0) {
             break;
         }
@@ -285,12 +277,9 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
         for (;;) {
             printf("Ingrese el nivel del ejemplar (%d-%d): ",
                    NIVEL_MIN, NIVEL_MAX);
-            if (scanf("%d", &nivel) != 1) {
-                printf("Entrada inválida.\n");
-                descartar_linea();
+            if (!leer_entero(&nivel)) {
                 continue;
             }
-            descartar_linea();
             if (nivel < NIVEL_MIN || nivel > NIVEL_MAX) {
                 printf("Nivel inválido (rango %d-%d).\n", NIVEL_MIN, NIVEL_MAX);
                 continue;
@@ -331,14 +320,6 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
 }
 
 /**
- * @brief Opcion 4: consulta los entrenadores registrados (RF-ENT-01).
- */
-static void consultar_entrenadores(const RegistroEntrenadores *reg)
-{
-    entrenador_mostrar_todos(reg);
-}
-
-/**
  * @brief Opcion 5: consulta el equipo de un entrenador (RF-EQP-02/03).
  */
 static void consultar_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
@@ -347,12 +328,9 @@ static void consultar_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
     Entrenador *ent;
 
     printf("Ingrese el id del entrenador: ");
-    if (scanf("%d", &id_ent) != 1) {
-        printf("Entrada inválida.\n");
-        descartar_linea();
+    if (!leer_entero(&id_ent)) {
         return;
     }
-    descartar_linea();
     ent = entrenador_buscar(reg, id_ent);
     if (ent == NULL) {
         printf("No existe un entrenador con id %d.\n", id_ent);
@@ -366,8 +344,8 @@ static void consultar_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
  *        despacha las 12 opciones.
  *
  * F2: al inicio se cargan tipos, Pokédex y (si existe) el archivo de
- * entrenadores; las opciones 1..5 quedan cableadas. El resto informa
- * "en construcción". La opción 12 sale y libera todos los equipos.
+ * entrenadores; las opciones 1..5 quedan cableadas y la opción 12 sale
+ * liberando todos los equipos (sin fugas).
  *
  * @return 0 al salir de forma ordenada.
  */
@@ -425,7 +403,7 @@ int main(void)
             crear_equipo(&pokedex, &registro);
             break;
         case 4:
-            consultar_entrenadores(&registro);
+            entrenador_mostrar_todos(&registro);
             break;
         case 5:
             consultar_equipo(&pokedex, &registro);

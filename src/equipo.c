@@ -39,10 +39,11 @@ void equipo_fijar_contador_id(int id_maximo)
 /**
  * @brief Crea un ejemplar nuevo a partir de una especie de la Pokédex.
  *
- * Aplica la fórmula D2 exacta: variación determinista (id * 7) % 16 única
- * por ejemplar y aplicada a las cuatro stats; división entera truncada de C
- * en el orden (base * nivel / 50). La especie no se muta: se copian nombre,
- * tipos y stats derivadas (RF-EQP-03).
+ * Fórmula D2 exacta (variación determinista única por ejemplar, división
+ * entera truncada de C): variacion = (id * 7) % 16; hp_max = (hp_base *
+ * nivel / 50) + nivel + 10 + variacion; stat = (stat_base * nivel / 50) +
+ * nivel + 5 + variacion; hp_actual = hp_max. La especie NO se muta
+ * (RF-EQP-03). El ejemplar se asigna con malloc.
  *
  * @param pd             Puntero a la Pokédex cargada (no debe ser NULL).
  * @param numero_especie Número de la especie base, 1..POKEDEX_MAX.
@@ -69,13 +70,10 @@ Ejemplar *equipo_crear_ejemplar(const Pokedex *pd, int numero_especie,
     if (esp == NULL) {
         return NULL;   /* RF-EQP-01: la especie no pertenece a la Pokédex */
     }
-
     ej = (Ejemplar *)malloc(sizeof(Ejemplar));
     if (ej == NULL) {
         return NULL;
     }
-
-    /* Fórmula D2: un único valor de variación para las 4 stats. */
     variacion = (id_ejemplar * 7) % 16;
     ej->id = id_ejemplar;
     ej->numero_especie = numero_especie;
@@ -110,7 +108,7 @@ int equipo_contar(const Entrenador *ent)
 }
 
 /**
- * @brief Agrega un ejemplar al equipo del entrenador respetando MAX_EQUIPO.
+ * @brief Agrega un ejemplar al equipo respetando MAX_EQUIPO (RF-EQP-05).
  *
  * Inserta al inicio de la lista enlazada (TDA encapsulado: solo este módulo
  * toca el campo siguiente).
@@ -134,10 +132,10 @@ bool equipo_agregar_ejemplar(Entrenador *ent, Ejemplar *nuevo)
 }
 
 /**
- * @brief Valida que el equipo del entrenador cumpla las reglas (RF-EQP-05).
+ * @brief Valida el equipo del entrenador (RF-EQP-05).
  *
- * Comprueba el tamaño (1..tamano_requerido), la existencia de cada especie
- * en la Pokédex (RF-EQP-01), los niveles (1..100) y los tipos copiados.
+ * Comprueba tamaño (1..tamano_requerido), existencia de cada especie en la
+ * Pokédex (RF-EQP-01), niveles (1..100) y tipos copiados en el ejemplar.
  *
  * @param pd               Puntero a la Pokédex cargada (no debe ser NULL).
  * @param ent              Puntero al entrenador (no debe ser NULL).
@@ -161,22 +159,18 @@ bool equipo_validar(const Pokedex *pd, const Entrenador *ent,
         return false;   /* tamaño fuera del rango permitido 1..6 */
     }
     for (ej = ent->equipo; ej != NULL; ej = ej->siguiente) {
-        if (pokedex_buscar_numero(pd, ej->numero_especie) == NULL) {
-            return false;   /* especie inexistente (RF-EQP-01) */
-        }
-        if (ej->nivel < NIVEL_MIN || ej->nivel > NIVEL_MAX) {
-            return false;   /* nivel fuera de 1..100 */
-        }
-        if (ej->tipo_primario >= TIPO_NINGUNO ||
+        if (pokedex_buscar_numero(pd, ej->numero_especie) == NULL ||
+            ej->nivel < NIVEL_MIN || ej->nivel > NIVEL_MAX ||
+            ej->tipo_primario >= TIPO_NINGUNO ||
             ej->tipo_secundario > TIPO_NINGUNO) {
-            return false;   /* tipos inválidos */
+            return false;   /* especie, nivel o tipos inválidos */
         }
     }
     return true;
 }
 
 /**
- * @brief Libera todos los ejemplares del equipo de un entrenador.
+ * @brief Libera todos los ejemplares del equipo (free disciplinado).
  *
  * Recorre la lista liberando cada nodo con free; deja ent->equipo en NULL.
  *
@@ -218,7 +212,6 @@ void equipo_mostrar(const Pokedex *pd, const Entrenador *ent)
                ent->nombre, ent->id);
         return;
     }
-
     printf("--- Equipo de %s (id %d): %d ejemplar(es) ---\n",
            ent->nombre, ent->id, n);
     for (ej = ent->equipo; ej != NULL; ej = ej->siguiente) {
