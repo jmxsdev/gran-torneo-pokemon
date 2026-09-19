@@ -67,11 +67,11 @@ El docente respondió: **libertad total de modelado** (niveles, tamaño de equip
 
 ## Fase F2 — Entrenadores y ejemplares (separación especie/ejemplar)
 
-- [ ] F2.1 Crear `src/entrenador.c`: registro con id único, búsqueda, listado — RF-ENT-01/02, §1.3.
-- [ ] F2.2 Crear `src/equipo.c` (parte ejemplares): `equipo_crear_ejemplar` (D2), `equipo_agregar_ejemplar`, `equipo_validar` — RF-EQP-01/02/03/05, §2.
-- [ ] F2.3 Crear `data/entrenadores.txt` de ejemplo (32) — RF-ENT-03, §5.2.
-- [ ] F2.4 Cablear opciones 2/3/4/5 en `main` — RF-MEN-01.
-- [ ] F2.5 Verificación: registro válido/duplicado/inválido, nivel 0/101 rechazado, tamaño excedido — RF-PRB-01, §13.
+- [x] F2.1 Crear `src/entrenador.c`: registro con id único, búsqueda, listado — RF-ENT-01/02, §1.3. *(2026-09-19: validación robusta: id inválido, nombre vacío, duplicado; fix de F0: tag `struct Entrenador` en entrenador.h para completar la declaración adelantada de equipo.h.)*
+- [x] F2.2 Crear `src/equipo.c` (parte ejemplares): `equipo_crear_ejemplar` (D2 exacta: variación `(id*7)%16`, HP `base*nivel/50+nivel+10+v`, resto `+5`, división entera truncada, `hp_actual=hp_max`), `equipo_agregar_ejemplar`, `equipo_validar` (tamaño 1–6, especies, niveles 1–100, tipos), `equipo_liberar` (free disciplinado) — RF-EQP-01/02/03/05, §2. *(Firmas ajustadas al lote: `equipo_crear_ejemplar(pd, numero_especie, nombre, nivel, id)` valida RF-EQP-01 en origen; `equipo_validar(pd, ent, tamano)`; se añadieron `equipo_contar`, `equipo_mostrar`, `equipo_siguiente_id` y `equipo_fijar_contador_id` para el id único global; la especie NO se muta.)*
+- [x] F2.3 Crear `data/entrenadores.txt` de ejemplo (32) — RF-ENT-03, §5.2. *(Formato: 3 campos base ID;NOMBRE;CANT + 4 por ejemplar ID_EJEMPLAR;NUM_ESPECIE;APODO;NIVEL ⇒ 3+4·CANT campos/línea, máx 27; niveles variados 5–50 que demuestran D2.)*
+- [x] F2.4 Cablear opciones 2/3/4/5 en `main` — RF-MEN-01. *(Carga inicial de entrenadores.txt opcional con aviso; creación por número de especie + nivel 1–100; liberación de equipos al salir.)*
+- [x] F2.5 Verificación: registro válido/duplicado/inválido, nivel 0/101 rechazado, tamaño excedido — RF-PRB-01, §13. *(Batería scriptada F2.5: 7 casos PASS + probe D2; make cero warnings; detalle en apply-progress.)*
 
 ## Fase F3 — Combate
 
