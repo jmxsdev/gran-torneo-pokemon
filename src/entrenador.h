@@ -19,8 +19,11 @@
  * Los contadores de fase de grupos (victorias/empates/derrotas/puntos y
  * pokemon_derrotados) se reconstruyen desde data/resultados.txt; no se
  * persisten en data/entrenadores.txt (D8).
+ *
+ * El tag "struct Entrenador" completa la declaración adelantada de equipo.h
+ * (evita conflicto de tipos al incluir ambas cabeceras).
  */
-typedef struct {
+typedef struct Entrenador {
     int   id;                    /* único (RF-ENT-02) */
     char  nombre[TAM_MAX_NOMBRE];
     int   victorias, empates, derrotas;
