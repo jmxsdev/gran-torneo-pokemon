@@ -25,7 +25,9 @@ Al seleccionar una especie, el sistema MUST crear un ejemplar con: id único, es
 
 - GIVEN la especie #001 Bulbasaur
 - WHEN se crea un ejemplar de nivel 12
-- THEN el ejemplar tiene especie Bulbasaur, nivel 12 y estadísticas derivadas de su especie
+- THEN el ejemplar tiene especie Bulbasaur y nivel 12
+- AND sus estadísticas se derivan con la fórmula documentada (base × nivel/50 + nivel + 10 para HP; base × nivel/50 + nivel + 5 para ataque/defensa/velocidad; más una variación determinista por id del ejemplar)
+- AND ejemplares distintos de la misma especie normalmente difieren en estadísticas
 
 ### Requirement: Separación especie/ejemplar (RF-EQP-03)
 
@@ -65,7 +67,7 @@ La construcción automática MUST usar recursividad + backtracking: explora comb
 
 ### Requirement: Validación de equipos (RF-EQP-05)
 
-El sistema MUST validar: tamaño permitido (1–6; el torneo fija 3), especies existentes, niveles válidos (1–50) y tipos válidos.
+El sistema MUST validar: tamaño permitido (1–6; el torneo usa el equipo completo), especies existentes, niveles válidos (1–100) y tipos válidos.
 
 #### Scenario: Tamaño fuera de rango
 
@@ -77,6 +79,6 @@ El sistema MUST validar: tamaño permitido (1–6; el torneo fija 3), especies e
 #### Scenario: Nivel inválido
 
 - GIVEN un ejemplar en creación
-- WHEN se asigna nivel 0 o 51
+- WHEN se asigna nivel 0 o 101
 - THEN se rechaza
 - AND se solicita un nivel válido

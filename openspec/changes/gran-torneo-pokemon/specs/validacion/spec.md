@@ -34,7 +34,7 @@ El sistema MUST validar: opciones de menú inexistentes, Pokémon inexistentes, 
 #### Scenario: Nivel inválido
 
 - GIVEN la creación de un ejemplar
-- WHEN se ingresa nivel 0 o 51
+- WHEN se ingresa nivel 0 o 101
 - THEN se rechaza
 - AND se solicita un nivel válido
 

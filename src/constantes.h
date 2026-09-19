@@ -23,12 +23,13 @@
 
 /* Tamaño máximo de equipo por entrenador (rango válido 1..6, RF-EQP-05). */
 #define MAX_EQUIPO 6
-/* Tamaño de equipo exigido en los combates del torneo (spec fija 3, D6). */
-#define TAM_EQUIPO_TORNEO 3
+/** El torneo combate con el equipo completo (máximo MAX_EQUIPO). */
+#define TAM_EQUIPO_TORNEO 6
 
 /* Rango de niveles de los ejemplares (RF-EQP-05, D7). */
 #define NIVEL_MIN 1
-#define NIVEL_MAX 50
+/** Nivel máximo permitido (decisión libre del equipo, avalada por el docente). */
+#define NIVEL_MAX 100
 
 /* Total de combates del torneo: 48 de grupos + 16 de eliminatoria (D10). */
 #define TOTAL_COMBATES 64

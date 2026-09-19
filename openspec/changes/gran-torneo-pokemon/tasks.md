@@ -34,11 +34,14 @@ Chain strategy: pending
 400-line budget risk: Low
 ```
 
-## Decisiones pendientes (no bloquean F0)
+## Decisiones pendientes (no bloquean F0) — RESUELTAS (2026-09-19)
 
-- [ ] **Niveles 1–50 vs 1–100** (diseño §16): el spec fija 1–50. Si el docente confirma 1–100 ⇒ delta de spec (MODIFIED RF-EQP-05) + cambiar `NIVEL_MAX` antes del apply de F2.
-- [ ] **Equipo de torneo 3 vs 6** (diseño §16): si se confirma 6 ⇒ delta menor de spec + `TAM_EQUIPO_TORNEO`.
-- [ ] **D9 desempate adicional** (diseño §16): confirmar con el docente; documentar en `informe-tecnico.md`.
+El docente respondió: **libertad total de modelado** (niveles, tamaño de equipo y reglas a conveniencia) y fórmula oficial NO exigida — se admite una fórmula simplificada documentada y validada con el nivel. Valores adoptados:
+
+- [x] **Niveles 1–50 vs 1–100** → **1–100** (canónico). Delta de spec aplicado (MODIFIED RF-EQP-05 + escenario nivel 0/101) y `NIVEL_MAX = 100` en `constantes.h`.
+- [x] **Equipo de torneo 3 vs 6** → **6**: el torneo combate con el equipo completo (máximo `MAX_EQUIPO`); `TAM_EQUIPO_TORNEO = 6` y delta menor de spec aplicado.
+- [x] **D9 desempate adicional** → decidido por el equipo con la libertad otorgada por el docente: enfrentamiento directo en grupos + id menor; documentado en `informe-tecnico.md`.
+- [x] **Fórmula de stats (D2)** → fórmula simplificada con variación determinista por id: `(base × nivel / 50) + nivel + 10` (HP) / `+ 5` (resto) + `(id × 7) % 16`; documentada en `design.md` §3 e `informe-tecnico.md`.
 
 ---
 
@@ -48,7 +51,7 @@ Chain strategy: pending
 - [x] F0.2 Crear `docs/convenciones-doxygen.md` con bloques `@file/@brief/@param/@return/@author` en español, 99 cols — DOC-01, §10.
 - [x] F0.3 Crear `docs/planificacion.md`: plan 14 días, estado hecho/pendiente por fase F0–F11 — DOC-02, §15.
 - [x] F0.4 Crear `docs/informe-tecnico.md` esqueleto con semilla de diagramas Mermaid del diseño (módulos §1.1, combate §7, bracket §6.2) — DOC-03, §12.
-- [x] F0.5 Crear `src/constantes.h` (`MAX_EQUIPO=6`, `TAM_EQUIPO_TORNEO=3`, `NIVEL_MIN/MAX`, `MAX_ENTRENADORES=32`, `POKEDEX_MAX=150`, `TOTAL_COMBATES=64`, `MAX_TURNOS_COMBATE=20`, `CANT_TIPOS=18`, buffers, rutas) — §1.2.
+- [x] F0.5 Crear `src/constantes.h` (`MAX_EQUIPO=6`, `TAM_EQUIPO_TORNEO=3`, `NIVEL_MIN/MAX`, `MAX_ENTRENADORES=32`, `POKEDEX_MAX=150`, `TOTAL_COMBATES=64`, `MAX_TURNOS_COMBATE=20`, `CANT_TIPOS=18`, buffers, rutas) — §1.2. *(Actualizado 2026-09-19: `TAM_EQUIPO_TORNEO=6` y `NIVEL_MAX=100` por decisiones docentes resueltas.)*
 - [x] F0.6 Crear headers `src/{tipos,pokedex,equipo,entrenador,combate,torneo,resultados,archivos,validacion}.h` con structs y prototipos de §1.3/§2. **MINOR-1**: la matriz `efectividad[18][18]` NO se declara `static` en `tipos.h`; vive en `tipos.c` (F1), acceso solo vía `tipos_multiplicador()`.
 - [x] F0.7 Crear `src/main.c`: menú de 12 opciones (RF-MEN-01); cada opción imprime «Opción X en construcción»; 12 = salir — §1.2.
 - [x] F0.8 Crear `Makefile` con `gcc -std=c99 -Wall -Wextra -o build/torneo` (cero warnings como gate) — config.yaml `verify`, §13.
@@ -68,7 +71,7 @@ Chain strategy: pending
 - [ ] F2.2 Crear `src/equipo.c` (parte ejemplares): `equipo_crear_ejemplar` (D2), `equipo_agregar_ejemplar`, `equipo_validar` — RF-EQP-01/02/03/05, §2.
 - [ ] F2.3 Crear `data/entrenadores.txt` de ejemplo (32) — RF-ENT-03, §5.2.
 - [ ] F2.4 Cablear opciones 2/3/4/5 en `main` — RF-MEN-01.
-- [ ] F2.5 Verificación: registro válido/duplicado/inválido, nivel 0/51 rechazado, tamaño excedido — RF-PRB-01, §13.
+- [ ] F2.5 Verificación: registro válido/duplicado/inválido, nivel 0/101 rechazado, tamaño excedido — RF-PRB-01, §13.
 
 ## Fase F3 — Combate
 
@@ -106,7 +109,7 @@ Chain strategy: pending
 
 - [ ] F8.1 Crear `src/validacion.c`: `validar_leer_entero`, `validar_leer_cadena` con reintentos — RF-TEC-03, §1.3.
 - [ ] F8.2 Sustituir lecturas directas de `main` por `validacion` (ninguna validación llama `exit`) — RF-TEC-03, §8.1.
-- [ ] F8.3 Verificación E2E rutas inválidas: opción 99, nivel 51, id duplicado, archivo ausente (programa sigue vivo) — RF-TEC-03, §13.
+- [ ] F8.3 Verificación E2E rutas inválidas: opción 99, nivel 101, id duplicado, archivo ausente (programa sigue vivo) — RF-TEC-03, §13.
 
 ## Fase F9 — Pruebas completas
 

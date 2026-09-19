@@ -39,16 +39,19 @@ Cada fase debe cumplir, antes de avanzar a la siguiente:
 2. La batería scriptada de la fase (stdin → stdout → `diff`) pasa completa.
 3. Las tareas de la fase quedan marcadas como hechas en `tasks.md`.
 
-## 4. Decisiones pendientes del docente
+## 4. Decisiones pendientes del docente — RESUELTAS (2026-09-19)
 
-Estas decisiones NO bloquean F0, pero deben resolverse antes del apply de F2
-(afectan constantes y, en dos casos, deltas de spec):
+El docente respondió: **libertad total de modelado** (niveles, tamaño de equipo
+y reglas a conveniencia del estudiante) y fórmula oficial NO exigida — se
+admite una fórmula simplificada documentada y validada con el nivel (D2 con
+variación determinista: `(base × nivel / 50) + nivel + 5/10 + (id × 7) % 16`).
+Valores adoptados:
 
-| # | Decisión | Estado actual (diseño) | Cambio si el docente confirma lo alternativo |
-|---|----------|------------------------|----------------------------------------------|
-| 1 | **Rango de niveles 1–50 vs 1–100** | `NIVEL_MAX = 50` (spec RF-EQP-05 rechaza el nivel 51) | Delta de spec (MODIFIED RF-EQP-05 + escenario) y `NIVEL_MAX` antes de F2 |
-| 2 | **Equipo de torneo 3 vs 6** | `TAM_EQUIPO_TORNEO = 3` (rango válido 1–6 con `MAX_EQUIPO = 6`) | Delta menor de spec + `TAM_EQUIPO_TORNEO` antes de F2 |
-| 3 | **Criterio adicional de desempate (D9)** | Enfrentamiento directo en grupos + id menor (cadena 5 criterios, RF-TRN-04) | Confirmar con el docente; documentar en `informe-tecnico.md` |
+| # | Decisión | Valor adoptado | Estado |
+|---|----------|----------------|--------|
+| 1 | **Rango de niveles 1–50 vs 1–100** | **1–100** (canónico): `NIVEL_MAX = 100`; delta de spec aplicado (rechaza niveles 0 y 101) | ✅ Resuelta |
+| 2 | **Equipo de torneo 3 vs 6** | **6** (equipo completo): `TAM_EQUIPO_TORNEO = 6`; la distinción desaparece | ✅ Resuelta |
+| 3 | **Criterio adicional de desempate (D9)** | Enfrentamiento directo en grupos + id menor (cadena de 5 criterios, RF-TRN-04) | ✅ Resuelta |
 
 ## 5. Criterio de aborto (día 12)
 

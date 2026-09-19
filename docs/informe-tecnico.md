@@ -26,6 +26,8 @@
 
 *(Las secciones 3 a 8 se completan en las fases F1–F10.)*
 
+*(Sección agregada en F2: "Fórmula de estadísticas de los ejemplares", decisión D2.)*
+
 ---
 
 ## 2. Arquitectura del sistema
@@ -151,6 +153,54 @@ flowchart TD
 *Se completa en F10* (tarea F10.1). Las decisiones quedan cerradas y justificadas
 en `openspec/changes/gran-torneo-pokemon/design.md` §3 para la defensa oral.
 
-**Decisiones pendientes del docente** (afectan a D7, D6 y D9; ver
-`docs/planificacion.md` §4): rango de niveles 1–50 vs 1–100, equipo de torneo 3 vs 6
-y confirmación del criterio adicional de desempate D9.
+**Decisiones del docente — resueltas (2026-09-19)**: el docente otorgó libertad
+total de modelado y no exige la fórmula oficial de estadísticas (se admite una
+fórmula simplificada documentada). Valores adoptados: niveles **1–100**, torneo
+con el **equipo completo** (hasta 6) y D9 = enfrentamiento directo + id menor.
+La fórmula de estadísticas (D2) se documenta en la sección siguiente.
+
+---
+
+## Fórmula de estadísticas de los ejemplares
+
+### Fórmula adoptada (decisión D2)
+
+Las estadísticas de cada ejemplar se derivan de la base de su especie, de su
+nivel y de un factor de variación determinista. Toda la aritmética es entera
+(división entera truncada de C):
+
+- **HP máximo**: `hp_max = (hp_base * nivel / 50) + nivel + 10 + variacion`
+- **Ataque, defensa y velocidad**: `stat = (stat_base * nivel / 50) + nivel + 5 + variacion`
+- **Factor de variación**: `variacion(ejemplar) = (id_ejemplar * 7) % 16` →
+  entero en [0, 15]. Es **un único valor por ejemplar**, aplicado a las 4
+  estadísticas.
+- `hp_actual = hp_max` al crear el ejemplar (y al iniciar cada combate).
+
+### Rationale
+
+El docente otorgó **libertad total de modelado**: la fórmula oficial NO se
+exige (IVs/EVs fuera de alcance) y se admite una fórmula simplificada que
+cumpla (a) dependencia de base + nivel, (b) variabilidad entre ejemplares de
+la misma especie y (c) documentación y validación con el nivel. El +10 para HP
+y el +5 para el resto siguen la forma canónica — el docente solo fijó el
+ejemplo del HP (`HP_BASE × nivel/50 + nivel + 10 + variación`). El factor
+`(id * 7) % 16` cubre la variabilidad pedida sin IVs/EVs; al derivarse del id
+único del ejemplar es CONTROLADO y 100 % reproducible (pruebas `diff`
+estables) — punto fuerte de la defensa oral.
+
+### Validación con el nivel (Bulbasaur: base 45/49/49/45)
+
+División entera truncada. `variacion` se muestra en sus cotas v=0 (inferior) y
+v=15 (superior); todo ejemplar real cae entre ambas.
+
+| Nivel | (45·nivel)/50 | hp_max (v=0) | hp_max (v=15) | (49·nivel)/50 | Ataque (v=0) | Ataque (v=15) |
+|-------|---------------|--------------|---------------|---------------|--------------|---------------|
+| 1     | 0             | 11           | 26            | 0             | 6            | 21            |
+| 12    | 10            | 32           | 47            | 11            | 28           | 43            |
+| 50    | 45            | 105          | 120           | 49            | 104          | 119           |
+| 100   | 90            | 200          | 215           | 98            | 203          | 218           |
+
+El crecimiento es coherente con el nivel: a nivel 50 el cociente del término de
+base vale exactamente la base de la especie y a nivel 100 la duplica; el
+término `+ nivel` asegura progresión también en niveles bajos (en nivel 1 el
+ejemplar parte de 11 HP / 6 de ataque más su variación).
