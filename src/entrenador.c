@@ -106,9 +106,8 @@ void entrenador_mostrar_todos(const RegistroEntrenadores *reg)
            reg->cantidad, MAX_ENTRENADORES);
     for (i = 0; i < reg->cantidad; i++) {
         const Entrenador *ent = &reg->entrenadores[i];
-        printf("id %3d  %-20s  G:%d E:%d P:%d  Puntos:%d  Equipo:%s\n",
+        printf("id %3d  %-20s  G:%d E:%d P:%d  Puntos:%d  Equipo:%d/%d\n",
                ent->id, ent->nombre, ent->victorias, ent->empates,
-               ent->derrotas, ent->puntos,
-               (ent->equipo != NULL) ? "sí" : "no");
+               ent->derrotas, ent->puntos, equipo_contar(ent), MAX_EQUIPO);
     }
 }

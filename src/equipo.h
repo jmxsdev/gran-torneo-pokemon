@@ -1,7 +1,7 @@
 /**
  * @file equipo.h
- * @brief Ejemplares y equipos: creación desde especie, validación y
- *        formación automática por backtracking (RF-EQP-01..05).
+ * @brief Ejemplares y equipos: creación desde especie, agregación,
+ *        validación, liberación y consulta (RF-EQP-01..05).
  * @author <Nombre del estudiante>
  * @date 2026-09-01
  */
@@ -16,7 +16,8 @@
 
 /* Declaración adelantada: equipo.h es autónomo y NO incluye entrenador.h
    (evita ciclo de cabeceras; entrenador.h incluye equipo.h). El struct
-   completo de Entrenador vive en entrenador.h. */
+   completo de Entrenador vive en entrenador.h con el tag "struct Entrenador"
+   para completar esta declaración. */
 typedef struct Entrenador Entrenador;
 
 /**
@@ -49,21 +50,58 @@ typedef struct {
 } RestriccionesEquipo;
 
 /**
- * @brief Crea un ejemplar nuevo a partir de una especie y un nivel.
+ * @brief Devuelve el siguiente id de ejemplar (único global y monótono).
  *
- * Deriva hp/ataque/defensa/velocidad con la fórmula D2
- * (stat = stat_base + nivel) y copia los tipos de la especie (RF-EQP-02).
+ * El contador vive en equipo.c; al recargar datos desde archivo se fija al
+ * máximo id visto con equipo_fijar_contador_id (diseño §5.2).
+ *
+ * @return Un id de ejemplar no usado antes en la sesión.
+ */
+int equipo_siguiente_id(void);
+
+/**
+ * @brief Fija el contador global de ids de ejemplar al valor indicado.
+ *
+ * Solo sube el contador: si id_maximo es menor o igual al valor actual, no
+ * hace nada. Se usa tras cargar data/entrenadores.txt para que los nuevos
+ * ejemplares no colisionen con los del archivo.
+ *
+ * @param id_maximo Máximo id de ejemplar visto en la carga.
+ */
+void equipo_fijar_contador_id(int id_maximo);
+
+/**
+ * @brief Crea un ejemplar nuevo a partir de una especie de la Pokédex.
+ *
+ * Valida que la especie exista (RF-EQP-01) y el nivel (RF-EQP-05). Deriva
+ * hp/ataque/defensa/velocidad con la fórmula D2 exacta:
+ *
+ *   variacion = (id_ejemplar * 7) % 16        (único valor, 4 stats)
+ *   hp_max    = (hp_base * nivel / 50) + nivel + 10 + variacion
+ *   stat      = (stat_base * nivel / 50) + nivel + 5 + variacion
+ *
+ * con división entera truncada de C, en ese orden, y hp_actual = hp_max.
+ * Copia nombre, tipos y stats derivadas: la especie NO se muta (RF-EQP-03).
  * El ejemplar se asigna con malloc: el llamador es dueño de la memoria.
  *
- * @param esp   Puntero a la especie base (no debe ser NULL).
- * @param nivel Nivel del ejemplar, en el rango NIVEL_MIN..NIVEL_MAX.
- * @param apodo Nombre/apodo del ejemplar (no debe ser NULL).
- * @param id    Identificador único global del ejemplar.
- * @return Puntero al ejemplar creado (hp_actual = hp_max); NULL si los
- *         parámetros son inválidos o falla la reserva de memoria.
+ * @param pd            Puntero a la Pokédex cargada (no debe ser NULL).
+ * @param numero_especie Número de la especie base, 1..POKEDEX_MAX.
+ * @param nombre        Nombre/apodo del ejemplar (no debe ser NULL).
+ * @param nivel         Nivel del ejemplar, en el rango NIVEL_MIN..NIVEL_MAX.
+ * @param id_ejemplar   Identificador único global del ejemplar (> 0).
+ * @return Puntero al ejemplar creado (hp_actual = hp_max); NULL si la
+ *         especie no existe, los parámetros son inválidos o falla malloc.
  */
-Ejemplar *equipo_crear_ejemplar(const Especie *esp, int nivel,
-                                const char *apodo, int id);
+Ejemplar *equipo_crear_ejemplar(const Pokedex *pd, int numero_especie,
+                                const char *nombre, int nivel, int id_ejemplar);
+
+/**
+ * @brief Cuenta los ejemplares del equipo de un entrenador.
+ *
+ * @param ent Puntero al entrenador (no debe ser NULL).
+ * @return Cantidad de ejemplares de la lista enlazada; 0 si es NULL.
+ */
+int equipo_contar(const Entrenador *ent);
 
 /**
  * @brief Agrega un ejemplar al equipo del entrenador respetando MAX_EQUIPO.
@@ -78,17 +116,40 @@ Ejemplar *equipo_crear_ejemplar(const Especie *esp, int nivel,
 bool equipo_agregar_ejemplar(Entrenador *ent, Ejemplar *nuevo);
 
 /**
- * @brief Valida que el equipo del entrenador cumpla las reglas del torneo.
+ * @brief Valida que el equipo del entrenador cumpla las reglas (RF-EQP-05).
  *
- * Comprueba el tamaño requerido (1..MAX_EQUIPO; el torneo usa
- * TAM_EQUIPO_TORNEO), especies existentes, niveles y tipos válidos
- * (RF-EQP-05).
+ * Comprueba el tamaño (1..tamano_requerido; el torneo usa el equipo
+ * completo, MAX_EQUIPO), que cada especie exista en la Pokédex (RF-EQP-01),
+ * los niveles (1..100) y los tipos copiados en el ejemplar.
  *
- * @param ent             Puntero al entrenador (no debe ser NULL).
- * @param tamano_requerido Tamaño que debe cumplir el equipo (1..MAX_EQUIPO).
+ * @param pd               Puntero a la Pokédex cargada (no debe ser NULL).
+ * @param ent              Puntero al entrenador (no debe ser NULL).
+ * @param tamano_requerido Tamaño máximo admitido (1..MAX_EQUIPO).
  * @return true si el equipo es válido; false en caso contrario.
  */
-bool equipo_validar(const Entrenador *ent, int tamano_requerido);
+bool equipo_validar(const Pokedex *pd, const Entrenador *ent,
+                    int tamano_requerido);
+
+/**
+ * @brief Libera todos los ejemplares del equipo de un entrenador.
+ *
+ * Recorre la lista enlazada liberando cada nodo con free y deja el equipo
+ * en NULL. No libera al entrenador ni su nombre.
+ *
+ * @param ent Puntero al entrenador cuyo equipo se libera (no debe ser NULL).
+ */
+void equipo_liberar(Entrenador *ent);
+
+/**
+ * @brief Muestra por consola el equipo completo de un entrenador.
+ *
+ * Por cada ejemplar: id, apodo, especie, nivel, HP actual/máximo, stats y
+ * tipos. Solo lectura: no modifica ningún dato (RF-EQP-03).
+ *
+ * @param pd  Puntero a la Pokédex cargada (no debe ser NULL).
+ * @param ent Puntero al entrenador (no debe ser NULL).
+ */
+void equipo_mostrar(const Pokedex *pd, const Entrenador *ent);
 
 /**
  * @brief Forma un equipo automáticamente con recursividad + backtracking.
