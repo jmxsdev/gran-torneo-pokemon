@@ -27,7 +27,7 @@
 | F6 | Torneo: grupos + clasificación (32 entrenadores, 8 grupos, 1–48) | 2026-09-07 → 2026-09-09 | ✅ Hecho |
 | F7 | Eliminatorias (bracket 49–64, tercer lugar, campeón) | 2026-09-21 | ✅ Hecho |
 | F8 | Archivos y resultados (carga/validación de los 4 `.txt`) | 2026-09-21 | ✅ Hecho |
-| F9 | Validación integral de entradas (RF-TEC-03) | 2026-09-12 → 2026-09-13 | ⏳ Pendiente |
+| F9 | Validación integral de entradas (RF-TEC-03) | 2026-09-21 | ✅ Hecho |
 | F10 | Pruebas (batería scriptada completa) + documentación final | 2026-09-13 | ⏳ Pendiente |
 | F11 | Entrega: empaquetado, checklist y cierre | 2026-09-14 | ⏳ Pendiente |
 
