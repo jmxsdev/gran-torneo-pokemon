@@ -23,7 +23,7 @@
 | F2 | Tipos y efectividad (matriz 18×18, multiplicador) | 2026-09-02 → 2026-09-03 | ✅ Hecho |
 | F3 | Entrenadores y ejemplares (separación especie/ejemplar, `entrenadores.txt`) | 2026-09-19 | ✅ Hecho |
 | F4 | Combate (fórmula de daño D1, orden D3, empate D4/D5) | 2026-09-21 | ✅ Hecho |
-| F5 | Backtracking de formación de equipos (podas §4.3) | 2026-09-06 → 2026-09-07 | ⏳ Pendiente |
+| F5 | Backtracking de formación de equipos (podas §4.3) | 2026-09-21 | ✅ Hecho |
 | F6 | Torneo: grupos + clasificación (32 entrenadores, 8 grupos, 1–48) | 2026-09-07 → 2026-09-09 | ⏳ Pendiente |
 | F7 | Eliminatorias (bracket 49–64, tercer lugar, campeón) | 2026-09-09 → 2026-09-10 | ⏳ Pendiente |
 | F8 | Archivos y resultados (carga/validación de los 4 `.txt`) | 2026-09-10 → 2026-09-12 | ⏳ Pendiente |
