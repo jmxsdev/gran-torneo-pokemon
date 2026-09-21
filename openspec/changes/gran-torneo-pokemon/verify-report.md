@@ -1112,7 +1112,46 @@ El lote F8 cumple RF-TEC-03 por completo: las 3 tareas F8 están completas, el b
 
 ---
 
-## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5 + F6 + F7 + F8)
+## Sección F9 (Día 8) — Pruebas completas versionadas
+
+### Completeness
+
+| Tarea | Estado | Evidencia |
+|---|---|---|
+| F9.1 `tests/run_tests.sh` versionado | ✅ | Ejecutor en el repo: gate de build + 20 casos de menú (stdin→diff byte a byte) + 2 probes C + resumen PASS/FAIL con exit code |
+| F9.2 `tests/casos/*` cubriendo RF-PRB-01 | ✅ | 20 casos `.in`/`.esperado` UTF-8 + `tests/probes/probe_efectividad.c` + `tests/probes/probe_torneo_completo.c` |
+| F9.3 Integración 32→48→clasificación→49–64→campeón | ✅ | `probe_torneo_completo` 26/26 (el menú no permite 64 combates E2E; documentado en F9.3) |
+| F9.4 Gate: batería verde, cero warnings | ✅ | `bash tests/run_tests.sh` → **23 PASS, 0 FALLA**, exit 0; `make clean && make` cero warnings |
+
+### Evidencia ejecutada (verificación formal, 2026-09-21)
+
+| Suite | Comando | Resultado |
+|---|---|---|
+| Build | `make clean && make` | ✅ exit 0, cero warnings, `build_output_hash 22c555a6…` (byte-idéntico al de F8) |
+| Gate versionado | `bash tests/run_tests.sh` | ✅ **23 PASS / 0 FALLA**, exit 0, `test_output_hash da4b87e6…` |
+| Probe integración | `tests/probes/probe_torneo_completo` | ✅ 26/26, `evidence_revision bd3e914e…` |
+| Probe efectividad | `tests/probes/probe_efectividad` | ✅ 21/21 |
+| Datos | sha256 de los 5 `data/*.txt` | ✅ intactos antes/después (sandbox aislado por caso) |
+
+### Cobertura de la lista mínima del PDF §6
+
+**16/16 puntos sin huecos**: Pokédex (carga, búsqueda existente/inexistente), registro de entrenadores, creación de ejemplares, formación y validación de equipos, combates (victoria/empate/anti-empate), efectividad, resultados válidos/inválidos, clasificación, avance a eliminatoria, eliminación y campeón (probe 26/26), backtracking factible/sin solución.
+
+### Hallazgos (F9)
+
+**CRITICAL**: Ninguno. **WARNING**: Ninguno.
+**SUGGESTION**:
+1. Los multiplicadores distintos de ×0 se ejercitan en el probe de efectividad, no en un caso de menú (cobertura suficiente, documentado).
+2. Los puntos 13–15 de la lista del PDF (avance/eliminación/campeón) viven en el probe de integración porque el menú no permite completar 64 combates E2E (documentado en F9.3).
+
+### Veredicto F9
+
+**PASS**
+El lote F9 cumple RF-PRB-01: la batería completa está versionada en el repositorio (`tests/`), el gate es verde (23 PASS / 0 FALLA, exit 0), el build no tiene warnings y es byte-idéntico al de F8 (reproducibilidad), la integración completa del torneo (32→48→clasificación→49–64→campeón) pasa 26/26, la cobertura de la lista mínima del PDF §6 es total (16/16) y los datos quedan intactos tras la ejecución. Sin CRITICAL ni WARNING; dos SUGGESTION documentadas.
+
+---
+
+## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5 + F6 + F7 + F8 + F9)
 
 **PASS WITH WARNINGS por lote; FAIL del envelope por evidencia incompleta del cambio en curso**
-Los lotes F0, F1, F2, F3, F4, F5, F6, F7 y F8 pasan (F3–F8 sin warnings: 0 CRITICAL, 0 blockers; F8 cierra además el WARNING F1 y la SUGGESTION F2 acumulados). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F9–F11 (pruebas completas, documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1) y DOC-04 (ortografía del Doxyfile → F10.3). Conteos autoritativos contra los 11 specs del cambio (42 requirements / 70 scenarios): **40/42 requirements y 68/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-TEC-03, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05, RF-TRN-01..06, RF-ELM-01..05, RF-RES-01..04 y RF-CLS-01 completos; DOC-03/DOC-04 parciales). RF-TEC-03 queda verificado por completo con la batería E2E F8 (15/15) en la verificación formal (2026-09-21, intento F8-verificacion). Siguiente lote: F9 (pruebas completas con `tests/run_tests.sh` + casos versionados).
+Los lotes F0, F1, F2, F3, F4, F5, F6, F7, F8 y F9 pasan (F3–F9 sin warnings: 0 CRITICAL, 0 blockers; F8 cerró además el WARNING F1 y la SUGGESTION F2 acumulados). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F10–F11 (documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1) y DOC-04 (ortografía del Doxyfile → F10.3). Conteos autoritativos contra los 11 specs del cambio (42 requirements / 70 scenarios): **40/42 requirements y 68/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-TEC-03, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05, RF-TRN-01..06, RF-ELM-01..05, RF-RES-01..04 y RF-CLS-01 completos; DOC-03/DOC-04 parciales). RF-TEC-03 queda verificado por completo con la batería E2E F8 (15/15) y RF-PRB-01 con el gate versionado F9 (23 PASS / 0 FALLA) en las verificaciones formales (2026-09-21). Siguiente lote: F10 (documentación final: informe técnico D1–D10, planificación 14/14, render Doxygen).
