@@ -40,13 +40,19 @@ typedef struct Ejemplar {
 
 /**
  * @brief Restricciones de la formación automática de equipos (RF-EQP-04).
+ *
+ * Extiende el diseño §2 con la lista de especies permitidas (restricción de
+ * integrantes pedida en el contrato F4.1): si cantidad_permitidas es 0, todas
+ * las especies de la Pokédex son candidatas.
  */
 typedef struct {
     int  cantidad;               /* n buscado, 1..MAX_EQUIPO */
-    int  nivel_total_max;
-    int  min_tipos;              /* tipos distintos mínimos */
-    int  ataque_total_min;       /* opcional (stats objetivo); 0 = sin restricción */
+    int  nivel_total_max;        /* suma de niveles de los ejemplares */
+    int  min_tipos;              /* tipos distintos mínimos, 1..CANT_TIPOS */
+    int  ataque_total_min;       /* stats objetivo; 0 = sin restricción */
     bool permitir_repetidas;     /* especies repetidas dentro del equipo */
+    int  especies_permitidas[POKEDEX_MAX]; /* números de especie admitidos */
+    int  cantidad_permitidas;    /* 0 = todas las especies permitidas */
 } RestriccionesEquipo;
 
 /**
@@ -137,6 +143,19 @@ bool equipo_validar(const Pokedex *pd, const Entrenador *ent,
 void equipo_liberar(Entrenador *ent);
 
 /**
+ * @brief Reemplaza el equipo de un entrenador por una lista nueva.
+ *
+ * Libera el equipo anterior (si existe) y asigna la lista indicada como
+ * equipo del entrenador. La lista pasa a ser propiedad del entrenador y se
+ * liberará con equipo_liberar. Encapsula el TDA: solo este módulo toca el
+ * campo siguiente de los ejemplares.
+ *
+ * @param ent    Puntero al entrenador (no debe ser NULL).
+ * @param equipo Cabeza de la lista a asignar (puede ser NULL para vaciar).
+ */
+void equipo_asignar(Entrenador *ent, Ejemplar *equipo);
+
+/**
  * @brief Muestra por consola el equipo completo de un entrenador.
  *
  * Solo lectura: no modifica ningún dato (RF-EQP-03).
@@ -150,8 +169,17 @@ void equipo_mostrar(const Pokedex *pd, const Entrenador *ent);
  * @brief Forma un equipo automáticamente con recursividad + backtracking.
  *
  * Explora combinaciones de especies hasta cumplir TODAS las restricciones
- * de *r (RF-EQP-04). La lista resultante se crea con malloc y es propiedad
- * del llamador; ante "no existe solución" devuelve false sin equipo parcial.
+ * de *r (RF-EQP-04). Recursión real sobre el índice de especie (diseño
+ * §4): en cada nodo decide cuántas copias de la especie actual incluir
+ * (0..restantes, según permitir_repetidas) y retrocede ante parciales que
+ * ya no pueden alcanzar la solución. Podas del diseño §4.3: cantidad
+ * (restantes > especies disponibles), cota inferior de nivel (nivel_acum +
+ * restantes*NIVEL_MIN > nivel_total_max), cota de tipos con sufijo
+ * precomputado y cota por ejemplares restantes (un ejemplar aporta a lo
+ * sumo 2 tipos). Salida temprana en el primer éxito. La lista resultante
+ * se crea con malloc y es propiedad del llamador; ante "no existe
+ * solución" devuelve false y deja *salida en NULL (spec RF-EQP-04: no se
+ * devuelve un equipo inválido).
  *
  * @param pd       Puntero a la Pokédex cargada (no debe ser NULL).
  * @param r        Puntero a las restricciones (no debe ser NULL).
