@@ -1,0 +1,91 @@
+Entrenadores cargados: 32, líneas rechazadas: 0.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Consultar enfrentamientos ---
+1. Combate amistoso
+2. Calendario del torneo (combates 1-48)
+0. Volver al menú principal
+Seleccione una opción: 
+--- Combate amistoso ---
+1. Fase de grupos (admite empate)
+2. Eliminatoria (desempate forzoso)
+0. Volver al menú principal
+Seleccione una opción: Id del entrenador local: Id del entrenador visitante: === Combate: Jessie vs Gary (fase de grupos) ===
+--- Selección de Pokémon activo (local: Jessie) ---
+1. Gas (nivel 16, HP 49/49)
+2. Mente (nivel 28, HP 59/59)
+Seleccione posición (1-2): --- Selección de Pokémon activo (visita: Gary) ---
+1. Splash (nivel 8, HP 21/21)
+2. Gordito (nivel 50, HP 229/229)
+3. Eevee (nivel 35, HP 85/85)
+4. Rayo (nivel 40, HP 89/89)
+Seleccione posición (1-4): Turno 1: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 1: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 2: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 2: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 3: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 3: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 4: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 4: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 5: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 5: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 6: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 6: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 7: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 7: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 8: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 8: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 9: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 9: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 10: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 10: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 11: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 11: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 12: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 12: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 13: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 13: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 14: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 14: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 15: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 15: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 16: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 16: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 17: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 17: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 18: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 18: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 19: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 19: Gas ataca a Eevee: sin efecto (HP 85/85).
+Turno 20: Eevee ataca a Gas: sin efecto (HP 49/49).
+Turno 20: Gas ataca a Eevee: sin efecto (HP 85/85).
+Empate tras 20 turnos (fase de grupos).
+Resultado: empate (1 punto para cada entrenador).
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.

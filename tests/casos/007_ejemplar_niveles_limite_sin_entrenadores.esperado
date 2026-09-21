@@ -1,0 +1,55 @@
+Error: no se pudo abrir el archivo de entrenadores: data/entrenadores.txt
+Aviso: no se cargaron entrenadores desde el archivo; use la opción 2 para registrarlos.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Ingrese el id del entrenador: Ingrese el nombre del entrenador: Entrenador registrado: id 1, Rojo.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Crear equipo ---
+1. Formación manual
+2. Formación automática (backtracking)
+0. Volver al menú principal
+Seleccione una opción: Ingrese el id del entrenador: Ingrese el número de especie (0 para terminar): Ingrese el nivel del ejemplar (1-100): Nombre/apodo (Enter = nombre de la especie): Ejemplar #1 Bulbasaur (especie Bulbasaur, nivel 1) agregado; equipo 1/6.
+Ingrese el número de especie (0 para terminar): Ingrese el nivel del ejemplar (1-100): Nombre/apodo (Enter = nombre de la especie): Ejemplar #2 Charmander (especie Charmander, nivel 100) agregado; equipo 2/6.
+Ingrese el número de especie (0 para terminar): El equipo es válido (tamaño 2, especies y niveles correctos).
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.
+Entrenadores guardados en data/entrenadores.txt.

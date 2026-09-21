@@ -1,0 +1,85 @@
+Entrenadores cargados: 32, líneas rechazadas: 0.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Consultar enfrentamientos ---
+1. Combate amistoso
+2. Calendario del torneo (combates 1-48)
+0. Volver al menú principal
+Seleccione una opción: Torneo armado: 8 grupos de 4 entrenadores (combates 1-48).
+=== Enfrentamientos de la fase de grupos (combates 1-48) ===
+1;A;1;Ash;2;Misty
+2;A;1;Ash;3;Brock
+3;A;1;Ash;4;Gary
+4;A;2;Misty;3;Brock
+5;A;2;Misty;4;Gary
+6;A;3;Brock;4;Gary
+7;B;5;Jessie;6;James
+8;B;5;Jessie;7;Tracey
+9;B;5;Jessie;8;May
+10;B;6;James;7;Tracey
+11;B;6;James;8;May
+12;B;7;Tracey;8;May
+13;C;9;Max;10;Dawn
+14;C;9;Max;11;Paul
+15;C;9;Max;12;Barry
+16;C;10;Dawn;11;Paul
+17;C;10;Dawn;12;Barry
+18;C;11;Paul;12;Barry
+19;D;13;Cilan;14;Chili
+20;D;13;Cilan;15;Cress
+21;D;13;Cilan;16;Serena
+22;D;14;Chili;15;Cress
+23;D;14;Chili;16;Serena
+24;D;15;Cress;16;Serena
+25;E;17;Clemont;18;Bonnie
+26;E;17;Clemont;19;Tierno
+27;E;17;Clemont;20;Trevor
+28;E;18;Bonnie;19;Tierno
+29;E;18;Bonnie;20;Trevor
+30;E;19;Tierno;20;Trevor
+31;F;21;Shauna;22;Korrina
+32;F;21;Shauna;23;Ramos
+33;F;21;Shauna;24;Valerie
+34;F;22;Korrina;23;Ramos
+35;F;22;Korrina;24;Valerie
+36;F;23;Ramos;24;Valerie
+37;G;25;Olympia;26;Wulfric
+38;G;25;Olympia;27;Lillie
+39;G;25;Olympia;28;Kiawe
+40;G;26;Wulfric;27;Lillie
+41;G;26;Wulfric;28;Kiawe
+42;G;27;Lillie;28;Kiawe
+43;H;29;Mallow;30;Lana
+44;H;29;Mallow;31;Sophocles
+45;H;29;Mallow;32;Gladion
+46;H;30;Lana;31;Sophocles
+47;H;30;Lana;32;Gladion
+48;H;31;Sophocles;32;Gladion
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.

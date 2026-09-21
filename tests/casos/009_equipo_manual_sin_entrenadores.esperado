@@ -1,0 +1,77 @@
+Error: no se pudo abrir el archivo de entrenadores: data/entrenadores.txt
+Aviso: no se cargaron entrenadores desde el archivo; use la opción 2 para registrarlos.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Ingrese el id del entrenador: Ingrese el nombre del entrenador: Entrenador registrado: id 1, Rojo.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Crear equipo ---
+1. Formación manual
+2. Formación automática (backtracking)
+0. Volver al menú principal
+Seleccione una opción: Ingrese el id del entrenador: Ingrese el número de especie (0 para terminar): Ingrese el nivel del ejemplar (1-100): Nombre/apodo (Enter = nombre de la especie): Ejemplar #1 Bulbasaur (especie Bulbasaur, nivel 12) agregado; equipo 1/6.
+Ingrese el número de especie (0 para terminar): Ingrese el nivel del ejemplar (1-100): Nombre/apodo (Enter = nombre de la especie): Ejemplar #2 Charmander (especie Charmander, nivel 25) agregado; equipo 2/6.
+Ingrese el número de especie (0 para terminar): Ingrese el nivel del ejemplar (1-100): Nombre/apodo (Enter = nombre de la especie): Ejemplar #3 Squirtle (especie Squirtle, nivel 10) agregado; equipo 3/6.
+Ingrese el número de especie (0 para terminar): El equipo es válido (tamaño 3, especies y niveles correctos).
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Ingrese el id del entrenador: --- Equipo de Rojo (id 1): 3 ejemplar(es) ---
+  #3 Squirtle  (especie #7 Squirtle, nivel 10)
+      HP 33/33  Ataque 29  Defensa 33  Velocidad 28  Agua/-
+  #2 Charmander  (especie #4 Charmander, nivel 25)
+      HP 68/68  Ataque 70  Defensa 65  Velocidad 76  Fuego/-
+  #1 Bulbasaur  (especie #1 Bulbasaur, nivel 12)
+      HP 39/39  Ataque 35  Defensa 35  Velocidad 34  Planta/Veneno
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.
+Entrenadores guardados en data/entrenadores.txt.

@@ -1,0 +1,42 @@
+Entrenadores cargados: 32, líneas rechazadas: 0.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Cargar resultados ---
+1. Por teclado
+2. Desde archivo (data/resultados.txt)
+0. Volver al menú principal
+Seleccione una opción: Torneo armado: 8 grupos de 4 entrenadores (combates 1-48).
+--- Cargar resultados por teclado ---
+Número de combate (1-64, 0 para terminar): El combate 49 no está disponible aún: sus fuentes (clasificados o G#/P#) no están resueltas.
+Número de combate (1-64, 0 para terminar): Combate 1: Ash (id 1) vs Misty (id 2)
+Resultado (1=V1, 2=V2, 3=Empate, 0=terminar): KOs del entrenador 1 (>=0): KOs del entrenador 2 (>=0): Resultado del combate 1 (grupo A) aplicado: victoria.
+Número de combate (1-64, 0 para terminar): Resultados cargados por teclado: 1 aplicados.
+Combates pendientes: 47 de 48 (fase de grupos), 16 de 16 (eliminatoria).
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.

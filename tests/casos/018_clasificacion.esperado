@@ -1,0 +1,74 @@
+Entrenadores cargados: 32, líneas rechazadas: 0.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Consultar clasificación ---
+Torneo armado: 8 grupos de 4 entrenadores (combates 1-48).
+[GRUPO A]
+1;1;Ash;0;0;0;0;0
+2;2;Misty;0;0;0;0;0
+3;3;Brock;0;0;0;0;0
+4;4;Gary;0;0;0;0;0
+[GRUPO B]
+1;5;Jessie;0;0;0;0;0
+2;6;James;0;0;0;0;0
+3;7;Tracey;0;0;0;0;0
+4;8;May;0;0;0;0;0
+[GRUPO C]
+1;9;Max;0;0;0;0;0
+2;10;Dawn;0;0;0;0;0
+3;11;Paul;0;0;0;0;0
+4;12;Barry;0;0;0;0;0
+[GRUPO D]
+1;13;Cilan;0;0;0;0;0
+2;14;Chili;0;0;0;0;0
+3;15;Cress;0;0;0;0;0
+4;16;Serena;0;0;0;0;0
+[GRUPO E]
+1;17;Clemont;0;0;0;0;0
+2;18;Bonnie;0;0;0;0;0
+3;19;Tierno;0;0;0;0;0
+4;20;Trevor;0;0;0;0;0
+[GRUPO F]
+1;21;Shauna;0;0;0;0;0
+2;22;Korrina;0;0;0;0;0
+3;23;Ramos;0;0;0;0;0
+4;24;Valerie;0;0;0;0;0
+[GRUPO G]
+1;25;Olympia;0;0;0;0;0
+2;26;Wulfric;0;0;0;0;0
+3;27;Lillie;0;0;0;0;0
+4;28;Kiawe;0;0;0;0;0
+[GRUPO H]
+1;29;Mallow;0;0;0;0;0
+2;30;Lana;0;0;0;0;0
+3;31;Sophocles;0;0;0;0;0
+4;32;Gladion;0;0;0;0;0
+Clasificación guardada en data/clasificacion.txt.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.

@@ -1,0 +1,58 @@
+Entrenadores cargados: 32, líneas rechazadas: 0.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Cargar resultados ---
+1. Por teclado
+2. Desde archivo (data/resultados.txt)
+0. Volver al menú principal
+Seleccione una opción: Torneo armado: 8 grupos de 4 entrenadores (combates 1-48).
+Resultado del combate 1 (grupo A) aplicado: victoria.
+Resultado del combate 2 (grupo A) aplicado: victoria.
+Resultado del combate 3 (grupo A) aplicado: empate.
+Resultado del combate 4 (grupo A) aplicado: victoria.
+Resultado del combate 5 (grupo A) aplicado: victoria.
+Resultado del combate 6 (grupo A) aplicado: victoria.
+Resultado del combate 7 (grupo B) aplicado: victoria.
+Resultado del combate 8 (grupo B) aplicado: empate.
+Resultado del combate 9 (grupo B) aplicado: victoria.
+Resultado del combate 10 (grupo B) aplicado: victoria.
+Resultado del combate 11 (grupo B) aplicado: victoria.
+Resultado del combate 12 (grupo B) aplicado: victoria.
+Resultado del combate 13 (grupo C) aplicado: victoria.
+Resultado del combate 14 (grupo C) aplicado: empate.
+Resultado del combate 15 (grupo C) aplicado: victoria.
+Resultado del combate 16 (grupo C) aplicado: victoria.
+Resultado del combate 17 (grupo C) aplicado: victoria.
+Resultado del combate 18 (grupo C) aplicado: victoria.
+Resultado del combate 19 (grupo D) aplicado: victoria.
+Resultado del combate 20 (grupo D) aplicado: victoria.
+Resultados cargados: 20 aplicados, 0 rechazadas.
+Combates pendientes: 28 de 48 (fase de grupos), 16 de 16 (eliminatoria).
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.

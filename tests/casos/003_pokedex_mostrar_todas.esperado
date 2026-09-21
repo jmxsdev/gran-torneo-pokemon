@@ -1,0 +1,197 @@
+Entrenadores cargados: 32, líneas rechazadas: 0.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Consultar Pokédex ---
+1. Mostrar todas las especies
+2. Buscar por número
+3. Buscar por nombre
+4. Consultar ficha completa
+0. Volver al menú principal
+Seleccione una opción: 
+--- Pokédex (150 especies) ---
+001 Bulbasaur  Planta     Veneno     HP=45 ATQ=49 DEF=49 VEL=45
+002 Ivysaur    Planta     Veneno     HP=60 ATQ=62 DEF=63 VEL=60
+003 Venusaur   Planta     Veneno     HP=80 ATQ=82 DEF=83 VEL=80
+004 Charmander Fuego      -          HP=39 ATQ=52 DEF=43 VEL=65
+005 Charmeleon Fuego      -          HP=58 ATQ=64 DEF=58 VEL=80
+006 Charizard  Fuego      Volador    HP=78 ATQ=84 DEF=78 VEL=100
+007 Squirtle   Agua       -          HP=44 ATQ=48 DEF=65 VEL=43
+008 Wartortle  Agua       -          HP=59 ATQ=63 DEF=80 VEL=58
+009 Blastoise  Agua       -          HP=79 ATQ=83 DEF=100 VEL=78
+010 Caterpie   Bicho      -          HP=45 ATQ=30 DEF=35 VEL=45
+011 Metapod    Bicho      -          HP=50 ATQ=20 DEF=55 VEL=30
+012 Butterfree Bicho      Volador    HP=60 ATQ=45 DEF=50 VEL=70
+013 Weedle     Bicho      Veneno     HP=40 ATQ=35 DEF=30 VEL=50
+014 Kakuna     Bicho      Veneno     HP=45 ATQ=25 DEF=50 VEL=35
+015 Beedrill   Bicho      Veneno     HP=65 ATQ=90 DEF=40 VEL=75
+016 Pidgey     Normal     Volador    HP=40 ATQ=45 DEF=40 VEL=56
+017 Pidgeotto  Normal     Volador    HP=63 ATQ=60 DEF=55 VEL=71
+018 Pidgeot    Normal     Volador    HP=83 ATQ=80 DEF=75 VEL=101
+019 Rattata    Normal     -          HP=30 ATQ=56 DEF=35 VEL=72
+020 Raticate   Normal     -          HP=55 ATQ=81 DEF=60 VEL=97
+021 Spearow    Normal     Volador    HP=40 ATQ=60 DEF=30 VEL=70
+022 Fearow     Normal     Volador    HP=65 ATQ=90 DEF=65 VEL=100
+023 Ekans      Veneno     -          HP=35 ATQ=60 DEF=44 VEL=55
+024 Arbok      Veneno     -          HP=60 ATQ=95 DEF=69 VEL=80
+025 Pikachu    Electrico  -          HP=35 ATQ=55 DEF=40 VEL=90
+026 Raichu     Electrico  -          HP=60 ATQ=90 DEF=55 VEL=110
+027 Sandshrew  Tierra     -          HP=50 ATQ=75 DEF=85 VEL=40
+028 Sandslash  Tierra     -          HP=75 ATQ=100 DEF=110 VEL=65
+029 Nidoran♀ Veneno     -          HP=55 ATQ=47 DEF=52 VEL=41
+030 Nidorina   Veneno     -          HP=70 ATQ=62 DEF=67 VEL=56
+031 Nidoqueen  Veneno     Tierra     HP=90 ATQ=92 DEF=87 VEL=76
+032 Nidoran♂ Veneno     -          HP=46 ATQ=57 DEF=40 VEL=50
+033 Nidorino   Veneno     -          HP=61 ATQ=72 DEF=57 VEL=65
+034 Nidoking   Veneno     Tierra     HP=81 ATQ=102 DEF=77 VEL=85
+035 Clefairy   Hada       -          HP=70 ATQ=45 DEF=48 VEL=35
+036 Clefable   Hada       -          HP=95 ATQ=70 DEF=73 VEL=60
+037 Vulpix     Fuego      -          HP=38 ATQ=41 DEF=40 VEL=65
+038 Ninetales  Fuego      -          HP=73 ATQ=76 DEF=75 VEL=100
+039 Jigglypuff Normal     Hada       HP=115 ATQ=45 DEF=20 VEL=20
+040 Wigglytuff Normal     Hada       HP=140 ATQ=70 DEF=45 VEL=45
+041 Zubat      Veneno     Volador    HP=40 ATQ=45 DEF=35 VEL=55
+042 Golbat     Veneno     Volador    HP=75 ATQ=80 DEF=70 VEL=90
+043 Oddish     Planta     Veneno     HP=45 ATQ=50 DEF=55 VEL=30
+044 Gloom      Planta     Veneno     HP=60 ATQ=65 DEF=70 VEL=40
+045 Vileplume  Planta     Veneno     HP=75 ATQ=80 DEF=85 VEL=50
+046 Paras      Bicho      Planta     HP=35 ATQ=70 DEF=55 VEL=25
+047 Parasect   Bicho      Planta     HP=60 ATQ=95 DEF=80 VEL=30
+048 Venonat    Bicho      Veneno     HP=60 ATQ=55 DEF=50 VEL=45
+049 Venomoth   Bicho      Veneno     HP=70 ATQ=65 DEF=60 VEL=90
+050 Diglett    Tierra     -          HP=10 ATQ=55 DEF=25 VEL=95
+051 Dugtrio    Tierra     -          HP=35 ATQ=100 DEF=50 VEL=120
+052 Meowth     Normal     -          HP=40 ATQ=45 DEF=35 VEL=90
+053 Persian    Normal     -          HP=65 ATQ=70 DEF=60 VEL=115
+054 Psyduck    Agua       -          HP=50 ATQ=52 DEF=48 VEL=55
+055 Golduck    Agua       -          HP=80 ATQ=82 DEF=78 VEL=85
+056 Mankey     Lucha      -          HP=40 ATQ=80 DEF=35 VEL=70
+057 Primeape   Lucha      -          HP=65 ATQ=105 DEF=60 VEL=95
+058 Growlithe  Fuego      -          HP=55 ATQ=70 DEF=45 VEL=60
+059 Arcanine   Fuego      -          HP=90 ATQ=110 DEF=80 VEL=95
+060 Poliwag    Agua       -          HP=40 ATQ=50 DEF=40 VEL=90
+061 Poliwhirl  Agua       -          HP=65 ATQ=65 DEF=65 VEL=90
+062 Poliwrath  Agua       Lucha      HP=90 ATQ=95 DEF=95 VEL=70
+063 Abra       Psiquico   -          HP=25 ATQ=20 DEF=15 VEL=90
+064 Kadabra    Psiquico   -          HP=40 ATQ=35 DEF=30 VEL=105
+065 Alakazam   Psiquico   -          HP=55 ATQ=50 DEF=45 VEL=120
+066 Machop     Lucha      -          HP=70 ATQ=80 DEF=50 VEL=35
+067 Machoke    Lucha      -          HP=80 ATQ=100 DEF=70 VEL=45
+068 Machamp    Lucha      -          HP=90 ATQ=130 DEF=80 VEL=55
+069 Bellsprout Planta     Veneno     HP=50 ATQ=75 DEF=35 VEL=40
+070 Weepinbell Planta     Veneno     HP=65 ATQ=90 DEF=50 VEL=55
+071 Victreebel Planta     Veneno     HP=80 ATQ=105 DEF=65 VEL=70
+072 Tentacool  Agua       Veneno     HP=40 ATQ=40 DEF=35 VEL=70
+073 Tentacruel Agua       Veneno     HP=80 ATQ=70 DEF=65 VEL=100
+074 Geodude    Roca       Tierra     HP=40 ATQ=80 DEF=100 VEL=20
+075 Graveler   Roca       Tierra     HP=55 ATQ=95 DEF=115 VEL=35
+076 Golem      Roca       Tierra     HP=80 ATQ=120 DEF=130 VEL=45
+077 Ponyta     Fuego      -          HP=50 ATQ=85 DEF=55 VEL=90
+078 Rapidash   Fuego      -          HP=65 ATQ=100 DEF=70 VEL=105
+079 Slowpoke   Agua       Psiquico   HP=90 ATQ=65 DEF=65 VEL=15
+080 Slowbro    Agua       Psiquico   HP=95 ATQ=75 DEF=110 VEL=30
+081 Magnemite  Electrico  Acero      HP=25 ATQ=35 DEF=70 VEL=45
+082 Magneton   Electrico  Acero      HP=50 ATQ=60 DEF=95 VEL=70
+083 Farfetch'd Normal     Volador    HP=52 ATQ=90 DEF=55 VEL=60
+084 Doduo      Normal     Volador    HP=35 ATQ=85 DEF=45 VEL=75
+085 Dodrio     Normal     Volador    HP=60 ATQ=110 DEF=70 VEL=110
+086 Seel       Agua       -          HP=65 ATQ=45 DEF=55 VEL=45
+087 Dewgong    Agua       Hielo      HP=90 ATQ=70 DEF=80 VEL=70
+088 Grimer     Veneno     -          HP=80 ATQ=80 DEF=50 VEL=25
+089 Muk        Veneno     -          HP=105 ATQ=105 DEF=75 VEL=50
+090 Shellder   Agua       -          HP=30 ATQ=65 DEF=100 VEL=40
+091 Cloyster   Agua       Hielo      HP=50 ATQ=95 DEF=180 VEL=70
+092 Gastly     Fantasma   Veneno     HP=30 ATQ=35 DEF=30 VEL=80
+093 Haunter    Fantasma   Veneno     HP=45 ATQ=50 DEF=45 VEL=95
+094 Gengar     Fantasma   Veneno     HP=60 ATQ=65 DEF=60 VEL=110
+095 Onix       Roca       Tierra     HP=35 ATQ=45 DEF=160 VEL=70
+096 Drowzee    Psiquico   -          HP=60 ATQ=48 DEF=45 VEL=42
+097 Hypno      Psiquico   -          HP=85 ATQ=73 DEF=70 VEL=67
+098 Krabby     Agua       -          HP=30 ATQ=105 DEF=90 VEL=50
+099 Kingler    Agua       -          HP=55 ATQ=130 DEF=115 VEL=75
+100 Voltorb    Electrico  -          HP=40 ATQ=30 DEF=50 VEL=100
+101 Electrode  Electrico  -          HP=60 ATQ=50 DEF=70 VEL=150
+102 Exeggcute  Planta     Psiquico   HP=60 ATQ=40 DEF=80 VEL=40
+103 Exeggutor  Planta     Psiquico   HP=95 ATQ=95 DEF=85 VEL=55
+104 Cubone     Tierra     -          HP=50 ATQ=50 DEF=95 VEL=35
+105 Marowak    Tierra     -          HP=60 ATQ=80 DEF=110 VEL=45
+106 Hitmonlee  Lucha      -          HP=50 ATQ=120 DEF=53 VEL=87
+107 Hitmonchan Lucha      -          HP=50 ATQ=105 DEF=79 VEL=76
+108 Lickitung  Normal     -          HP=90 ATQ=55 DEF=75 VEL=30
+109 Koffing    Veneno     -          HP=40 ATQ=65 DEF=95 VEL=35
+110 Weezing    Veneno     -          HP=65 ATQ=90 DEF=120 VEL=60
+111 Rhyhorn    Tierra     Roca       HP=80 ATQ=85 DEF=95 VEL=25
+112 Rhydon     Tierra     Roca       HP=105 ATQ=130 DEF=120 VEL=40
+113 Chansey    Normal     -          HP=250 ATQ=5 DEF=5 VEL=50
+114 Tangela    Planta     -          HP=65 ATQ=55 DEF=115 VEL=60
+115 Kangaskhan Normal     -          HP=105 ATQ=95 DEF=80 VEL=90
+116 Horsea     Agua       -          HP=30 ATQ=40 DEF=70 VEL=60
+117 Seadra     Agua       -          HP=55 ATQ=65 DEF=95 VEL=85
+118 Goldeen    Agua       -          HP=45 ATQ=67 DEF=60 VEL=63
+119 Seaking    Agua       -          HP=80 ATQ=92 DEF=65 VEL=68
+120 Staryu     Agua       -          HP=30 ATQ=45 DEF=55 VEL=85
+121 Starmie    Agua       Psiquico   HP=60 ATQ=75 DEF=85 VEL=115
+122 Mr. Mime   Psiquico   Hada       HP=40 ATQ=45 DEF=65 VEL=90
+123 Scyther    Bicho      Volador    HP=70 ATQ=110 DEF=80 VEL=105
+124 Jynx       Hielo      Psiquico   HP=65 ATQ=50 DEF=35 VEL=95
+125 Electabuzz Electrico  -          HP=65 ATQ=83 DEF=57 VEL=105
+126 Magmar     Fuego      -          HP=65 ATQ=95 DEF=57 VEL=93
+127 Pinsir     Bicho      -          HP=65 ATQ=125 DEF=100 VEL=85
+128 Tauros     Normal     -          HP=75 ATQ=100 DEF=95 VEL=110
+129 Magikarp   Agua       -          HP=20 ATQ=10 DEF=55 VEL=80
+130 Gyarados   Agua       Volador    HP=95 ATQ=125 DEF=79 VEL=81
+131 Lapras     Agua       Hielo      HP=130 ATQ=85 DEF=80 VEL=60
+132 Ditto      Normal     -          HP=48 ATQ=48 DEF=48 VEL=48
+133 Eevee      Normal     -          HP=55 ATQ=55 DEF=50 VEL=55
+134 Vaporeon   Agua       -          HP=130 ATQ=65 DEF=60 VEL=65
+135 Jolteon    Electrico  -          HP=65 ATQ=65 DEF=60 VEL=130
+136 Flareon    Fuego      -          HP=65 ATQ=130 DEF=60 VEL=65
+137 Porygon    Normal     -          HP=65 ATQ=60 DEF=70 VEL=40
+138 Omanyte    Roca       Agua       HP=35 ATQ=40 DEF=100 VEL=35
+139 Omastar    Roca       Agua       HP=70 ATQ=60 DEF=125 VEL=55
+140 Kabuto     Roca       Agua       HP=30 ATQ=80 DEF=90 VEL=55
+141 Kabutops   Roca       Agua       HP=60 ATQ=115 DEF=105 VEL=80
+142 Aerodactyl Roca       Volador    HP=80 ATQ=105 DEF=65 VEL=130
+143 Snorlax    Normal     -          HP=160 ATQ=110 DEF=65 VEL=30
+144 Articuno   Hielo      Volador    HP=90 ATQ=85 DEF=100 VEL=85
+145 Zapdos     Electrico  Volador    HP=90 ATQ=90 DEF=85 VEL=100
+146 Moltres    Fuego      Volador    HP=90 ATQ=100 DEF=90 VEL=90
+147 Dratini    Dragon     -          HP=41 ATQ=64 DEF=45 VEL=50
+148 Dragonair  Dragon     -          HP=61 ATQ=84 DEF=65 VEL=70
+149 Dragonite  Dragon     Volador    HP=91 ATQ=134 DEF=95 VEL=80
+150 Mew        Psiquico   -          HP=100 ATQ=100 DEF=100 VEL=100
+
+--- Consultar Pokédex ---
+1. Mostrar todas las especies
+2. Buscar por número
+3. Buscar por nombre
+4. Consultar ficha completa
+0. Volver al menú principal
+Seleccione una opción: 
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.

@@ -1,0 +1,61 @@
+Error: no se pudo abrir el archivo de entrenadores: data/entrenadores.txt
+Aviso: no se cargaron entrenadores desde el archivo; use la opción 2 para registrarlos.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Ingrese el id del entrenador: Ingrese el nombre del entrenador: Entrenador registrado: id 1, Rojo.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Crear equipo ---
+1. Formación manual
+2. Formación automática (backtracking)
+0. Volver al menú principal
+Seleccione una opción: Ingrese el id del entrenador: Cantidad de Pokémon (1-6): Nivel total máximo (entero positivo): Mínimo de tipos diferentes (1-18): Formando equipo con backtracking...
+Equipo generado: 3 ejemplar(es) que cumplen todas las restricciones.
+--- Equipo de Rojo (id 1): 3 ejemplar(es) ---
+  #1 Bulbasaur  (especie #1 Bulbasaur, nivel 1)
+      HP 18/18  Ataque 13  Defensa 13  Velocidad 13  Planta/Veneno
+  #2 Ivysaur  (especie #2 Ivysaur, nivel 1)
+      HP 26/26  Ataque 21  Defensa 21  Velocidad 21  Planta/Veneno
+  #3 Venusaur  (especie #3 Venusaur, nivel 1)
+      HP 17/17  Ataque 12  Defensa 12  Velocidad 12  Planta/Veneno
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.
+Entrenadores guardados en data/entrenadores.txt.

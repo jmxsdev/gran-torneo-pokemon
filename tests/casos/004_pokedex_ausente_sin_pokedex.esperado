@@ -1,0 +1,64 @@
+Error: no se pudo abrir el archivo de la Pokédex: data/pokedex.txt
+Aviso: la Pokédex no está disponible; las consultas de especies quedarán deshabilitadas.
+Línea 1 rechazada: campos inválidos (no se registra).
+Línea 2 rechazada: campos inválidos (no se registra).
+Línea 3 rechazada: campos inválidos (no se registra).
+Línea 4 rechazada: campos inválidos (no se registra).
+Línea 5 rechazada: campos inválidos (no se registra).
+Línea 6 rechazada: campos inválidos (no se registra).
+Línea 7 rechazada: campos inválidos (no se registra).
+Línea 8 rechazada: campos inválidos (no se registra).
+Línea 10 rechazada: campos inválidos (no se registra).
+Línea 11 rechazada: campos inválidos (no se registra).
+Línea 12 rechazada: campos inválidos (no se registra).
+Línea 13 rechazada: campos inválidos (no se registra).
+Línea 14 rechazada: campos inválidos (no se registra).
+Línea 15 rechazada: campos inválidos (no se registra).
+Línea 16 rechazada: campos inválidos (no se registra).
+Línea 17 rechazada: campos inválidos (no se registra).
+Línea 18 rechazada: campos inválidos (no se registra).
+Línea 19 rechazada: campos inválidos (no se registra).
+Línea 20 rechazada: campos inválidos (no se registra).
+Línea 21 rechazada: campos inválidos (no se registra).
+Línea 22 rechazada: campos inválidos (no se registra).
+Línea 23 rechazada: campos inválidos (no se registra).
+Línea 24 rechazada: campos inválidos (no se registra).
+Línea 25 rechazada: campos inválidos (no se registra).
+Línea 26 rechazada: campos inválidos (no se registra).
+Línea 27 rechazada: campos inválidos (no se registra).
+Línea 28 rechazada: campos inválidos (no se registra).
+Línea 29 rechazada: campos inválidos (no se registra).
+Línea 30 rechazada: campos inválidos (no se registra).
+Línea 31 rechazada: campos inválidos (no se registra).
+Línea 32 rechazada: campos inválidos (no se registra).
+Entrenadores cargados: 1, líneas rechazadas: 31.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): La Pokédex no está cargada.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.

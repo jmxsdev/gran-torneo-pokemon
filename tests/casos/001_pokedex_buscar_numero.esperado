@@ -1,0 +1,46 @@
+Entrenadores cargados: 32, líneas rechazadas: 0.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Consultar Pokédex ---
+1. Mostrar todas las especies
+2. Buscar por número
+3. Buscar por nombre
+4. Consultar ficha completa
+0. Volver al menú principal
+Seleccione una opción: Ingrese el número de especie: 025 Pikachu    Electrico  -          HP=35 ATQ=55 DEF=40 VEL=90
+
+--- Consultar Pokédex ---
+1. Mostrar todas las especies
+2. Buscar por número
+3. Buscar por nombre
+4. Consultar ficha completa
+0. Volver al menú principal
+Seleccione una opción: 
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.
