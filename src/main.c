@@ -91,19 +91,26 @@ static void descartar_linea(void)
 }
 
 /**
- * Lee un entero de stdin validando la conversión. Ante entrada no numérica
- * imprime aviso, descarta la línea y devuelve false; el llamador decide si
- * reintenta o abandona (RF-TEC-03: ninguna entrada termina el programa).
+ * Lee un entero de stdin validando la conversión (RF-TEC-03).
+ * Devuelve 1 si se leyó un entero; 0 si la entrada no es numérica
+ * (imprime aviso y descarta la línea); -1 ante EOF (cierre ordenado).
+ * Ninguna entrada inválida termina el programa: el llamador decide si
+ * reintenta o abandona.
  */
-static bool leer_entero(int *salida)
+static int leer_entero(int *salida)
 {
-    if (scanf("%d", salida) != 1) {
+    int leido = scanf("%d", salida);
+
+    if (leido == EOF) {
+        return -1;
+    }
+    if (leido != 1) {
         printf("Entrada inválida.\n");
         descartar_linea();
-        return false;
+        return 0;
     }
     descartar_linea();
-    return true;
+    return 1;
 }
 
 /**
@@ -160,7 +167,7 @@ static void consultar_pokedex(const Pokedex *pd)
         case 4: {
             int numero;
             printf("Ingrese el número de especie: ");
-            if (!leer_entero(&numero)) {
+            if (leer_entero(&numero) <= 0) {
                 break;
             }
             mostrar_resultado_busqueda(pokedex_buscar_numero(pd, numero));
@@ -195,7 +202,7 @@ static void registrar_entrenador(RegistroEntrenadores *reg)
     char nombre[TAM_MAX_NOMBRE];
 
     printf("Ingrese el id del entrenador: ");
-    if (!leer_entero(&id)) {
+    if (leer_entero(&id) <= 0) {
         return;
     }
     if (id <= 0) {
@@ -224,19 +231,130 @@ static void registrar_entrenador(RegistroEntrenadores *reg)
 }
 
 /**
- * @brief Opcion 3: crea el equipo de un entrenador seleccionando especies.
+ * @brief Formación automática de equipo por backtracking (RF-EQP-04).
  *
- * Libera el equipo anterior si existe y agrega ejemplares por número de
- * especie y nivel (1..100); el id del ejemplar lo asigna el módulo de
- * equipos (único global). Termina con especie 0 o al llegar a MAX_EQUIPO.
+ * Pide las restricciones (cantidad 1..MAX_EQUIPO, nivel total máximo
+ * positivo y mínimo de tipos 1..CANT_TIPOS) con reintentos (RF-TEC-03) y
+ * delega en equipo_formar_backtracking. Si existe solución la asigna al
+ * entrenador y muestra el equipo; si no, informa que no existe y conserva
+ * el equipo anterior (nunca se devuelve un equipo inválido).
+ */
+static void formar_equipo_automatico(const Pokedex *pd, Entrenador *ent)
+{
+    RestriccionesEquipo restricciones;
+    Ejemplar *equipo = NULL;
+    int cantidad = 0;
+    int valor;
+
+    if (pd->cantidad == 0) {
+        printf("La Pokédex no está cargada; no se puede formar un equipo.\n");
+        return;
+    }
+
+    for (;;) {
+        printf("Cantidad de Pokémon (1-%d): ", MAX_EQUIPO);
+        {
+            int leido = leer_entero(&valor);
+            if (leido == -1) {
+                return;   /* EOF: cierre ordenado */
+            }
+            if (leido == 0) {
+                continue;
+            }
+        }
+        if (valor < 1 || valor > MAX_EQUIPO) {
+            printf("Cantidad inválida: debe estar entre 1 y %d.\n",
+                   MAX_EQUIPO);
+            continue;
+        }
+        restricciones.cantidad = valor;
+        break;
+    }
+    for (;;) {
+        printf("Nivel total máximo (entero positivo): ");
+        {
+            int leido = leer_entero(&valor);
+            if (leido == -1) {
+                return;   /* EOF: cierre ordenado */
+            }
+            if (leido == 0) {
+                continue;
+            }
+        }
+        if (valor < 1) {
+            printf("Nivel total inválido: debe ser positivo.\n");
+            continue;
+        }
+        restricciones.nivel_total_max = valor;
+        break;
+    }
+    for (;;) {
+        printf("Mínimo de tipos diferentes (1-%d): ", CANT_TIPOS);
+        {
+            int leido = leer_entero(&valor);
+            if (leido == -1) {
+                return;   /* EOF: cierre ordenado */
+            }
+            if (leido == 0) {
+                continue;
+            }
+        }
+        if (valor < 1 || valor > CANT_TIPOS) {
+            printf("Cantidad de tipos inválida: debe estar entre 1 y %d.\n",
+                   CANT_TIPOS);
+            continue;
+        }
+        restricciones.min_tipos = valor;
+        break;
+    }
+    restricciones.ataque_total_min = 0;
+    restricciones.permitir_repetidas = false;
+    restricciones.cantidad_permitidas = 0;
+
+    printf("Formando equipo con backtracking...\n");
+    if (!equipo_formar_backtracking(pd, &restricciones, &equipo, &cantidad)) {
+        printf("No existe un equipo que cumpla las restricciones indicadas.\n");
+        return;
+    }
+    equipo_asignar(ent, equipo);
+    printf("Equipo generado: %d ejemplar(es) que cumplen todas las "
+           "restricciones.\n", cantidad);
+    equipo_mostrar(pd, ent);
+}
+
+/**
+ * @brief Opcion 3: crea el equipo de un entrenador (manual o automático).
+ *
+ * Ofrece un submenu: formacion manual (seleccionando especies y niveles)
+ * o formacion automatica por backtracking (RF-EQP-04) con restricciones.
+ * En el modo manual libera el equipo anterior si existe y agrega ejemplares
+ * por numero de especie y nivel (1..100); el id del ejemplar lo asigna el
+ * modulo de equipos (unico global). Termina con especie 0 o al llegar a
+ * MAX_EQUIPO. Ninguna entrada invalida termina el programa (RF-TEC-03).
  */
 static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
 {
+    int modo;
     int id_ent;
     Entrenador *ent;
 
+    printf("\n--- Crear equipo ---\n");
+    printf("1. Formación manual\n");
+    printf("2. Formación automática (backtracking)\n");
+    printf("0. Volver al menú principal\n");
+    printf("Seleccione una opción: ");
+    modo = leer_opcion();
+    if (modo == 0) {
+        printf("\n");
+        return;   /* EOF o "volver": cierre ordenado */
+    }
+    if (modo != 1 && modo != 2) {
+        printf("Opción inválida. Intente de nuevo.\n");
+        return;
+    }
+
     printf("Ingrese el id del entrenador: ");
-    if (!leer_entero(&id_ent)) {
+    if (leer_entero(&id_ent) <= 0) {
         return;
     }
     ent = entrenador_buscar(reg, id_ent);
@@ -244,6 +362,12 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
         printf("No existe un entrenador con id %d.\n", id_ent);
         return;
     }
+
+    if (modo == 2) {
+        formar_equipo_automatico(pd, ent);
+        return;
+    }
+
     if (ent->equipo != NULL) {
         equipo_liberar(ent);
         printf("Equipo anterior liberado.\n");
@@ -258,8 +382,14 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
         Ejemplar *ej;
 
         printf("Ingrese el número de especie (0 para terminar): ");
-        if (!leer_entero(&numero)) {
-            continue;
+        {
+            int leido = leer_entero(&numero);
+            if (leido == -1) {
+                break;   /* EOF: cierre ordenado de la creación */
+            }
+            if (leido == 0) {
+                continue;   /* entrada no numérica: reintentar */
+            }
         }
         if (numero == 0) {
             break;
@@ -278,8 +408,14 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
         for (;;) {
             printf("Ingrese el nivel del ejemplar (%d-%d): ",
                    NIVEL_MIN, NIVEL_MAX);
-            if (!leer_entero(&nivel)) {
-                continue;
+            {
+                int leido = leer_entero(&nivel);
+                if (leido == -1) {
+                    break;   /* EOF: se omite este ejemplar */
+                }
+                if (leido == 0) {
+                    continue;   /* entrada no numérica: reintentar */
+                }
             }
             if (nivel < NIVEL_MIN || nivel > NIVEL_MAX) {
                 printf("Nivel inválido (rango %d-%d).\n", NIVEL_MIN, NIVEL_MAX);
@@ -329,7 +465,7 @@ static void consultar_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
     Entrenador *ent;
 
     printf("Ingrese el id del entrenador: ");
-    if (!leer_entero(&id_ent)) {
+    if (leer_entero(&id_ent) <= 0) {
         return;
     }
     ent = entrenador_buscar(reg, id_ent);
@@ -437,11 +573,11 @@ static void jugar_combate(const Pokedex *pd, RegistroEntrenadores *reg)
     }
 
     printf("Id del entrenador local: ");
-    if (!leer_entero(&id_local)) {
+    if (leer_entero(&id_local) <= 0) {
         return;
     }
     printf("Id del entrenador visitante: ");
-    if (!leer_entero(&id_visita)) {
+    if (leer_entero(&id_visita) <= 0) {
         return;
     }
     local = entrenador_buscar(reg, id_local);
