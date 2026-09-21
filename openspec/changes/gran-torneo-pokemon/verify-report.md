@@ -484,7 +484,102 @@ El lote F3 cumple RF-CMB-01..05 y las decisiones D1/D2/D3/D4/D5: las 3 tareas F3
 
 ---
 
-## Veredicto global (F0 + F1 + F2 + F3)
+## Sección F4 (Día 4, 2026-09-21) — Backtracking de formación de equipos
+
+**Fase**: F4 — `equipo_formar_backtracking` + `bt_rec` con podas §4.3 (RF-EQP-04) + cableado de la formación automática en la opción 3 del menú
+**Fecha**: 2026-09-21
+
+### Completeness
+
+| Métrica | Valor |
+|---|---|
+| Tareas del lote F4 | 4 |
+| Tareas completadas | 4 |
+| Tareas incompletas | 0 |
+
+### Build y Ejecución
+
+**Build**: ✅ Pasó (exit 0, cero warnings)
+```text
+$ make clean && make
+rm -rf build
+mkdir -p build
+gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entrenador.c src/equipo.c src/main.c src/pokedex.c src/tipos.c
+```
+Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los siete `.c` del proyecto. Hash de la salida del build: `deccd336…` (idéntico al de F3 porque la línea de compilación no cambió; el binario sí se regeneró con el código nuevo). 0 líneas de más de 99 columnas en `src/*.c`/`src/*.h`. Presupuesto del lote: **442 líneas de código nuevas** (equipo.c +285, equipo.h +38, main.c +178 incluyendo el fix de EOF) ≤ 800 ✓.
+
+**Pruebas**: ✅ Batería F4 scriptada (12 casos stdin→grep) + probe F4 (24 comprobaciones): **36/36 PASS, exit 0**. Hash del output de pruebas: `6b31bcaa…`.
+
+| Caso | Entrada | Resultado esperado | Resultado real | Diff |
+|---|---|---|---|---|
+| 1 B1 factible | `3\n2\n1\n3\n100\n2\n12\n` | «Equipo generado: 3 ejemplar(es) que cumplen todas las restricciones.» + «--- Equipo de Ash (id 1): 3 ejemplar(es) ---» con 3 ejemplares (Bulbasaur/Ivysaur/Venusaur nivel 1, Planta/Veneno) | Ídem | ✅ PASS |
+| 2 B2 sin solución | `3\n2\n1\n6\n5\n1\n12\n` | «No existe un equipo que cumpla las restricciones indicadas.»; NO aparece «cumplen todas las restricciones»; medición de tiempo real 8 ms (poda de cota inferior en profundidad 1) | Ídem | ✅ PASS |
+| 3 B3 validaciones | `3\n2\n1\n0\n7\n3\n0\n100\n0\n19\n2\n12\n` | «Cantidad inválida: debe estar entre 1 y 6.», «Nivel total inválido: debe ser positivo.», «Cantidad de tipos inválida: debe estar entre 1 y 18.» y luego equipo generado (reintento aceptado) | Ídem | ✅ PASS |
+| 4 B4 entrenador inexistente | `3\n2\n999\n12\n` | «No existe un entrenador con id 999.» sin terminar | Ídem | ✅ PASS |
+| 5 B5 opción inválida del submenú | `3\n9\n12\n` | «Opción inválida. Intente de nuevo.» | Ídem | ✅ PASS |
+| 6 B6 EOF en submenú | `3\n` | Submenú mostrado, cierre ordenado, exit 0 (no cuelga) | Ídem | ✅ PASS |
+| 7 B6b EOF en restricciones | `3\n2\n1\n` | EOF en «Cantidad de Pokémon» → cierre ordenado, exit 0 (no cuelga) | Ídem | ✅ PASS |
+| 8 B7 sha256 datos | batería completa | `data/pokedex.txt` y `data/efectividad.txt` byte-idénticos antes/después (RF-PDX-04) | Ídem | ✅ PASS |
+| 9 B8 columnas | `grep -RInE '.{100,}'` | 0 líneas > 99 columnas en `equipo.c`/`equipo.h`/`main.c` | Ídem | ✅ PASS |
+| P1–P7 probe F4 | probe contra `src/{equipo,pokedex,tipos}.c` | P1 factible 3/100/2 → true, 3 ejemplares, especies en Pokédex, niveles 1..100, nivel total ≤ 100, ≥ 2 tipos, sin repetidas (10 µs); P2 sin solución 6/nivel 5 → false, salida NULL, cantidad 0, poda instantánea 3 µs; P3 min_tipos 18 con 6 ejemplares → false, poda 3b 2 µs; P4 especies permitidas {1} + repetidas → Bulbasaur×3; P5 ataque objetivo 150 → true, ataque total 236; P6 cantidad 0/7 y min_tipos 19 rechazados | Ídem | ✅ PASS |
+
+### Matriz de Cumplimiento de Specs (F4)
+
+| Requisito | Escenario | Evidencia | Resultado |
+|---|---|---|---|
+| RF-EQP-04 | Equipo que cumple todas las restricciones | B1 + P1: restricciones {3, 100, ≥2 tipos} → equipo de 3 ejemplares que cumple TODAS (cantidad exacta, nivel total 3 ≤ 100, 2 tipos distintos Planta/Veneno) y se muestra por consola | ✅ COMPLIANT |
+| RF-EQP-04 | Sin solución informa que no existe | B2 + P2: {6, nivel total máx 5} → «No existe un equipo que cumpla las restricciones indicadas.», `equipo_formar_backtracking` devuelve false, `*salida = NULL` y `*cantidad = 0` (no se devuelve un equipo inválido); la poda de cota inferior corta en profundidad 1 (8 ms en el menú, 3 µs en el probe) | ✅ COMPLIANT |
+| RF-EQP-04 | Restricciones de integrantes | P4: lista de especies permitidas {1} + `permitir_repetidas` → equipo Bulbasaur×3 (la restricción excluye el resto de especies) | ✅ COMPLIANT |
+| RF-EQP-04 | Estadísticas objetivo | P5: `ataque_total_min = 150` → niveles escalados al presupuesto (Bulbasaur nivel 98) y ataque total 236 ≥ 150 | ✅ COMPLIANT |
+| RF-MEN-01 | Opción 3 ofrece formación automática | B1/B2: submenú «1. Formación manual / 2. Formación automática (backtracking) / 0. Volver» con validación de restricciones y reintentos (B3) | ✅ COMPLIANT |
+| RF-TEC-03 | Entrada inválida no termina el programa | B3/B4/B5: restricciones fuera de rango, entrenador inexistente y opción inválida → mensajes y el programa continúa; EOF en submenú y en restricciones cierra ordenado (B6/B6b, timeout 5 s sin colgar) | ✅ COMPLIANT |
+
+**Resumen de cumplimiento F4**: 6/6 escenarios del alcance F4 completos (RF-EQP-04 con sus 4 escenarios de restricciones + RF-MEN-01 + RF-TEC-03). RF-EQP-04 queda **verificado por completo** — era el requisito diferido desde F2.
+
+### Correctness (Evidencia estática, F4)
+
+| Requisito | Estado | Notas |
+|---|---|---|
+| RF-EQP-04 | ✅ Implementado | `equipo_formar_backtracking(pd, r, salida, cantidad)` + `bt_rec` recursiva sobre el índice de especie: ramifica sobre k copias (1..restantes si `permitir_repetidas`, 1 si no) y luego excluye; caso base éxito con `restantes == 0 && tipos_dist >= min_tipos && ataque_acum >= ataque_total_min`; salida temprana en el primer éxito; `*salida = NULL` en todo fracaso |
+| Podas §4.3 (diseño) | ✅ Implementado | 1) cantidad: `restantes > pd->cantidad - i`; 2) cota inferior de nivel: `nivel_acum + restantes*NIVEL_MIN > nivel_total_max`; 3) cota de tipos con tabla sufijo `uint32_t tipos_sufijo[POKEDEX_MAX+1]` (O(18·150)) y `tipos_dist + popcount(sufijo[i] & ~mascara) < min_tipos`; 5) salida temprana. Poda extra 3b (`tipos_dist + 2*restantes < min_tipos`): acota el peor caso «min_tipos alto» que §4.5 daba por cubierto (un ejemplar aporta a lo sumo 2 tipos); conservadora (nunca corta ramas factibles) y verificada en P3 |
+| §4.4 Liberación al retroceder | ✅ Implementado | Cada copia creada en una rama se libera con `free` si la recursión no devuelve true; invariante `*creados` (ejemplares vivos) vuelve a 0 tras cada fracaso (P2/P3/P6 lo observan); al éxito la lista (n = `r->cantidad`) es propiedad del llamador y `main` la libera con `equipo_liberar` al salir; revisión manual 1:1 de cada `equipo_crear_ejemplar` (malloc) → `free` |
+| RF-MEN-01 / RF-TEC-03 | ✅ Implementado | Opción 3 con submenú manual/automática/volver; restricciones validadas con reintentos (cantidad 1..6, nivel total ≥ 1, tipos 1..18); `leer_entero` pasa a triestado (1 = leído, 0 = no numérico con descarte, -1 = EOF) y todas sus llamadas distinguen EOF → **cierra el hallazgo LOW de F2** (EOF en bucles internos colgaba el programa) |
+
+### Coherencia con el Diseño (F4)
+
+| Decisión del diseño | ¿Cumplida? | Notas |
+|---|---|---|
+| §4.1 firma `equipo_formar_backtracking(pd, r, salida, cantidad)` | ✅ Sí | Idéntica a la del diseño (ya declarada en `equipo.h` desde F0/F2) |
+| §4.1 firma `bt_rec(i, restantes, nivel_acum, tipos_distintos, ataque_acum, tipos_vistos, parcial, creados)` | ⚠️ Adaptada | Se mantiene la recursión pura sobre `i` con los mismos acumuladores y `*creados`; `bool tipos_vistos[CANT_TIPOS]` se reemplaza por `uint32_t mascara_tipos` (el propio §4.2 describe el estado como «máscara de tipos») y se añaden `tipos_sufijo` (tabla precomputada de la poda 3) y el nivel/estado local de rama |
+| §4.2 nivel del ejemplar «mínimo factible dentro del presupuesto restante; si hay objetivo de ataque se escala el nivel del integrante con mejor base» | ⚠️ Adaptada | Sin objetivo de ataque → nivel `NIVEL_MIN` (mínimo factible, la poda 2 garantiza el presupuesto); con `ataque_total_min > 0` → nivel al máximo que permite el presupuesto restante para cada ejemplar (superset determinista del criterio «mejor base», sin estado adicional); documentado en el código y en tasks.md F4.1 |
+| §4.3 podas 1/2/3/5 | ✅ Sí | Exactas salvo el límite real `pd->cantidad` en la poda 1 (equivale a `POKEDEX_MAX` cuando la carga es completa; más robusto si no lo está) |
+| §4.3.4 restricciones de integrantes aplicadas al generar el candidato | ✅ Sí | `bt_especie_admitida` (lista `especies_permitidas`/`cantidad_permitidas`, extensión del struct §2 pedida por el contrato F4.1) y `permitir_repetidas` controlan la rama de inclusión; una especie no admitida solo se excluye |
+| §4.4 sin solución: false + informe sin equipo parcial | ✅ Sí | `*salida = NULL`, `*cantidad = 0`; el menú informa «No existe un equipo que cumpla las restricciones indicadas.» y conserva el equipo anterior |
+| §4.5 complejidad y memoria | ✅ Sí | Tabla sufijo O(18·150); profundidad ≤ 6 ejemplares vivos por rama; el caso imposible del spec corta en profundidad 1 (poda 2); el peor caso min_tipos alto queda acotado por la poda 3b (verificada: 2 µs) |
+| §2 struct `RestriccionesEquipo` | ⚠️ Extendido | Se añaden `especies_permitidas[POKEDEX_MAX]` y `cantidad_permitidas` (600 bytes estáticos, dominio acotado) — el diseño §2 solo fijaba 5 campos; la extensión cumple el contrato F4.1 («especies permitidas») y RF-EQP-04 («restricciones sobre integrantes») |
+| §1.3 `equipo.h` autónomo, TDA encapsulado | ✅ Sí | `equipo_asignar(ent, equipo)` nueva función pública que libera el equipo anterior y asigna la lista generada; solo `equipo.c` toca el campo `siguiente` (main no rompe el encapsulamiento) |
+
+### Hallazgos (F4)
+
+**CRITICAL**: Ninguno.
+
+**WARNING**: Ninguno.
+
+**LOW**:
+1. **Cierre del LOW de F2**: el hallazgo LOW 1 de F2 (bucles internos de `crear_equipo`/`leer_entero` sin detección de EOF → repetición indefinida de «Entrada inválida.») quedó **resuelto en F4**: `leer_entero` ahora devuelve -1 ante EOF y todas sus llamadas (formación automática, creación manual, Pokédex, entrenador, combate) distinguen cierre ordenado de entrada no numérica (B6/B6b con timeout 5 s). La unificación en `validacion.c` (F8) seguirá adelante por plan.
+
+**SUGGESTION**:
+1. Ortografía mixta en los comentarios nuevos de `equipo.c` (sin tildes en identificadores/acentos en algunos comentarios): misma higiene pendiente acumulada de F0–F3; unificar en el commit de higiene previsto.
+2. La poda extra 3b y las adaptaciones de firma (`mascara_tipos`, `tipos_sufijo`, `equipo_asignar`, struct extendido) deben reflejarse en `docs/informe-tecnico.md` en F10.1 junto al resto de D1–D10.
+
+### Veredicto F4
+
+**PASS**
+El lote F4 cumple RF-EQP-04 (backtracking completo, diferido desde F2), RF-MEN-01 (formación automática en la opción 3) y RF-TEC-03 (validación con reintentos y EOF ordenado): las 4 tareas F4 están completas, el build es limpio (cero warnings), la batería scriptada pasa 12/12 y el probe 24/24 (factible 3/100/2 cumple TODAS las restricciones y se muestra; sin solución 6/nivel 5 → informe y salida NULL con poda instantánea de 3 µs; min_tipos 18 inalcanzable con poda 3b en 2 µs; especies permitidas + repetidas; ataque objetivo 150 con niveles escalados), la liberación al retroceder es 1:1 (revisión manual de cada malloc/free) y la Pokédex permanece inmutable (sha256 estable). Sin CRITICAL ni WARNING; un LOW informativo (cierre del LOW de F2) no bloquea. Presupuesto del lote: 442 líneas de código nuevas (≤ 800 ✓).
+
+---
+
+## Veredicto global (F0 + F1 + F2 + F3 + F4)
 
 **PASS WITH WARNINGS por lote; FAIL del envelope por evidencia incompleta del cambio en curso**
-Los lotes F0, F1, F2 y F3 pasan (F3 sin warnings: 0 CRITICAL, 0 blockers, 2 LOW informativos). El envelope declara `verdict: fail` porque el reporte fusionado mantiene evidencia incompleta del cambio en curso: el escenario parcial DOC-03 de F0 (D1 → F10.1), el parcial DOC-04 (ortografía del Doxyfile), el hallazgo LOW de F2 (EOF en bucles internos de `crear_equipo`, anotado para F8), RF-EQP-04 (backtracking, diferido a F4 por plan) y el LOW de F3 (submenú de combate con un solo intento, unificado en F8). Los 2 escenarios de RF-TEC-03 que F1 había diferido quedaron verificados en F2 (casos 6 y 10/11); RF-CMB-01..05 quedan verificados en F3 (batería 16/16 + probe 21/21). Siguiente lote: F4 (backtracking).
+Los lotes F0, F1, F2, F3 y F4 pasan (F3 y F4 sin warnings: 0 CRITICAL, 0 blockers; F4 cierra además el LOW de F2). El envelope declara `verdict: fail` porque el reporte fusionado mantiene evidencia incompleta del cambio en curso: el escenario parcial DOC-03 de F0 (D1 → F10.1), el parcial DOC-04 (ortografía del Doxyfile) y el LOW de F3 (submenú de combate con un solo intento, unificado en F8). Los 2 escenarios de RF-TEC-03 diferidos en F1 quedaron verificados en F2 (casos 6 y 10/11); RF-CMB-01..05 quedan verificados en F3 (batería 16/16 + probe 21/21); RF-EQP-04 queda verificado en F4 (batería 12/12 + probe 24/24). Siguiente lote: F5 (torneo: grupos + clasificación).
