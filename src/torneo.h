@@ -122,11 +122,48 @@ bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
  * @brief Ordena los grupos por la cadena completa de desempate (RF-TRN-04).
  *
  * Criterios: 1) puntos desc, 2) victorias desc, 3) pokemon_derrotados desc,
- * 4) enfrentamiento directo, 5) id asc. Rellena id_clasificados[16].
+ * 4) enfrentamiento directo (D9), 5) id asc. Rellena id_clasificados[16]
+ * con el 1.º y 2.º de cada grupo (RF-TRN-06): ver torneo_clasificados.
  *
  * @param t Puntero al estado del torneo (no debe ser NULL).
  */
 void torneo_ordenar_grupos(Torneo *t);
+
+/**
+ * @brief Determina los clasificados de cada grupo (RF-TRN-06).
+ *
+ * Clasifican las posiciones 1 y 2 de cada grupo; el resultado queda en
+ * id_clasificados[16] en el orden 1A, 2A, 1B, 2B, ..., 1H, 2H. La
+ * ordenación es la cadena completa de RF-TRN-04 (determinista).
+ *
+ * @param t Puntero al estado del torneo (no debe ser NULL).
+ */
+void torneo_clasificados(Torneo *t);
+
+/**
+ * @brief Muestra la clasificación de los 8 grupos por consola (RF-CLS-01).
+ *
+ * Por grupo imprime la cabecera [GRUPO X] y 4 filas con el formato
+ * POSICION;ID;NOMBRE;VICTORIAS;EMPATES;DERROTAS;PUNTOS;DERROTADOS,
+ * ordenadas por la cadena de RF-TRN-04.
+ *
+ * @param t   Puntero al estado del torneo (no debe ser NULL).
+ * @param reg Puntero al registro de entrenadores (no debe ser NULL).
+ */
+void torneo_mostrar_clasificacion(const Torneo *t,
+                                  const RegistroEntrenadores *reg);
+
+/**
+ * @brief Muestra el calendario de enfrentamientos de la fase de grupos.
+ *
+ * Lista los combates 1..48 con su grupo y los participantes resueltos por
+ * el sistema (RF-RES-03): NUM;GRUPO;ID1;NOMBRE1;ID2;NOMBRE2.
+ *
+ * @param t   Puntero al estado del torneo (no debe ser NULL).
+ * @param reg Puntero al registro de entrenadores (no debe ser NULL).
+ */
+void torneo_mostrar_enfrentamientos(const Torneo *t,
+                                    const RegistroEntrenadores *reg);
 
 /**
  * @brief Muestra las posiciones finales del torneo (RF-ELM-05).
