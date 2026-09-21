@@ -14,6 +14,10 @@
 
 #include "archivos.h"
 #include "resultados.h"   /* archivos_cargar_resultados delega aquí */
+#include "validacion.h"
+
+/* Máximo de campos por línea del formato §5.2: 3 + 4*MAX_EQUIPO. */
+#define CAMPOS_MAX_LINEA (3 + 4 * MAX_EQUIPO + 1)
 
 /* Busca un entrenador por id sin mutar el registro (solo lectura). */
 static const Entrenador *entrenador_por_id(const RegistroEntrenadores *reg,
@@ -87,7 +91,8 @@ bool archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
     }
 
     while (fgets(linea, (int)sizeof(linea), archivo) != NULL) {
-        char *tok;
+        char *campos[CAMPOS_MAX_LINEA];
+        int ncampos;
         int id_ent;
         int cant;
         int i;
@@ -108,26 +113,27 @@ bool archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
             continue;   /* linea vacia: no cuenta */
         }
 
-        /* Cabecera: ID;NOMBRE;CANT */
-        tok = strtok(linea, ";");
-        if (tok == NULL) {
+        /* F8: se separa sin omitir campos vacios (';;') para no desplazar
+           los campos siguientes (cierre del hallazgo SUGGESTION F2). El
+           formato §5.2 exige exactamente 3 + 4*CANT campos por linea. */
+        ncampos = validar_separar_campos(linea, campos, CAMPOS_MAX_LINEA);
+        if (ncampos < 3 || ncampos > CAMPOS_MAX_LINEA) {
             goto linea_invalida;
         }
-        id_ent = atoi(tok);
-        tok = strtok(NULL, ";");
-        if (tok == NULL) {
-            goto linea_invalida;
+        for (i = 0; i < ncampos; i++) {
+            if (campos[i][0] == '\0') {
+                goto linea_invalida;   /* campo vacío (';;') */
+            }
         }
-        snprintf(nombre_ent, sizeof(nombre_ent), "%s", tok);
-        tok = strtok(NULL, ";");
-        if (tok == NULL) {
-            goto linea_invalida;
-        }
-        cant = atoi(tok);
+        id_ent = atoi(campos[0]);
+        snprintf(nombre_ent, sizeof(nombre_ent), "%s", campos[1]);
+        cant = atoi(campos[2]);
 
-        if (id_ent <= 0 || nombre_ent[0] == '\0' ||
-            cant < 0 || cant > MAX_EQUIPO) {
+        if (id_ent <= 0 || cant < 0 || cant > MAX_EQUIPO) {
             goto linea_invalida;
+        }
+        if (ncampos != 3 + 4 * cant) {
+            goto linea_invalida;   /* exactamente 3 + 4*CANT campos */
         }
         if (entrenador_buscar(reg, id_ent) != NULL ||
             entero_en_arreglo(ids_ent_vistos, n_ids_ent, id_ent)) {
@@ -136,22 +142,11 @@ bool archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
 
         /* Ejemplares: (ID_EJEMPLAR;NUM_ESPECIE;APODO;NIVEL) x CANT */
         for (i = 0; i < cant; i++) {
-            if ((tok = strtok(NULL, ";")) == NULL) {
-                goto linea_invalida;
-            }
-            ids_ej[i] = atoi(tok);
-            if ((tok = strtok(NULL, ";")) == NULL) {
-                goto linea_invalida;
-            }
-            nums_ej[i] = atoi(tok);
-            if ((tok = strtok(NULL, ";")) == NULL) {
-                goto linea_invalida;
-            }
-            snprintf(apodos_ej[i], sizeof(apodos_ej[i]), "%s", tok);
-            if ((tok = strtok(NULL, ";")) == NULL) {
-                goto linea_invalida;
-            }
-            niveles_ej[i] = atoi(tok);
+            ids_ej[i] = atoi(campos[3 + 4 * i]);
+            nums_ej[i] = atoi(campos[4 + 4 * i]);
+            snprintf(apodos_ej[i], sizeof(apodos_ej[i]), "%s",
+                     campos[5 + 4 * i]);
+            niveles_ej[i] = atoi(campos[6 + 4 * i]);
 
             if (ids_ej[i] <= 0 ||
                 entero_en_arreglo(ids_ej_vistos, n_ids_ej, ids_ej[i])) {
@@ -167,11 +162,6 @@ bool archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
             if (ids_ej[i] > max_id_ejemplar) {
                 max_id_ejemplar = ids_ej[i];
             }
-        }
-        /* Campos de mas: el formato exige exactamente 3 + 4*CANT. */
-        tok = strtok(NULL, ";");
-        if (tok != NULL) {
-            goto linea_invalida;
         }
 
         /* Commit: solo si la linea completa es valida. */

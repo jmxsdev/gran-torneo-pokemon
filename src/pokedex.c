@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "pokedex.h"
+#include "validacion.h"
 
 /**
  * Normaliza una cadena UTF-8 a ASCII plegando acentos y minusculas, para
@@ -93,8 +94,8 @@ bool pokedex_cargar(Pokedex *pd, const char *ruta)
 
     while (fgets(linea, (int)sizeof(linea), archivo) != NULL) {
         char *campos[8];
-        int ncampos = 0;
-        char *token;
+        int ncampos;
+        int i;
         int numero;
         int hp, ataque, defensa, velocidad;
         Especie *esp;
@@ -112,18 +113,24 @@ bool pokedex_cargar(Pokedex *pd, const char *ruta)
             continue;   /* linea vacia: no cuenta como especie */
         }
 
-        /* Division estricta por ';' (formato D8). */
-        token = strtok(linea, ";");
-        while (token != NULL && ncampos < 8) {
-            campos[ncampos++] = token;
-            token = strtok(NULL, ";");
-        }
-
+        /* Division estricta por ';' (formato D8). F8: se separa sin omitir
+           campos vacios (';;') para no desplazar los campos siguientes y se
+           rechaza cualquier exceso de campos (cierre del hallazgo
+           SUGGESTION F2). */
+        ncampos = validar_separar_campos(linea, campos, 8);
         if (ncampos != 8) {
             printf("Error en %s linea %d: se esperaban 8 campos y se "
                    "encontraron %d.\n", ruta, numero_linea, ncampos);
             errores++;
             continue;
+        }
+        for (i = 0; i < ncampos; i++) {
+            if (campos[i][0] == '\0') {
+                printf("Error en %s linea %d: campo vacio (';;').\n",
+                       ruta, numero_linea);
+                errores++;
+                continue;
+            }
         }
 
         numero = atoi(campos[0]);

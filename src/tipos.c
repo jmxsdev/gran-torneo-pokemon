@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "tipos.h"
+#include "validacion.h"
 
 /**
  * Normaliza una cadena UTF-8 a ASCII plegando acentos y minusculas, para
@@ -171,21 +172,32 @@ void tipos_inicializar(void)
         }
 
         int columna = 0;
-        char *token = strtok(linea, ";");
-        while (token != NULL && columna < CANT_TIPOS) {
-            efectividad[fila][columna] = (float)atof(token);
-            token = strtok(NULL, ";");
-            columna++;
-        }
+        char *campos[CANT_TIPOS];
+        int ncampos = validar_separar_campos(linea, campos, CANT_TIPOS);
 
-        if (columna != CANT_TIPOS) {
+        /* F8: se separa sin omitir campos vacios (';;'); un conteo distinto
+           de CANT_TIPOS o un campo vacio invalida la matriz y se usa la
+           tabla por defecto (cierre del hallazgo SUGGESTION F2). */
+        if (ncampos != CANT_TIPOS) {
             printf("Error: linea %d de %s tiene %d valores (se esperaban "
                    "%d); se usara la tabla por defecto.\n",
-                   fila + 1, RUTA_EFECTIVIDAD, columna, CANT_TIPOS);
+                   fila + 1, RUTA_EFECTIVIDAD, ncampos, CANT_TIPOS);
             errores++;
             fclose(archivo);
             tipos_usar_matriz_por_defecto();
             return;
+        }
+        for (columna = 0; columna < CANT_TIPOS; columna++) {
+            if (campos[columna][0] == '\0') {
+                printf("Error: linea %d de %s tiene un campo vacio (';;'); "
+                       "se usara la tabla por defecto.\n",
+                       fila + 1, RUTA_EFECTIVIDAD);
+                errores++;
+                fclose(archivo);
+                tipos_usar_matriz_por_defecto();
+                return;
+            }
+            efectividad[fila][columna] = (float)atof(campos[columna]);
         }
 
         fila++;
