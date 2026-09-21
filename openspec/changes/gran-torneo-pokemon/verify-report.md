@@ -1,17 +1,17 @@
 ```yaml
 schema: gentle-ai.verify-result/v1
-evidence_revision: sha256:004edf8ae5be789c40301c18b6f203ca406a743067a855fefde3ed3e50023cf5
+evidence_revision: sha256:65825f0ff85104543ad58fcfcff2596b79b91ba77d3682e2eed4468c6a741cec
 verdict: fail
 blockers: 0
 critical_findings: 0
-requirements: 24/42
-scenarios: 45/70
-test_command: batería scriptada F4 /tmp/opencode/bateria_f4.sh (12 casos stdin→grep: factible 3/100/2 con equipo mostrado y tipos D2, sin solución 6/nivel 5 con informe y sin equipo inválido + poda menor a 500 ms (real 7 ms), restricciones inválidas con reintento (cantidad 0/7, nivel total 0, tipos 0/19), entrenador inexistente, opción inválida del submenú, EOF en submenú y en restricciones sin colgar (timeout 5 s), sha256 pokedex/efectividad intactos, ≤ 99 columnas) + probe F4 /tmp/opencode/probe_f4 (24 comprobaciones: factible cumple TODAS las restricciones con niveles 1..100 y ≥ 2 tipos, sin solución con salida NULL y poda en 2 µs, min_tipos 18 inalcanzable con poda 3b en 2 µs, especies permitidas (1) + repetidas Bulbasaur×3, ataque objetivo 150 con niveles escalados, restricciones inválidas rechazadas) + probe de fugas /tmp/opencode/probe_fugas_f4 (200 000 iteraciones alternando fracaso/éxito: invariante *creados vuelve a 0 y *salida NULL en todo fracaso, RSS estable 2072→2072 KB delta 0) — cotejo contra spec RF-EQP-04 por escenario; re-ejecutada íntegramente en la verificación formal (2026-09-21): 12/12 + 24/24 + 1/1 PASS reproducidos byte a byte en resultados
+requirements: 30/42
+scenarios: 55/70
+test_command: batería scriptada F5 /tmp/opencode/bateria_f5.sh (17 casos stdin→grep: make limpio cero warnings, rechazo opción 7 con 0 entrenadores "requiere exactamente 32", clasificación armada con 8 grupos A–H y filas ordenadas, calendario 1-48 con participantes correctos (1;A;1;Ash;2;Misty ... 48;H;31;Sophocles;32;Gladion), combate amistoso accesible en opción 8→1 (RF-CMB intacto), EOF ordenado en submenú, sha256 de los 3 datos intactos, ≤99 columnas) + probe F5 /tmp/opencode/probe_f5 (104 comprobaciones: D10 rechazo 31/acepta 32, calendario round-robin 6 pares distintos por grupo con numeración A=1..6..H=43..48, puntuación 3/1/0 exacta, validaciones de aplicar_resultado (duplicado, participantes RF-RES-03, número 0/49, empate con ganador, V1 incoherente, KOs negativos, RES_PENDIENTE), desempates por victorias/derrotados/directo (D9)/id, clasificados 1A..2H y orden automático al completar 48/48) — cotejo contra spec RF-TRN-01..06 y RF-CLS-01 por escenario
 test_exit_code: 0
-test_output_hash: sha256:b8ca21e9159f522ab5855499652ca653955d3124750deb9ee47c7d13f7a5c287
-build_command: make clean && make (gcc -std=c99 -Wall -Wextra)
+test_output_hash: sha256:fd70d362ec6f3e0d99a14e63ff9ca1c3a6ea39a8ae75474011addec34e3dc53b
+build_command: make clean && make (gcc -std=c99 -Wall -Wextra, 8 .c con torneo.c)
 build_exit_code: 0
-build_output_hash: sha256:deccd3364d3e6ffb9dcc295bf968544189e57bfed95979a3e410a4c10e66c3fd
+build_output_hash: sha256:72726e4886604a8afd511cc48eaad45f7e9df86d58ee9f3d33a7a8153700c5a5
 ```
 
 # Informe de Verificación — Gran Torneo Pokémon — Lotes F0, F1, F2 y F3
@@ -604,7 +604,135 @@ El lote F4 cumple RF-EQP-04 (backtracking completo, diferido desde F2), RF-MEN-0
 
 ---
 
-## Veredicto global (F0 + F1 + F2 + F3 + F4)
+## Sección F5 (Día 5, 2026-09-21) — Torneo: grupos + clasificación
+
+**Fase**: F5 — `src/torneo.c` (grupos A–H, calendario 1–48, puntuación 3/1/0, desempates RF-TRN-04, clasificados RF-TRN-06) + cableado de las opciones 7 y 8 del menú
+**Fecha**: 2026-09-21
+
+### Completeness
+
+| Métrica | Valor |
+|---|---|
+| Tareas del lote F5 | 3 |
+| Tareas completadas | 3 |
+| Tareas incompletas | 0 |
+
+### Build y Ejecución
+
+**Build**: ✅ Pasó (exit 0, cero warnings)
+```text
+$ make clean && make
+rm -rf build
+mkdir -p build
+gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entrenador.c src/equipo.c src/main.c src/pokedex.c src/tipos.c src/torneo.c
+```
+Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los **ocho** `.c` del proyecto (se incorpora `src/torneo.c`). Hash de la salida del build: `72726e48…` (cambió respecto a F4 porque la línea de compilación ahora incluye `torneo.c`). 0 líneas de más de 99 columnas en `src/torneo.c`/`src/torneo.h`/`src/main.c`. Presupuesto del lote: **570 líneas de código nuevas** (torneo.c +441, torneo.h +38, main.c +91) ≤ 800 ✓.
+
+**Pruebas**: ✅ Batería F5 scriptada (17 casos stdin→grep) + probe F5 (104 comprobaciones): **121/121 PASS, exit 0**. Hash del output de pruebas: `fd70d362…`.
+
+| Caso | Entrada | Resultado esperado | Resultado real | Diff |
+|---|---|---|---|---|
+| 1 build | `make clean && make` | exit 0, cero warnings, ocho `.c` compilados | Ídem | ✅ PASS |
+| 2 rechazo ≠32 | renombrar entrenadores.txt + `7\n12\n` | «El torneo requiere exactamente 32 entrenadores para armar los grupos (actualmente 0).» | Ídem | ✅ PASS |
+| 3 clasificación armada | `7\n12\n` | «Torneo armado: 8 grupos de 4 entrenadores (combates 1-48).» + `[GRUPO A]`…`[GRUPO H]` | Ídem | ✅ PASS |
+| 4 filas ordenadas | `7\n12\n` | `1;1;Ash;0;0;0;0;0` … `4;4;Gary;0;0;0;0;0` (puntos en cero) | Ídem | ✅ PASS |
+| 5 calendario 1–48 | `8\n2\n12\n` | `1;A;1;Ash;2;Misty`, `6;A;3;Brock;4;Gary`, `7;B;5;Jessie;6;James`, `43;H;29;Mallow;30;Lana`, `48;H;31;Sophocles;32;Gladion` | Ídem | ✅ PASS |
+| 6 combate amistoso migrado | `8\n1\n1\n1\n2\n1\n1\n1\n1\n1\n12\n` | «Resultado: gana Misty (id 2).» (RF-CMB intacto en opción 8→1) | Ídem | ✅ PASS |
+| 7 EOF en submenú | `8\n` | Cierre ordenado, exit 0 (no cuelga, timeout 5 s) | Ídem | ✅ PASS |
+| 8 sha256 datos | batería completa | `pokedex.txt`, `efectividad.txt`, `entrenadores.txt` byte-idénticos | Ídem | ✅ PASS |
+| 9 columnas | `grep -RInE '.{100,}'` | 0 líneas > 99 en torneo.c/h y main.c | Ídem | ✅ PASS |
+| P1–P104 probe F5 | probe contra `src/{torneo,entrenador,equipo,pokedex,tipos,combate,archivos}.c` | Ver desglose abajo | Ídem | ✅ PASS |
+
+### Matriz de Cumplimiento de Specs (F5)
+
+| Requisito | Escenario | Evidencia | Resultado |
+|---|---|---|---|
+| RF-TRN-01 | Estructura del torneo | Probe P2 + batería 5: fase de grupos con combates 1–48 (calendario completo) y eliminatoria 49–64 reservada en el arreglo de 64 combates | ✅ COMPLIANT |
+| RF-TRN-02 | 32 entrenadores exactos | Probe P1: 31 rechazado (D10), 32 aceptado; batería 2: rechazo por menú con conteo actual | ✅ COMPLIANT |
+| RF-TRN-02 | Round-robin de un grupo | Probe P2: 6 combates por grupo, 6 pares distintos, numeración A=1..6…H=43..48, pares (1,2)(1,3)(1,4)(2,3)(2,4)(3,4) | ✅ COMPLIANT |
+| RF-TRN-03 | Asignación de puntos | Probe P3: V1 ⇒ 3/0 con victoria/derrota; empate ⇒ 1/1; KOs acumulados en `pokemon_derrotados` | ✅ COMPLIANT |
+| RF-TRN-04 | Desempate por victorias | Probe P5-D: 1 (3 pts, 1V) antes que 2 (3 pts, 0V); criterio 2 implementado como red de seguridad (en round-robin completo a igual puntuación corresponde igual cantidad de victorias, nota documentada) | ✅ COMPLIANT |
+| RF-TRN-04 | Desempate por Pokémon derrotados | Probe P5-A: 2 (3 pts, 1V, 4 KOs) antes que 1 (3 pts, 1V, 2 KOs) | ✅ COMPLIANT |
+| RF-TRN-04 | Desempate por criterio adicional | Probe P5-B (D9 directo: 3 gana a 4 y va primero con empate total) y P5-C (directo empatado ⇒ id menor: 1 antes que 2) | ✅ COMPLIANT |
+| RF-TRN-05 | Tabla de posiciones del grupo | Batería 3/4 + probe P7: `[GRUPO X]` con 4 filas ordenadas por la cadena RF-TRN-04 | ✅ COMPLIANT |
+| RF-TRN-06 | Clasificación sin intervención manual | Probe P6/P7: `id_clasificados[16]` = 1A,2A,1B,2B,…,1H,2H rellenado automáticamente al completar 48/48 | ✅ COMPLIANT |
+| RF-CLS-01 | Tabla ordenada | Batería 3/4 + probe P7: filas con posición, id, nombre, victorias, empates, derrotas, puntos (y derrotados en pantalla) | ✅ COMPLIANT (escenario «Tabla ordenada») |
+| RF-CLS-01 | Salida a archivo | `data/clasificacion.txt` se genera en F7 (`archivos_guardar_clasificacion`) | ⚠️ DIFERIDO a F7 por plan (tasks.md F7.2) |
+| RF-RES-03 | Participantes resueltos por el sistema | Probe P4: resultado con participantes ≠ los del calendario ⇒ rechazo; calendario determinista 1–48 | ✅ COMPLIANT |
+
+**Resumen de cumplimiento F5**: 11/12 escenarios del alcance F5 completos; el escenario «Salida a archivo» de RF-CLS-01 se difiere a F7 (tasks.md F7.2), igual que la transición GRUPOS→ELIMINATORIAS (F6). RF-TRN-01..06 quedan verificados por completo.
+
+#### Veredicto por requisito (2026-09-21)
+
+| Requisito | Veredicto | Evidencia (1 línea) |
+|---|---|---|
+| RF-TRN-01 | ✅ COMPLIANT | Probe P2: 48 combates de grupos + 16 reservados; estructura de dos fases visible en `Torneo` |
+| RF-TRN-02 | ✅ COMPLIANT | Probe P1/P2: rechazo 31, aceptación 32, round-robin 6 pares distintos por grupo sin repetidos (verificado par a par) |
+| RF-TRN-03 | ✅ COMPLIANT | Probe P3: ganador 3 pts/1V/2 KOs, perdedor 0 pts/1D/1 KO, empate 1 pt/1E a ambos |
+| RF-TRN-04 | ✅ COMPLIANT | Probe P5-A/B/C/D: los 5 criterios en orden (puntos, victorias, derrotados, directo D9, id) con escenarios que resuelven por criterios distintos |
+| RF-TRN-05 | ✅ COMPLIANT | Batería 3/4: 8 grupos con 4 posiciones ordenadas por la cadena completa |
+| RF-TRN-06 | ✅ COMPLIANT | Probe P6/P7: clasificados automáticos 1A..2H al completar 48/48, sin entrada del usuario |
+| RF-CLS-01 | ⚠️ PARCIAL | «Tabla ordenada» ✓ (pantalla, probe/batería); «Salida a archivo» diferido a F7 (planificado) |
+
+#### Revisión de bordes (F5)
+
+| Borde | Evidencia | Resultado |
+|---|---|---|
+| ≠32 entrenadores | Probe P1 (31 rechazado, estado intacto) + batería 2 (menú con conteo) | ✅ PASS |
+| Combate fuera de grupos (49–64) | Probe P4: número 49 rechazado con mensaje (F6 lo habilita) | ✅ PASS |
+| Resultado duplicado | Probe P4: combate 1 re-aplicado ⇒ rechazo | ✅ PASS |
+| Participantes no resueltos por el sistema | Probe P4: ids inventados ⇒ rechazo (RF-RES-03) | ✅ PASS |
+| Empate con ganador / V1 incoherente / KOs negativos / RES_PENDIENTE | Probe P4: los cuatro rechazados sin mutar el estado | ✅ PASS |
+| Consultas sin torneo armado | Probe P8: «El torneo no está armado.» y el estado no muta | ✅ PASS |
+| EOF en submenú | Batería 7 + timeout 5 s: cierre ordenado sin colgar | ✅ PASS |
+| Inmutabilidad de datos | sha256 de los 3 `.txt` idéntico tras la batería (RF-PDX-04) | ✅ PASS |
+
+### Correctness (Evidencia estática, F5)
+
+| Requisito | Estado | Notas |
+|---|---|---|
+| RF-TRN-02 | ✅ Implementado | `torneo_armar_grupos`: distribución por orden de registro (posición k ⇒ grupo k/4, puesto k%4, D10); pares fijos `PARES[6][2]` y número `6·grupo+par+1`; inicializa los 64 combates |
+| RF-TRN-03 | ✅ Implementado | `torneo_aplicar_resultado`: 3 victoria / 1 empate / 0 derrota sobre los `Entrenador` del registro; acumula `pokemon_derrotados` desde `kos1/kos2` |
+| RF-TRN-04 | ✅ Implementado | `comparar_clasificacion`: cadena completa puntos→victorias→derrotados→directo (D9)→id; `combate_directo` localiza el enfrentamiento dentro de los combates 1–48 |
+| RF-TRN-05/06 | ✅ Implementado | `clasificar_grupos` + `torneo_clasificados`/`torneo_ordenar_grupos`: rellenan `id_clasificados[16]` con 1A,2A,…,1H,2H |
+| RF-CLS-01 | ✅ Implementado (pantalla) | `torneo_mostrar_clasificacion`: `[GRUPO X]` + 4 filas `POS;ID;NOMBRE;V;E;D;PUNTOS;DERROTADOS` |
+| RF-RES-03 | ✅ Implementado | `torneo_aplicar_resultado` exige participantes idénticos a los del calendario; los ids los resuelve el sistema, nunca el usuario |
+| D9/D10 | ✅ Implementado | D9: enfrentamiento directo + id menor en la cadena; D10: `torneo_armar_grupos` rechaza cualquier conteo ≠ 32 |
+
+### Coherencia con el Diseño (F5)
+
+| Decisión del diseño | ¿Cumplida? | Notas |
+|---|---|---|
+| §6.1 distribución determinista (posición k ⇒ grupo k/4, puesto k%4) | ✅ Sí | Registro 1..32 ⇒ grupo A = ids 1..4, …, grupo H = ids 29..32 (verificado en batería) |
+| §6.1 pares fijos (m0,m1)(m0,m2)(m0,m3)(m1,m2)(m1,m3)(m2,m3) y número 6·grupo+par+1 | ✅ Sí | Calendario byte-idéntico al diseño: A=1..6, B=7..12, …, H=43..48 |
+| §6.1 cadena de desempate RF-TRN-04 (puntos→victorias→derrotados→directo→id) | ✅ Sí | Implementada en `comparar_clasificacion`; escenarios por criterio en el probe P5 |
+| §6.1 `id_clasificados[16]` en orden 1A,2A,1B,2B,…,1H,2H | ✅ Sí | Probe P6: 1A=1, 2A=2, 1B=5, 2B=6, …, 1H=29, 2H=30 |
+| §1.3 firmas `torneo_armar_grupos`, `torneo_aplicar_resultado`, `torneo_ordenar_grupos` | ✅ Sí | Idénticas a las del diseño; se añaden `torneo_clasificados`, `torneo_mostrar_clasificacion`, `torneo_mostrar_enfrentamientos` (RF-CLS-01 las requiere) |
+| §2.2 KOs persistidos en `Combate` (criterio 3) | ✅ Sí | `kos1/kos2` en el combate y acumulados en `Entrenador.pokemon_derrotados` |
+| §6.1 transición GRUPOS→ELIMINATORIAS al completar 48/48 | ⚠️ Diferida a F6 | En F5 se ordena y se definen los clasificados al completar 48/48; el cambio de `estado` a `TORNEO_ELIMINATORIAS` y el bracket 49–64 se implementan en F6 (tasks.md F6.1) |
+
+### Hallazgos (F5)
+
+**CRITICAL**: Ninguno.
+
+**WARNING**: Ninguno.
+
+**LOW**:
+1. **Migración del combate amistoso (opción 8)**: la opción 8 pasa de abrir directamente el combate amistoso de F3 a un submenú «1. Combate amistoso / 2. Calendario del torneo / 0. Volver». El motor de combate (`combate.c`) no cambió y la batería F3 de combate sigue siendo válida; los casos de menú de la batería F3 que usaban «8\n1» ahora requieren «8\n1\n1» (documentado en tasks.md F3.2/F5.2). Es el cambio de menú solicitado por F5.2, no una regresión.
+2. **Criterio 2 (victorias) como red de seguridad**: en un round-robin completo de 4 con puntuación 3/1/0, a igual puntuación corresponde siempre igual cantidad de victorias (aritmética de la puntuación), por lo que el desempate por victorias no puede dispararse en un grupo terminado; se implementa por fidelidad a RF-TRN-04 y se verifica con un estado sintético (probe P5-D). No afecta la corrección: es un criterio más en la cadena.
+
+**SUGGESTION**:
+1. La transición a `TORNEO_ELIMINATORIAS` y la resolución de participantes 49–64 (bracket) quedan pendientes de F6; `torneo_aplicar_resultado` ya rechaza números > 48 con mensaje claro, así que F6 solo debe habilitar el rango.
+2. `torneo_mostrar_clasificacion` muestra también `derrotados` en pantalla (8.ª columna) mientras que el formato de archivo de §5.4 (`clasificacion.txt`) no lo incluye; F7 debe respetar el formato del archivo.
+
+### Veredicto F5
+
+**PASS**
+El lote F5 cumple RF-TRN-01..06 y el escenario «Tabla ordenada» de RF-CLS-01: las 3 tareas F5 están completas, el build es limpio (cero warnings, ocho `.c`, hash `72726e48…`), la batería scriptada pasa 17/17 y el probe 104/104 re-ejecutados en esta fase (D10 con rechazo 31/aceptación 32, calendario round-robin sin pares repetidos con numeración A=1..6…H=43..48, puntuación 3/1/0 exacta, validaciones de `aplicar_resultado` incluyendo RF-RES-03, desempates por derrotados/directo (D9)/id y el criterio de victorias como red de seguridad, clasificados 1A..2H automáticos al completar 48/48), el combate amistoso de F3 sigue accesible en la opción 8→1 y los datos permanecen inmutables (sha256 estable). Sin CRITICAL ni WARNING; dos LOW informativos no bloquean. Presupuesto del lote: 570 líneas de código nuevas (≤ 800 ✓).
+
+---
+
+## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5)
 
 **PASS WITH WARNINGS por lote; FAIL del envelope por evidencia incompleta del cambio en curso**
-Los lotes F0, F1, F2, F3 y F4 pasan (F3 y F4 sin warnings: 0 CRITICAL, 0 blockers; F4 cierra además el LOW de F2). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F5–F11 (torneo, eliminatorias, resultados/archivos, validación integral, pruebas completas, documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1) y DOC-04 (ortografía del Doxyfile). Conteos autoritativos corregidos contra los 11 specs del cambio (42 requirements / 70 scenarios): **24/42 requirements y 45/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05 y RF-TEC-03 completos; DOC-03/DOC-04 parciales; clasificación, eliminatorias, resultados y torneo pendientes de F5–F7). Los 2 escenarios de RF-TEC-03 diferidos en F1 quedaron verificados en F2 (casos 6 y 10/11); RF-CMB-01..05 quedan verificados en F3 (batería 16/16 + probe 21/21); RF-EQP-04 queda verificado en F4 (batería 12/12 + probe 24/24 re-ejecutados + probe de fugas 200 000 iteraciones). Siguiente lote: F5 (torneo: grupos + clasificación).
+Los lotes F0, F1, F2, F3, F4 y F5 pasan (F3, F4 y F5 sin warnings: 0 CRITICAL, 0 blockers). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F6–F11 (eliminatorias, resultados/archivos, validación integral, pruebas completas, documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1), DOC-04 (ortografía del Doxyfile) y RF-CLS-01 (salida a archivo → F7). Conteos autoritativos corregidos contra los 11 specs del cambio (42 requirements / 70 scenarios): **30/42 requirements y 55/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05, RF-TRN-01..06 y RF-TEC-03 completos; DOC-03/DOC-04/RF-CLS-01 parciales; eliminatorias, resultados y torneo pendientes de F6–F7). RF-TRN-01..06 quedan verificados en F5 (batería 17/17 + probe 104/104 re-ejecutados); RF-CLS-01 «Tabla ordenada» verificado en pantalla y «Salida a archivo» diferido a F7. Siguiente lote: F6 (torneo: bracket eliminatorio 49–64).
