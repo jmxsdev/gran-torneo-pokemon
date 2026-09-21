@@ -75,9 +75,9 @@ El docente respondió: **libertad total de modelado** (niveles, tamaño de equip
 
 ## Fase F3 — Combate
 
-- [ ] F3.1 Crear `src/combate.c`: `combate_calcular_danio` (D1), `combate_ataca_primero` (D3), `combate_ejecutar` (bucle, KO, empate D4, anti-empate D5) — RF-CMB-01..05, §7/§3.
-- [ ] F3.2 Cablear opción de combate en `main` — RF-MEN-01.
-- [ ] F3.3 Verificación: multiplicadores 2/1/0.5/0 y productos ×4/×0.25, mínimo 1, empate por 20 turnos — RF-PRB-01, §8.2.
+- [x] F3.1 Crear `src/combate.c`: `combate_calcular_danio` (D1), `combate_ataca_primero` (D3), `combate_ejecutar` (bucle, KO, empate D4, anti-empate D5) — RF-CMB-01..05, §7/§3. *(2026-09-21: 365 líneas; D1 exacta (base entera + multiplicador, mínimo 1 / sin efecto 0); D3 mayor velocidad con empate al entrenador 1; `combate_ejecutar` gana el parámetro `es_eliminatoria` y un callback `CombateSeleccionar` (el motor no lee consola); restaura `hp_actual = hp_max` al iniciar (D2); traza de turnos/daños/KOs; fin por agotamiento, empate en grupos (D4) o cadena HP→nivel→entrenador 1 (D5).)*
+- [x] F3.2 Cablear opción de combate en `main` — RF-MEN-01. *(2026-09-21: la opción 8 «Consultar enfrentamientos» abre un submenú de combate amistoso (fase de grupos / eliminatoria); seleccionador de Pokémon activo por posición 1..N con reintentos y EOF ordenado; validación de entrenadores existentes, distintos y con equipo válido.)*
+- [x] F3.3 Verificación: multiplicadores 2/1/0.5/0 y productos ×4/×0.25, mínimo 1, empate por 20 turnos — RF-PRB-01, §8.2. *(2026-09-21: batería scriptada 16/16 PASS + probe F3 21/21 (D1 exacto por caso, D3, D4, D5a/b/c, agotamiento con y sin reemplazo); make cero warnings; pokedex.txt/efectividad.txt intactos.)*
 
 ## Fase F4 — Backtracking de formación de equipos
 
