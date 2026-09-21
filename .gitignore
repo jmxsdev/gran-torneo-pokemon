@@ -1,6 +1,9 @@
 # SDD local registry (init scaffolding) — ignored per skill-registry convention
 .atl/
 
+# CodeGraph local index (per-worktree, regenerable)
+.codegraph/
+
 # Build artifacts
 build/
 *.o
