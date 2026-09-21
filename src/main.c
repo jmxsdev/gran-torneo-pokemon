@@ -709,6 +709,10 @@ static void consultar_enfrentamientos(const Pokedex *pd,
  * F5: las opciones 7 (clasificación) y 8 (enfrentamientos) delegan en el
  * módulo torneo; el torneo se arma al primer uso con 32 entrenadores.
  *
+ * F6: las opciones 10 (resultados del torneo: bracket 49-64) y 11 (campeón)
+ * delegan en el módulo torneo; la opción 6 (cargar resultados) se completa
+ * en F7.
+ *
  * @return 0 al salir de forma ordenada.
  */
 int main(void)
@@ -777,6 +781,12 @@ int main(void)
             break;
         case 8:
             consultar_enfrentamientos(&pokedex, &registro, &torneo);
+            break;
+        case 10:
+            torneo_mostrar_resultados(&torneo, &registro);
+            break;
+        case 11:
+            torneo_mostrar_campeon(&torneo, &registro);
             break;
         default:
             printf("Opción %d en construcción\n", opcion);
