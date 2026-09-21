@@ -1,14 +1,14 @@
 ```yaml
 schema: gentle-ai.verify-result/v1
-evidence_revision: sha256:d69ce6da6a319e145d523947e5cfda1f124b3bdf6c7189bcdc5850f8d274aacf
+evidence_revision: sha256:004edf8ae5be789c40301c18b6f203ca406a743067a855fefde3ed3e50023cf5
 verdict: fail
 blockers: 0
 critical_findings: 0
-requirements: 25/26
-scenarios: 43/44
-test_command: batería scriptada F3 /tmp/opencode/bateria_f3.sh (16 casos stdin→grep: build limpio, victoria por agotamiento Ash vs Misty 1 a 3, empate 20 turnos Jessie vs Gary (fantasma vs normal), anti-empate por HP 108-424 gana Gary, entrenador inexistente/mismo/sin equipo, modo y posición inválidos con reintento, volver+salir, EOF en submenú y en selección sin colgar, sha256 pokedex/efectividad intactos) + probe F3 /tmp/opencode/probe_f3 (21 comprobaciones: D1 exacto ×2 46, ×1 21, ×0.5 7, ×0 0, ×4 88, ×0.25 4, mínimo 1 con mult 0.25; D3 60/45/60; D4 empate; D5a HP, D5b nivel, D5c entrenador 1; CMB-04 con y sin reemplazo; validación de parámetros) — cotejo contra spec por caso; re-ejecutada íntegramente en la verificación formal (2026-09-21): 16/16 + 21/21 PASS reproducidos byte a byte en resultados
+requirements: 24/42
+scenarios: 45/70
+test_command: batería scriptada F4 /tmp/opencode/bateria_f4.sh (12 casos stdin→grep: factible 3/100/2 con equipo mostrado y tipos D2, sin solución 6/nivel 5 con informe y sin equipo inválido + poda menor a 500 ms (real 7 ms), restricciones inválidas con reintento (cantidad 0/7, nivel total 0, tipos 0/19), entrenador inexistente, opción inválida del submenú, EOF en submenú y en restricciones sin colgar (timeout 5 s), sha256 pokedex/efectividad intactos, ≤ 99 columnas) + probe F4 /tmp/opencode/probe_f4 (24 comprobaciones: factible cumple TODAS las restricciones con niveles 1..100 y ≥ 2 tipos, sin solución con salida NULL y poda en 2 µs, min_tipos 18 inalcanzable con poda 3b en 2 µs, especies permitidas (1) + repetidas Bulbasaur×3, ataque objetivo 150 con niveles escalados, restricciones inválidas rechazadas) + probe de fugas /tmp/opencode/probe_fugas_f4 (200 000 iteraciones alternando fracaso/éxito: invariante *creados vuelve a 0 y *salida NULL en todo fracaso, RSS estable 2072→2072 KB delta 0) — cotejo contra spec RF-EQP-04 por escenario; re-ejecutada íntegramente en la verificación formal (2026-09-21): 12/12 + 24/24 + 1/1 PASS reproducidos byte a byte en resultados
 test_exit_code: 0
-test_output_hash: sha256:c823d33059445a07304f746bbe8f089c28aea67309f0fe3b26f4084072492f91
+test_output_hash: sha256:b8ca21e9159f522ab5855499652ca653955d3124750deb9ee47c7d13f7a5c287
 build_command: make clean && make (gcc -std=c99 -Wall -Wextra)
 build_exit_code: 0
 build_output_hash: sha256:deccd3364d3e6ffb9dcc295bf968544189e57bfed95979a3e410a4c10e66c3fd
@@ -508,12 +508,12 @@ gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entr
 ```
 Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los siete `.c` del proyecto. Hash de la salida del build: `deccd336…` (idéntico al de F3 porque la línea de compilación no cambió; el binario sí se regeneró con el código nuevo). 0 líneas de más de 99 columnas en `src/*.c`/`src/*.h`. Presupuesto del lote: **442 líneas de código nuevas** (equipo.c +285, equipo.h +38, main.c +178 incluyendo el fix de EOF) ≤ 800 ✓.
 
-**Pruebas**: ✅ Batería F4 scriptada (12 casos stdin→grep) + probe F4 (24 comprobaciones): **36/36 PASS, exit 0**. Hash del output de pruebas: `6b31bcaa…`.
+**Pruebas**: ✅ Batería F4 scriptada (12 casos stdin→grep) + probe F4 (24 comprobaciones): **36/36 PASS, exit 0**. Hash del output de pruebas: `6b31bcaa…`. Re-ejecutada íntegramente en la verificación formal (2026-09-21): **12/12 + 24/24 PASS reproducidos byte a byte** (hash del output combinado: `b8ca21e9…`), más el probe de fugas (200 000 iteraciones, PASS, ver «Revisión de fugas» más abajo).
 
 | Caso | Entrada | Resultado esperado | Resultado real | Diff |
 |---|---|---|---|---|
 | 1 B1 factible | `3\n2\n1\n3\n100\n2\n12\n` | «Equipo generado: 3 ejemplar(es) que cumplen todas las restricciones.» + «--- Equipo de Ash (id 1): 3 ejemplar(es) ---» con 3 ejemplares (Bulbasaur/Ivysaur/Venusaur nivel 1, Planta/Veneno) | Ídem | ✅ PASS |
-| 2 B2 sin solución | `3\n2\n1\n6\n5\n1\n12\n` | «No existe un equipo que cumpla las restricciones indicadas.»; NO aparece «cumplen todas las restricciones»; medición de tiempo real 8 ms (poda de cota inferior en profundidad 1) | Ídem | ✅ PASS |
+| 2 B2 sin solución | `3\n2\n1\n6\n5\n1\n12\n` | «No existe un equipo que cumpla las restricciones indicadas.»; NO aparece «cumplen todas las restricciones»; medición de tiempo real 7 ms (poda de cota inferior en profundidad 1) | Ídem | ✅ PASS |
 | 3 B3 validaciones | `3\n2\n1\n0\n7\n3\n0\n100\n0\n19\n2\n12\n` | «Cantidad inválida: debe estar entre 1 y 6.», «Nivel total inválido: debe ser positivo.», «Cantidad de tipos inválida: debe estar entre 1 y 18.» y luego equipo generado (reintento aceptado) | Ídem | ✅ PASS |
 | 4 B4 entrenador inexistente | `3\n2\n999\n12\n` | «No existe un entrenador con id 999.» sin terminar | Ídem | ✅ PASS |
 | 5 B5 opción inválida del submenú | `3\n9\n12\n` | «Opción inválida. Intente de nuevo.» | Ídem | ✅ PASS |
@@ -521,7 +521,7 @@ Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los siet
 | 7 B6b EOF en restricciones | `3\n2\n1\n` | EOF en «Cantidad de Pokémon» → cierre ordenado, exit 0 (no cuelga) | Ídem | ✅ PASS |
 | 8 B7 sha256 datos | batería completa | `data/pokedex.txt` y `data/efectividad.txt` byte-idénticos antes/después (RF-PDX-04) | Ídem | ✅ PASS |
 | 9 B8 columnas | `grep -RInE '.{100,}'` | 0 líneas > 99 columnas en `equipo.c`/`equipo.h`/`main.c` | Ídem | ✅ PASS |
-| P1–P7 probe F4 | probe contra `src/{equipo,pokedex,tipos}.c` | P1 factible 3/100/2 → true, 3 ejemplares, especies en Pokédex, niveles 1..100, nivel total ≤ 100, ≥ 2 tipos, sin repetidas (10 µs); P2 sin solución 6/nivel 5 → false, salida NULL, cantidad 0, poda instantánea 3 µs; P3 min_tipos 18 con 6 ejemplares → false, poda 3b 2 µs; P4 especies permitidas {1} + repetidas → Bulbasaur×3; P5 ataque objetivo 150 → true, ataque total 236; P6 cantidad 0/7 y min_tipos 19 rechazados | Ídem | ✅ PASS |
+| P1–P7 probe F4 | probe contra `src/{equipo,pokedex,tipos}.c` | P1 factible 3/100/2 → true, 3 ejemplares, especies en Pokédex, niveles 1..100, nivel total ≤ 100, ≥ 2 tipos, sin repetidas (6 µs); P2 sin solución 6/nivel 5 → false, salida NULL, cantidad 0, poda instantánea 2 µs; P3 min_tipos 18 con 6 ejemplares → false, poda 3b 2 µs; P4 especies permitidas {1} + repetidas → Bulbasaur×3; P5 ataque objetivo 150 → true, ataque total 236; P6 cantidad 0/7 y min_tipos 19 rechazados | Ídem | ✅ PASS |
 
 ### Matriz de Cumplimiento de Specs (F4)
 
@@ -535,6 +535,31 @@ Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los siet
 | RF-TEC-03 | Entrada inválida no termina el programa | B3/B4/B5: restricciones fuera de rango, entrenador inexistente y opción inválida → mensajes y el programa continúa; EOF en submenú y en restricciones cierra ordenado (B6/B6b, timeout 5 s sin colgar) | ✅ COMPLIANT |
 
 **Resumen de cumplimiento F4**: 6/6 escenarios del alcance F4 completos (RF-EQP-04 con sus 4 escenarios de restricciones + RF-MEN-01 + RF-TEC-03). RF-EQP-04 queda **verificado por completo** — era el requisito diferido desde F2.
+
+#### Veredicto por requisito (verificación formal, 2026-09-21)
+
+| Requisito | Veredicto | Evidencia (1 línea) |
+|---|---|---|
+| RF-EQP-04 (backtracking) | ✅ COMPLIANT | B1/P1 re-ejecutados: {3, 100, ≥2 tipos} → true, 3 ejemplares, especies en Pokédex, niveles 1..100, nivel total 3 ≤ 100, ≥ 2 tipos (Planta/Veneno), sin repetidas, y el equipo se muestra por consola («Equipo generado: 3 ejemplar(es)…» + listado) |
+| RF-EQP-04 (sin solución) | ✅ COMPLIANT | B2/P2 re-ejecutados: {6, nivel total máx 5} → «No existe un equipo que cumpla las restricciones indicadas.», `false`, `*salida = NULL`, `*cantidad = 0` (nunca un equipo inválido), poda de cota inferior en profundidad 1 (7 ms en menú, 2 µs en probe) |
+| RF-EQP-04 (min_tipos alto, poda) | ✅ COMPLIANT | P3 re-ejecutado: {6, 100, 18 tipos} → `false` instantáneo (poda 3b, 2 µs), `*salida = NULL`; la poda 3 (sufijo de tipos) y la 3b acotan el peor caso de §4.5 |
+| RF-EQP-04 (especies permitidas/restringidas) | ✅ COMPLIANT | P4 re-ejecutado: lista permitida {1} + `permitir_repetidas` → Bulbasaur×3 (la restricción excluye el resto de especies; una no admitida solo se excluye) |
+| RF-EQP-04 (restricciones inválidas rechazadas) | ✅ COMPLIANT | B3/P6 re-ejecutados: cantidad 0/7, nivel total 0, tipos 0/19 → rechazo con mensaje en menú (reintento hasta entrada válida) y `false` + `*salida = NULL` en la API; B4: entrenador inexistente rechazado sin terminar |
+| RF-EQP-04 (recursividad real) | ✅ COMPLIANT | Inspección estática de `equipo.c` (513 líneas): `bt_rec` recursiva pura sobre el índice de especie con ramificación k-copias/excluir, caso base éxito con las 3 condiciones (cantidad, tipos, ataque) y salida temprana; no es una simulación iterativa |
+
+#### Revisión de fugas (bt_rec, §4.4) — verificación formal 2026-09-21
+
+Inspección estática 1:1 del ciclo de vida de cada ejemplar en `equipo.c`:
+
+| Ruta de creación | Liberación | Resultado |
+|---|---|---|
+| `equipo_crear_ejemplar` (malloc) en la rama de inclusión, iteraciones `j = 0..k-1` (líneas 410-425) | `free(descarte)` en el bucle de retroceso `while (j > 0)` (líneas 436-442), que desengancha de `*parcial` y decrementa `*creados` | ✅ Cada ejemplar descartado se libera exactamente una vez |
+| Ramificación con `k` copias donde la recursión hija devuelve `false` | Mismo bucle de retroceso libera las `k` copias antes de probar la exclusión | ✅ Sin ejemplares huérfanos en ramas fallidas |
+| `break` por `ej == NULL` (malloc fallido, línea 412-414) | El bucle `while (j > 0)` libera las `j` copias ya creadas de esa rama (no alcanza `j == k`, nunca se llama a la recursión con copias sin crear) | ✅ Sin fuga en el camino de fallo de memoria |
+| Éxito: `bt_rec` devuelve `true` con `restantes == 0` | La lista completa (n = `r->cantidad` ejemplares) es propiedad del llamador; `equipo_formar_backtracking` la invierte y la entrega; `main` la asigna con `equipo_asignar` y la libera con `equipo_liberar` al salir; el probe la libera con `liberar_lista` | ✅ Propiedad transferida, sin doble free |
+| Invariante `*creados` | Vuelve a 0 tras cada fracaso (P2/P3/P6 lo observan vía `*cantidad == 0` y `*salida == NULL`); al éxito vale exactamente `r->cantidad` | ✅ Verificado |
+
+Evidencia empírica (sin valgrind, prohibido por diseño §8): probe `/tmp/opencode/probe_fugas_f4` re-ejecutado — **200 000 iteraciones** alternando caso sin solución (6/nivel 5, crea y libera constantemente) y factible (3/100/2): **0 fallas de invariante** (`*salida == NULL` y `*cantidad == 0` en TODO fracaso; `cantidad == 3` en todo éxito) y **RSS estable 2072 → 2072 KB (delta 0 KB)**. Conclusión: no se observan fugas de memoria en `bt_rec`; el hallazgo se registra como conforme (sin hallazgo adverso).
 
 ### Correctness (Evidencia estática, F4)
 
@@ -575,11 +600,11 @@ Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los siet
 ### Veredicto F4
 
 **PASS**
-El lote F4 cumple RF-EQP-04 (backtracking completo, diferido desde F2), RF-MEN-01 (formación automática en la opción 3) y RF-TEC-03 (validación con reintentos y EOF ordenado): las 4 tareas F4 están completas, el build es limpio (cero warnings), la batería scriptada pasa 12/12 y el probe 24/24 (factible 3/100/2 cumple TODAS las restricciones y se muestra; sin solución 6/nivel 5 → informe y salida NULL con poda instantánea de 3 µs; min_tipos 18 inalcanzable con poda 3b en 2 µs; especies permitidas + repetidas; ataque objetivo 150 con niveles escalados), la liberación al retroceder es 1:1 (revisión manual de cada malloc/free) y la Pokédex permanece inmutable (sha256 estable). Sin CRITICAL ni WARNING; un LOW informativo (cierre del LOW de F2) no bloquea. Presupuesto del lote: 442 líneas de código nuevas (≤ 800 ✓).
+El lote F4 cumple RF-EQP-04 (backtracking completo, diferido desde F2), RF-MEN-01 (formación automática en la opción 3) y RF-TEC-03 (validación con reintentos y EOF ordenado): las 4 tareas F4 están completas, el build es limpio (cero warnings), la batería scriptada pasa 12/12 y el probe 24/24 re-ejecutados en la verificación formal (factible 3/100/2 cumple TODAS las restricciones y se muestra; sin solución 6/nivel 5 → informe y salida NULL con poda instantánea de 2 µs; min_tipos 18 inalcanzable con poda 3b en 2 µs; especies permitidas + repetidas; ataque objetivo 150 con niveles escalados; restricciones inválidas rechazadas), la liberación al retroceder es 1:1 (revisión estática de cada malloc/free en `bt_rec` + probe de fugas de 200 000 iteraciones con RSS estable 2072→2072 KB, 0 fallas de invariante) y la Pokédex permanece inmutable (sha256 estable). Sin CRITICAL ni WARNING; un LOW informativo (cierre del LOW de F2) no bloquea. Presupuesto del lote: 442 líneas de código nuevas (≤ 800 ✓).
 
 ---
 
 ## Veredicto global (F0 + F1 + F2 + F3 + F4)
 
 **PASS WITH WARNINGS por lote; FAIL del envelope por evidencia incompleta del cambio en curso**
-Los lotes F0, F1, F2, F3 y F4 pasan (F3 y F4 sin warnings: 0 CRITICAL, 0 blockers; F4 cierra además el LOW de F2). El envelope declara `verdict: fail` porque el reporte fusionado mantiene evidencia incompleta del cambio en curso: el escenario parcial DOC-03 de F0 (D1 → F10.1), el parcial DOC-04 (ortografía del Doxyfile) y el LOW de F3 (submenú de combate con un solo intento, unificado en F8). Los 2 escenarios de RF-TEC-03 diferidos en F1 quedaron verificados en F2 (casos 6 y 10/11); RF-CMB-01..05 quedan verificados en F3 (batería 16/16 + probe 21/21); RF-EQP-04 queda verificado en F4 (batería 12/12 + probe 24/24). Siguiente lote: F5 (torneo: grupos + clasificación).
+Los lotes F0, F1, F2, F3 y F4 pasan (F3 y F4 sin warnings: 0 CRITICAL, 0 blockers; F4 cierra además el LOW de F2). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F5–F11 (torneo, eliminatorias, resultados/archivos, validación integral, pruebas completas, documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1) y DOC-04 (ortografía del Doxyfile). Conteos autoritativos corregidos contra los 11 specs del cambio (42 requirements / 70 scenarios): **24/42 requirements y 45/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05 y RF-TEC-03 completos; DOC-03/DOC-04 parciales; clasificación, eliminatorias, resultados y torneo pendientes de F5–F7). Los 2 escenarios de RF-TEC-03 diferidos en F1 quedaron verificados en F2 (casos 6 y 10/11); RF-CMB-01..05 quedan verificados en F3 (batería 16/16 + probe 21/21); RF-EQP-04 queda verificado en F4 (batería 12/12 + probe 24/24 re-ejecutados + probe de fugas 200 000 iteraciones). Siguiente lote: F5 (torneo: grupos + clasificación).
