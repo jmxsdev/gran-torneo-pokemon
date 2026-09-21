@@ -1,26 +1,26 @@
 ```yaml
 schema: gentle-ai.verify-result/v1
-evidence_revision: sha256:1aa806547d5c93503009ed88541a83a62ae24619d9ed93b09d54553bde8caf49
+evidence_revision: sha256:562c14d676e49d97c32e5b86d15a3db7f7e1d1f96bd44e57527ac2c59d7db2f2
 verdict: fail
 blockers: 0
 critical_findings: 0
-requirements: 13/14
-scenarios: 22/23
-test_command: batería scriptada F1: /tmp/opencode/bateria_f1.sh (13 casos stdin→grep: mostrar todas, buscar 1/150/0/151/999, nombre PIKACHU/PIKA/zzzz, mono/doble tipo, opción 99, salir 12) + bateria_f1b.sh (pokedex.txt ausente, efectividad.txt ausente, línea corrupta, probe tipos_multiplicador con 5 casos) — cotejo contra spec por caso
+requirements: 20/21
+scenarios: 32/33
+test_command: batería scriptada F2 re-derivada (los originales de /tmp se perdieron): /tmp/opencode/bateria_f2.sh (24 casos stdin→grep: build limpio, carga 32 al inicio, reconstrucción D2 al recargar, registro válido/duplicado/inválido/vacío/tope 32, #151 y #0 sin ejemplar, niveles 0/101 rechazados y 1/100 aceptados, 7.º ejemplar rechazado, 4 líneas corruptas con número de línea, sha256 pokedex.txt intacto, menú integrado exit 0, archivo ausente, opción 99 viva, EOF ordenado) + probe C /tmp/opencode/probe_f2 (D2 exacta 39/35/35/34 y 214/217/217/209, HP 35 id 101, variación id 1 vs 2 y excepción id 1 vs 17, mutación del ejemplar sin tocar la especie) — cotejo contra spec por caso
 test_exit_code: 0
-test_output_hash: sha256:5068e658e14c998f1b810b697861eaaac7051440a0c3b4971c091dc73ecdf31a
+test_output_hash: sha256:18c77af0a91699ef07dd7a2ed4e4392b82759d3ad530c5c03e5ea5f614d63288
 build_command: make clean && make (gcc -std=c99 -Wall -Wextra)
 build_exit_code: 0
-build_output_hash: sha256:09d4b7f5b3410f41596503f1df0df7dc3aa4f180c92a35c3ef8fdc1b964f70da
+build_output_hash: sha256:1c4af6b26ea14e0d2da32c3a309bc841a7362ec80bd337acba939ca62d87015b
 ```
 
-# Informe de Verificación — Gran Torneo Pokémon — Lotes F0 y F1
+# Informe de Verificación — Gran Torneo Pokémon — Lotes F0, F1 y F2
 
 **Change**: gran-torneo-pokemon
-**Fases**: F0 — Convenciones + entorno + esqueleto (Día 1) y F1 — Pokédex + tipos + datos (Día 2)
+**Fases**: F0 — Convenciones + entorno + esqueleto (Día 1), F1 — Pokédex + tipos + datos (Día 2) y F2 — Entrenadores y ejemplares (Día 3, 2026-09-19)
 **Modo**: Standard (strict_tdd=false en `openspec/config.yaml`)
 **Idioma del artefacto**: español neutro y profesional (requisito explícito del proyecto)
-**Fecha**: 2026-09-01
+**Fecha**: 2026-09-19
 
 ---
 
@@ -236,7 +236,126 @@ El lote F1 cumple RF-PDX-01..06, RF-CMB-05 (tabla de efectividad) y la parte F1 
 
 ---
 
-## Veredicto global (F0 + F1)
+## Sección F2 (Día 3) — Entrenadores y ejemplares
+
+**Fase**: F2 — entrenador.c + equipo.c (ejemplares, D2) + archivos.c (carga inicial, alcance F7 adelantado por F2.4) + data/entrenadores.txt + cableado de las opciones 2..5
+**Fecha**: 2026-09-19
+
+### Completeness
+
+| Métrica | Valor |
+|---|---|
+| Tareas del lote F2 | 5 |
+| Tareas completadas | 5 |
+| Tareas incompletas | 0 |
+
+Notas: F2.1 `entrenador.c` (registro con id único, búsqueda, listado), F2.2 `equipo.c` (ejemplares con D2 exacta, validación, liberación), F2.3 `data/entrenadores.txt` (32 entrenadores, formato §5.2), F2.4 cableado de las opciones 2..5 y carga inicial, F2.5 verificación scriptada. `src/archivos.c` (198 líneas) es alcance de F7 adelantado por F2.4 (la carga inicial de entrenadores.txt lo exige); se registra como desvío de presupuesto transparente (+44 líneas, +5,5 % sobre 800), ya documentado en el apply-progress del lote (obs #280).
+
+### Build y Ejecución
+
+**Build**: ✅ Pasó (exit 0, cero warnings)
+```text
+$ make clean && make
+rm -rf build
+mkdir -p build
+gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/entrenador.c src/equipo.c src/main.c src/pokedex.c src/tipos.c
+```
+Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los seis `.c` del proyecto. Hash de la salida del build: `1c4af6b2…` — **idéntico byte a byte** al registrado en el envelope original de F2, lo que corrobora la equivalencia de la evidencia re-derivada. 0 líneas de más de 99 columnas en `src/*.c`/`src/*.h` (awk).
+
+**Pruebas**: ✅ Batería F2 re-derivada (24 casos stdin→grep, incluido el build) + probe C (7 comprobaciones): **50/50 PASS, exit 0**. Los scripts originales (`/tmp/opencode/bateria_f2.sh` y `/tmp/opencode/probe_f2`) se habían perdido del entorno de /tmp; esta batería re-derivada cubre los mismos puntos clave de la verificación F2.5 y reproduce la evidencia exacta del probe C registrada en el envelope (39/35/35/34, 214/217/217/209, variación id 1 vs 2, excepción id 1 vs 17, mutación del ejemplar sin tocar la especie).
+
+| Caso | Entrada | Resultado esperado | Resultado real | Diff |
+|---|---|---|---|---|
+| 1 build | `make clean && make` | exit 0, cero warnings, seis `.c` compilados | Ídem | ✅ PASS |
+| 2 carga inicial | `4\n12\n` | «Entrenadores cargados: 32, líneas rechazadas: 0.» + «(32/32)» | Ídem | ✅ PASS |
+| 3 listado | `4\n12\n` | Ash (id 1) y Gladion (id 32) visibles, contadores en cero | Ídem | ✅ PASS |
+| 4 reconstrucción D2 | `5\n1\n12\n` | Bulbi #101 (especie #1, nivel 12): HP 35/35, Ataque 31, Defensa 31, Velocidad 30 | Ídem | ✅ PASS |
+| 5 registro válido | archivo ausente + `2\n1\nRojo\n4\n12\n` | «Entrenador registrado: id 1, Rojo.» + «(1/32)» | Ídem | ✅ PASS |
+| 5b tope 32 | `2\n33\nRojo\n12\n` | «No se pudo registrar: registro lleno (máximo 32).» | Ídem | ✅ PASS |
+| 6 duplicado | `2\n7\nRojo2\n12\n` | «Ya existe un entrenador con id 7; el registro se rechaza.» | Ídem | ✅ PASS |
+| 7 id inválido | `2\n0\n12\n` | «Id inválido: debe ser un entero positivo.» | Ídem | ✅ PASS |
+| 8 id no numérico | `2\nabc\n4\n12\n` | «Entrada inválida.» + programa vivo | Ídem | ✅ PASS |
+| 9 nombre vacío | `2\n34\n\n12\n` | «El nombre no puede estar vacío.» | Ídem | ✅ PASS |
+| 10 niveles 0/101/1 | `3\n9\n1\n0\n101\n1\n\n0\n12\n` | 0 y 101 → «Nivel inválido (rango 1-100).»; 1 → agregado, equipo 1/6 | Ídem | ✅ PASS |
+| 11 nivel 100 | `3\n9\n1\n100\n\n0\n12\n` | «nivel 100) agregado; equipo 1/6.» + «El equipo es válido» | Ídem | ✅ PASS |
+| 12 7.º ejemplar | `3\n9\n1..6\n10\n\n` + `7\n10\n\n0\n12\n` | 6 agregados (#178–#183), 7.º rechazado, equipo válido | Ídem | ✅ PASS |
+| 13 #151 | `3\n9\n151\n0\n12\n` | «La especie 151 no existe en la Pokédex.» sin terminar | Ídem | ✅ PASS |
+| 14 especie 0 | `3\n9\n0\n5\n9\n12\n` | Termina sin agregar ejemplar; «no tiene equipo» | Ídem | ✅ PASS |
+| 15 salida | `12\n` | «Saliendo del programa.», exit 0 | Ídem | ✅ PASS |
+| 16 EOF | entrada vacía | Cierre ordenado, exit 0 | Ídem | ✅ PASS |
+| 17 opción 99 | `99\n12\n` | «Opción inválida. Intente de nuevo.» + salida | Ídem | ✅ PASS |
+| 18 archivo ausente | renombrar + `4\n12\n` | «Aviso: no se cargaron entrenadores desde el archivo…» + programa vivo | Ídem | ✅ PASS |
+| 19–22 líneas corruptas | 4 variantes (especie 999, nivel 101, id de entrenador duplicado, campos de más) añadidas como línea 33 | «Línea 33 rechazada: campos inválidos (no se registra).» + «cargados: 32, rechazadas: 1» | Ídem | ✅ PASS |
+| 23 sha256 | sesión completa (crear + consultar) | `data/pokedex.txt` estable: `9696e9b2…` antes y después | Ídem | ✅ PASS |
+| P1–P7 probe C | probe contra `src/{pokedex,tipos,equipo,entrenador}.c` | D2 exacta 39/35/35/34 y 214/217/217/209; HP 35 (id 101 nv12); variación 7 vs 14 (id 1 vs 2); excepción id 1 vs 17 (stats idénticas); hp_base=45 intacto tras dañar al ejemplar; #151 y #0 → NULL | Ídem | ✅ PASS |
+
+Los casos 6 y 10/11 cierran los dos escenarios de RF-TEC-03 que F1 dejó diferidos («Entrenador duplicado» y «Nivel inválido»).
+
+### Matriz de Cumplimiento de Specs (F2)
+
+| Requisito | Escenario | Evidencia | Resultado |
+|---|---|---|---|
+| RF-ENT-01 | Registro de entrenador | Caso 5: id 1 «Rojo» se crea con victorias, empates, derrotas y puntuación en cero (caso 3: «G:0 E:0 P:0 Puntos:0»); `struct Entrenador` con id, nombre, equipo y los contadores mínimos exigidos | ✅ COMPLIANT |
+| RF-ENT-02 | Identificador duplicado | Caso 6: id 7 ya registrado → rechazo con mensaje, el programa continúa sin registrar el duplicado | ✅ COMPLIANT |
+| RF-ENT-02 | Identificador inválido | Casos 7/8/9: id 0, id no numérico y nombre vacío → rechazo con mensaje sin terminar el programa | ✅ COMPLIANT |
+| RF-ENT-03 | Guardado y recarga de entrenadores | Casos 2/4: carga de `data/entrenadores.txt` con 32 entrenadores y 0 rechazadas; el equipo de Ash se reconstruye (Bulbi id 101 nv12 → HP 35/35), stats re-derivadas con D2 y contador global fijado al máximo id del archivo (177 → siguiente 178, caso 12) | ✅ COMPLIANT |
+| RF-EQP-01 | Especie inexistente rechazada | Caso 13: #151 → «no existe en la Pokédex» sin terminar; P7: `equipo_crear_ejemplar` devuelve NULL para #151 y #0; caso 19: línea con especie 999 rechazada en la carga | ✅ COMPLIANT |
+| RF-EQP-02 | Ejemplar creado desde especie | P1/P3: Bulbasaur nivel 12 → HP 39 (id 1) / 35 (id 101) según D2, nivel 12, tipos copiados (Planta/Veneno), `hp_actual = hp_max`; fórmula documentada con variación determinista por id | ✅ COMPLIANT |
+| RF-EQP-03 | Dos ejemplares de la misma especie difieren | P4: ids 1 y 2 al mismo nivel → variación 7 vs 14 ⇒ stats distintas; la excepción id 1 vs 17 (P5, misma variación 7 por módulo 16) es la razón exacta por la que el spec usa «normalmente difieren» (MAY) | ✅ COMPLIANT |
+| RF-EQP-03 | Mutación solo del ejemplar | P6: `hp_actual` dañado (-20) → `hp_base` de la especie intacto (45); caso 23: sha256 de `pokedex.txt` idéntico tras crear/consultar ejemplares | ✅ COMPLIANT |
+| RF-EQP-05 | Tamaño fuera de rango | Caso 12: 7.º ejemplar rechazado con 6/6 y mensaje; «El equipo es válido (tamaño 6, especies y niveles correctos)» | ✅ COMPLIANT |
+| RF-EQP-05 | Nivel inválido | Casos 10/11: niveles 0 y 101 rechazados («Nivel inválido (rango 1-100).») y se solicita un nivel válido; 1 y 100 aceptados | ✅ COMPLIANT |
+
+**Resumen de cumplimiento F2**: 10/10 escenarios del alcance F2 completos. 7/8 requisitos del alcance F2 (RF-EQP-04 «Backtracking de formación de equipos» NO es alcance de F2: está planificado en F4 — tasks.md F4.1/F4.4 — y su prototipo ya está declarado en `equipo.h` con las restricciones del diseño §4). Los 2 escenarios de RF-TEC-03 diferidos en F1 quedan verificados aquí (casos 6 y 10/11), como anticipó el resumen F1.
+
+### Correctness (Evidencia estática, F2)
+
+| Requisito | Estado | Notas |
+|---|---|---|
+| RF-ENT-01 | ✅ Implementado | `entrenador_registrar`: id > 0, nombre no vacío, id único (búsqueda previa), tope `MAX_ENTRENADORES=32`, contadores en cero y `equipo = NULL` |
+| RF-ENT-02 | ✅ Implementado | Rechazo previo en `entrenador_registrar` y en `archivos_cargar_entrenadores` (ids vistos del archivo, `entero_en_arreglo`) |
+| RF-ENT-03 | ✅ Implementado | `archivos_cargar_entrenadores`: parseo estricto por `;`, validación completa de la línea ANTES del commit, rollback sin entrenador/equipo a medio cargar, reporte aceptados/rechazados, `equipo_fijar_contador_id` al máximo del archivo |
+| RF-EQP-01 | ✅ Implementado | `equipo_crear_ejemplar` valida la especie en origen (`pokedex_buscar_numero` → NULL); mismo chequeo en la carga de archivo y en `equipo_validar` |
+| RF-EQP-02 | ✅ Implementado | D2 exacta con división entera truncada de C en el orden del diseño; `variacion = (id * 7) % 16` única por ejemplar aplicada a las 4 stats |
+| RF-EQP-03 | ✅ Implementado | La especie se COPIA en el ejemplar (nombre, tipos, stats) y nunca se muta; el único campo mutable del ejemplar es `hp_actual`; consultas de Pokédex `const`-correctas |
+| RF-EQP-05 | ✅ Implementado | `equipo_validar(pd, ent, tamano)`: tamaño 1..tamano, especies existentes, niveles 1..100 y tipos copiados válidos; `equipo_agregar_ejemplar` respeta `MAX_EQUIPO` |
+| RF-TEC-03 (parte F2) | ⚠️ Parcial | Entradas inválidas (numéricas, duplicados, niveles) no terminan el programa, PERO los bucles internos de `crear_equipo` y `leer_entero` no detectan EOF: con fin de entrada a mitad del flujo repiten «Entrada inválida.» indefinidamente (verificado: ~6,1 M líneas en 3 s con `timeout`). El menú principal y `leer_linea` sí manejan EOF (caso 16). Anotado para F8 (`validacion.c`). |
+
+### Coherencia con el Diseño (F2)
+
+| Decisión del diseño | ¿Cumplida? | Notas |
+|---|---|---|
+| D2 (§3): `hp_max = (hp_base * nivel / 50) + nivel + 10 + variacion`; `stat = (stat_base * nivel / 50) + nivel + 5 + variacion`; `variacion = (id * 7) % 16` | ✅ Sí | Probe C exacto: id 1 nv12 → 39/35/35/34; id 2 nv100 → 214/217/217/209; id 101 nv12 → HP 35. División entera truncada en el orden exacto de la decisión |
+| §5.2 formato `ID;NOMBRE;CANT;(ID_EJEMPLAR;NUM_ESPECIE;APODO;NIVEL)×CANT` | ✅ Sí | `data/entrenadores.txt`: 32 líneas, 3 campos base + 4 por ejemplar (máximo 27); CANT 0..6 (Max CANT=0, Paul/Gladion CANT=6); apodos sin `;` |
+| §5.2 reglas: id único, especie en Pokédex, nivel 1..100, stats re-derivadas (no persistidas) | ✅ Sí | Casos 19–22: 4 variantes de línea inválida rechazadas con número de línea y la carga continúa; victorias/empates/derrotas/puntos no se persisten (se reconstruirán desde `resultados.txt` en F7) |
+| §5.2 contador global de ids fijado al máximo del archivo | ✅ Sí | Tras cargar 32 líneas (ids de ejemplar hasta 177), el siguiente id es 178 (caso 12: ejemplares #178–#183) |
+| Constantes: `NIVEL_MAX=100`, `TAM_EQUIPO_TORNEO=6`, `MAX_EQUIPO=6`, `MAX_ENTRENADORES=32` | ✅ Sí | `constantes.h` con los valores exactos adoptados (decisiones docentes resueltas); D7 (niveles 1–100) respetado por `equipo_validar` y `crear_equipo` |
+| §1.3 firmas: `equipo_crear_ejemplar`, `equipo_agregar_ejemplar`, `equipo_validar`, `entrenador_registrar/buscar` | ✅ Sí | Firmas idénticas a las del diseño; ajustes del lote documentados en tasks.md F2.2 |
+| `equipo.h` autónomo: declaración adelantada, sin ciclo de cabeceras | ✅ Sí | `typedef struct Entrenador Entrenador;` en `equipo.h` + tag `struct Entrenador` en `entrenador.h` (fix de F0); compilación estricta sin warnings |
+| §13: verificación scriptada + probe de funciones puras, determinismo total (sin `srand`) | ✅ Sí | Batería 24 casos + probe C 7 comprobaciones, 50/50 PASS, `diff` reproducible por diseño D1/D2 |
+
+### Hallazgos (F2)
+
+**CRITICAL**: Ninguno.
+
+**WARNING**: Ninguno.
+
+**LOW**:
+1. **Hallazgo del gatekeeper — bucles internos sin manejo de EOF en `crear_equipo`/`leer_entero`**: ante EOF a mitad del flujo (p. ej. tras pedir el nivel), el bucle repite «Entrada inválida.» indefinidamente porque `leer_entero` no distingue EOF de entrada no numérica y el bucle hace `continue`. Verificado empíricamente (~6,1 M de líneas en 3 s; el programa no termina). El menú principal (`leer_opcion`) y `leer_linea` sí manejan EOF (caso 16, cierre ordenado). No afecta a los casos scriptados del lote (la entrada termina con opción 12), pero viola el espíritu de RF-TEC-03 (ninguna condición de entrada debe colgar el programa). **Anotado para F8**: `validacion.c` unificará la lectura con detección de EOF. Sin CRITICAL y sin WARNING en F2.
+
+**SUGGESTION**:
+1. `equipo.h` declara `equipo_formar_backtracking` sin implementación en `equipo.c` — es el contrato de F4 (tasks.md F4.1/F4.4, diseño §4). Mantener el prototipo y no implementar antes de F4.
+2. Comentarios Doxygen mixtos en el lote («Busqueda», «Opcion», «linea» sin tilde junto a bloques correctos): misma higiene ortográfica que las SUGGESTION 1 de F0/F1; unificar en el commit de higiene.
+3. El desvío de presupuesto del lote (+44 líneas, +5,5 %) se debe al adelanto de `archivos.c` (alcance F7); quedó documentado y no se mutiló la documentación evaluable — mantener el criterio en los lotes siguientes.
+
+### Veredicto F2
+
+**PASS WITH WARNINGS**
+El lote F2 cumple RF-ENT-01..03 y RF-EQP-01/02/03/05: las 5 tareas F2 están completas, el build es limpio (cero warnings, hash idéntico al envelope original), la batería re-derivada de 24 casos + probe C pasa 50/50 con la fórmula D2 exacta (39/35/35/34 y 214/217/217/209), el registro de entrenadores valida id/duplicado/inválido/vacío/tope, la carga reconstruye 32 entrenadores desde archivo con rechazo de líneas corruptas por número de línea, la especie nunca se muta (sha256 estable) y los 2 escenarios de RF-TEC-03 diferidos en F1 quedan cerrados. Un único hallazgo LOW (EOF en bucles internos, anotado para F8) no bloquea el lote; RF-EQP-04 queda diferido a F4 por plan.
+
+---
+
+## Veredicto global (F0 + F1 + F2)
 
 **PASS WITH WARNINGS por lote; FAIL del envelope por evidencia incompleta del cambio en curso**
-Los lotes F0 y F1 pasan con warnings (0 CRITICAL, 0 blockers). El envelope declara `verdict: fail` porque el reporte fusionado mantiene evidencia incompleta: el escenario parcial DOC-03 de F0 (D1 → F10.1), el parcial DOC-04 (ortografía del Doxyfile) y los 2 escenarios de RF-TEC-03 diferidos a F2/F8. Es el mismo criterio del envelope de F0 y es persistible pero no archive-ready hasta que F10 cierre las parcialidades. Siguiente lote: F2 (entrenadores y ejemplares).
+Los lotes F0, F1 y F2 pasan con warnings (0 CRITICAL, 0 blockers). El envelope declara `verdict: fail` porque el reporte fusionado mantiene evidencia incompleta del cambio en curso: el escenario parcial DOC-03 de F0 (D1 → F10.1), el parcial DOC-04 (ortografía del Doxyfile), el hallazgo LOW de F2 (EOF en bucles internos de `crear_equipo`, anotado para F8) y RF-EQP-04 (backtracking, diferido a F4 por plan). Los 2 escenarios de RF-TEC-03 que F1 había diferido quedaron verificados en F2 (casos 6 y 10/11). Es el mismo criterio del envelope de F0/F1: persistible, pero no archive-ready hasta que F10 cierre las parcialidades documentales, F8 unifique la validación y F4 complete RF-EQP-04. Siguiente lote: F3 (combate).
