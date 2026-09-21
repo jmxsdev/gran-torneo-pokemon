@@ -1,17 +1,18 @@
 ```yaml
 schema: gentle-ai.verify-result/v1
-evidence_revision: sha256:9619bfb5ea68214b1d9646f497e8114e05c3ad14c256dcd97f7b87d15104f63d
+evidence_revision: sha256:835580d320dc473098b561eec76f371f45beb16a64a19f7d62ccb301a6cf5058
 verdict: fail
 blockers: 0
 critical_findings: 0
-requirements: 36/42
-scenarios: 64/70
-test_command: /tmp/opencode/bateria_f6.sh /home/gzuz/Documentos/universidad/algorit-I/Proyecto (batería F6 13 casos stdin→grep: build limpio cero warnings, opción 10 sin torneo armado, opción 11 sin finalizar, armar + opción 10 con etiquetas 49;1A/57;G49/63;P61/64;G61, probe F6 43/43 (bracket fijo RF-ELM-02, transiciones GRUPOS→ELIMINATORIAS→FINALIZADO, rechazos RF-RES-03/RF-ELM-01/RF-RES-02, encadenado G#/P#, campeón G64 + posiciones), regresión probe F5 104/104 y batería F5 17/17, sha256 datos, ≤99 cols)
+requirements: 40/42
+scenarios: 68/70
+test_command: /tmp/opencode/bateria_f7.sh /home/gzuz/Documentos/universidad/algorit-I/Proyecto (batería F7 13 casos stdin→grep: build limpio cero warnings con 9 .c, submenú opción 6, carga parcial 20/48 + pendientes, clasificación parcial + guardado §5.4, teclado con participantes resueltos, probe F7 39/39 (catálogo §8.1 completo, round-trip resultados byte-idéntico, guardar/recargar entrenadores con stats D2 idénticas), regresión probe F6 43/43 + batería F6 13/13 + probe F5 104/104 + batería F5 17/17, sha256 de los 4 datos, ≤99 cols)
 test_exit_code: 0
-test_output_hash: sha256:3869041b75358648188f868d2644a83ac265cb6f63d9a326f7b60c65bd5ee5ce
-build_command: make clean && make (gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entrenador.c src/equipo.c src/main.c src/pokedex.c src/tipos.c src/torneo.c; exit 0, cero warnings)
+test_output_hash: sha256:81be07dca4706f419d919f3b206aaaddeac796603c0dee190eb9bad7eef43f38
+build_command: make clean && make (gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entrenador.c src/equipo.c src/main.c src/pokedex.c src/resultados.c src/tipos.c src/torneo.c; exit 0, cero warnings)
 build_exit_code: 0
-build_output_hash: sha256:72726e4886604a8afd511cc48eaad45f7e9df86d58ee9f3d33a7a8153700c5a5
+build_output_hash: sha256:ef1f166aa935942d8dda0fa788970ef7752f314a91c3fd6e0f7fca24a8c6ae2c
+binary_hash: sha256:d8f9ef0bec5726fe08a25a96c24d6fccfc09bb15fc15ea085c4d584bd1774fd4
 ```
 
 # Informe de Verificación — Gran Torneo Pokémon — Lotes F0, F1, F2 y F3
@@ -866,7 +867,139 @@ El lote F6 cumple RF-ELM-01..05, RF-RES-03 (completo) y los escenarios de elimin
 
 ---
 
-## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5 + F6)
+## Sección F7 (Día 7, 2026-09-21) — Archivos y resultados
+
+**Fase**: F7 — `src/resultados.c` (carga teclado/archivo + `resultados_validar` con el catálogo §8.1), `src/archivos.c` (guardar/cargar entrenadores, cargar/guardar resultados, guardar clasificación §5.4), `data/resultados.txt` parcial (20/48) y cableado de la opción 6 + guardado de clasificación y entrenadores al salir en `main.c`
+**Fecha**: 2026-09-21
+
+### Completeness
+
+| Métrica | Valor |
+|---|---|
+| Tareas del lote F7 | 4 |
+| Tareas completadas | 4 |
+| Tareas incompletas | 0 |
+
+### Build y Ejecución
+
+**Build**: ✅ Pasó (exit 0, cero warnings)
+```text
+$ make clean && make
+rm -rf build
+mkdir -p build
+gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entrenador.c src/equipo.c src/main.c src/pokedex.c src/resultados.c src/tipos.c src/torneo.c
+```
+Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los **nueve** `.c` del proyecto (se añade `resultados.c`). `build_output_hash ef1f166a…` (la línea de compilación cambió respecto a F6) y `binary_hash d8f9ef0b…`. 0 líneas de más de 99 columnas en `src/resultados.c/h`, `src/archivos.c/h`, `src/torneo.c/h` y `src/main.c`. Presupuesto del lote: **797 líneas cambiadas en `src/`** (783 adiciones + 14 borrados, patrón F6; sin contar `data/resultados.txt`, que es dato, no código) ≤ 800 ✓.
+
+**Pruebas**: ✅ Batería F7 scriptada (13 casos stdin→grep) + probe F7 (39 comprobaciones) + regresión completa (probe F6 43/43, batería F6 13/13, probe F5 104/104, batería F5 17/17): **216/216 PASS, exit 0**. Hash del output de pruebas: `81be07dc…`. `evidence_revision sha256:835580d3…` (= sha256 del output del probe, patrón F5/F6).
+
+| Caso | Entrada | Resultado esperado | Resultado real | Diff |
+|---|---|---|---|---|
+| 1 build | `make clean && make` | exit 0, cero warnings, nueve `.c` compilados | Ídem | ✅ PASS |
+| 2 submenú opción 6 | `6\n0\n12\n` | «--- Cargar resultados ---» + «1. Por teclado» + «2. Desde archivo (data/resultados.txt)» | Ídem | ✅ PASS |
+| 3 carga parcial | `6\n2\n12\n` | «Resultados cargados: 20 aplicados, 0 rechazadas.» + «Combates pendientes: 28 de 48 (fase de grupos), 16 de 16 (eliminatoria).» | Ídem | ✅ PASS |
+| 4 clasificación + guardado | `6\n2\n7\n12\n` | `[GRUPO A]` + `1;2;Misty;2;0;1;6;6` + «Clasificación guardada en data/clasificacion.txt.» | Ídem | ✅ PASS |
+| 5 teclado | `6\n1\n5\n1\n3\n1\n0\n12\n` | «Combate 5: Misty (id 2) vs Gary (id 4)» + «Resultado del combate 5 (grupo A) aplicado: victoria.» + «Resultados cargados por teclado: 1 aplicados.» | Ídem | ✅ PASS |
+| 6 probe F7 | probe contra los 9 `.c` | 39 comprobaciones (ver desglose) | Ídem | ✅ PASS |
+| 7 regresión batería F6 | `bateria_f6.sh` | `BATERÍA F6: 13 PASS, 0 FALLA` | Ídem | ✅ PASS |
+| 8 regresión batería F5 | `bateria_f5.sh` | `BATERÍA F5: 17 PASS, 0 FALLA` | Ídem | ✅ PASS |
+| 9 sha256 datos | batería completa | `pokedex.txt`, `efectividad.txt`, `entrenadores.txt` y `resultados.txt` (e08bdc4e…) byte-idénticos | Ídem | ✅ PASS |
+| 10 columnas | `grep -RInE '.{100,}'` | 0 líneas > 99 en el lote F7 | Ídem | ✅ PASS |
+| 11 formato resultados.txt | `awk -F';'` | 20 líneas, 7 campos por línea (§5.3) | Ídem | ✅ PASS |
+
+### Matriz de Cumplimiento de Specs (F7)
+
+| Requisito | Escenario | Evidencia | Resultado |
+|---|---|---|---|
+| RF-RES-01 | Resultado parcial | Batería 3 + probe P3: 20/48 aplicados, torneo sigue en GRUPOS, pendientes 28+16; faltantes ingresables por teclado (batería 5) | ✅ COMPLIANT |
+| RF-RES-02 | Entrenador inexistente | Probe P5: combate 21 con entrenador 99 ⇒ rechazo «El entrenador 99 del combate 21 no está registrado.» (programa sigue vivo) | ✅ COMPLIANT |
+| RF-RES-02 | Eliminado no reaparece | Probe P7: el perdedor de 49 (id 6) en 58 ⇒ rechazo «no coinciden con los resueltos» | ✅ COMPLIANT (completo: F6 + F7) |
+| RF-RES-02 | Empate en eliminatoria rechazado | Probe P6: `RES_EMPATE` en 57 ⇒ rechazo «La eliminatoria no admite empates (RF-ELM-01).» | ✅ COMPLIANT (completo) |
+| RF-RES-03 | Participante manual rechazado | Probe P8: participantes (1,17) en 57 ⇒ rechazo; el usuario solo declara resultado/KOs en teclado (batería 5: el sistema muestra «Combate 5: Misty vs Gary») | ✅ COMPLIANT (completo) |
+| RF-RES-04 | Carga desde archivo | Probe P3: 20 registros con esquema §5.3 (5 o 7 campos) aplicados; guardado recargable y byte-idéntico (P9) | ✅ COMPLIANT |
+| RF-ENT-03 | Guardado y recarga de entrenadores | Probe P2: guardar → recargar → equipos idénticos (id, especie, apodo, nivel y stats D2 recalculadas); contador global sin colisión (id 178) | ✅ COMPLIANT |
+| RF-CLS-01 | Salida a archivo | Probe P10 + batería 4: `data/clasificacion.txt` con cabecera `[GRUPO A]`, 7 campos por fila (sin derrotados), fila `1;2;Misty;2;0;1;6` (formato §5.4 EXACTO) | ✅ COMPLIANT (completo: F5 + F7) |
+| RF-CLS-01 | Tabla ordenada | Probe P4: clasificación parcial coherente A=2,1,4,3, B=5,7,6,8, C=9,11,12,10, D=15,13,14,16 (RF-TRN-04 completa) | ✅ COMPLIANT (completo) |
+| RF-MEN-01 | Opciones 6 y 7 | Batería 2-5: opción 6 con submenú teclado/archivo + pendientes; opción 7 muestra y guarda la clasificación | ✅ COMPLIANT |
+
+**Resumen de cumplimiento F7**: 10/10 escenarios del alcance F7 completos. RF-RES-01, RF-RES-04 y RF-ENT-03 quedan íntegros; RF-RES-02 se completa (faltaba «Entrenador inexistente»); RF-CLS-01 se completa con la «Salida a archivo»; RF-RES-03 y RF-MEN-01 refuerzan su cobertura con la opción 6.
+
+#### Veredicto por requisito (2026-09-21)
+
+| Requisito | Veredicto | Evidencia (1 línea) |
+|---|---|---|
+| RF-RES-01 | ✅ COMPLIANT | Batería 3/5 + probe P3: parciales 20/48, pendientes y faltantes por teclado |
+| RF-RES-02 | ✅ COMPLIANT | Probe P5 (inexistente) + P7 (eliminado) + P6 (empate): catálogo §8.1 completo |
+| RF-RES-03 | ✅ COMPLIANT | Probe P8 + teclado: participantes siempre resueltos por el sistema |
+| RF-RES-04 | ✅ COMPLIANT | Probe P3/P9: esquema §5.3 con 5 o 7 campos, recargable y byte-idéntico |
+| RF-ENT-03 | ✅ COMPLIANT | Probe P2: guardar/recargar equipos idénticos (stats D2 recalculadas) |
+| RF-CLS-01 | ✅ COMPLIANT | Probe P4/P10: tabla ordenada + salida a archivo con formato §5.4 exacto |
+| RF-MEN-01 | ✅ COMPLIANT | Opciones 6 y 7 cableadas (submenú, pendientes, guardado) |
+
+#### Revisión de bordes (F7)
+
+| Borde | Evidencia | Resultado |
+|---|---|---|
+| Parciales 20/48 | Probe P3: 20 aplicados, 28+16 pendientes, torneo en GRUPOS | ✅ PASS |
+| Entrenador inexistente | Probe P5: rechazo con mensaje específico, programa continúa | ✅ PASS |
+| Duplicado | Probe P12: combate 1 con resultado ⇒ rechazo «ya tiene resultado» | ✅ PASS |
+| Ronda incorrecta (49 con grupos incompletos) | Probe P13: rechazo «fase de grupos no está completa» | ✅ PASS |
+| Empate en eliminatoria | Probe P6: RES_EMPATE en 57 ⇒ rechazo RF-ELM-01 | ✅ PASS |
+| Eliminado que reaparece | Probe P7: perdedor de 49 en 58 ⇒ rechazo (participantes ≠ resueltos) | ✅ PASS |
+| Participante manual arbitrario | Probe P8: (1,17) en 57 ⇒ rechazo RF-RES-03 | ✅ PASS |
+| V1 coherente con resueltos | Probe P8: sí se acepta con los participantes resueltos | ✅ PASS |
+| KOs opcionales (5 campos) | Probe P3/P9: líneas con 5 campos ⇒ KOs 0; con 7 ⇒ leídos; 6 ⇒ rechazo | ✅ PASS |
+| Guardar/recargar entrenadores | Probe P2: stats D2 idénticas por id; contador global sin colisión | ✅ PASS |
+| Round-trip resultados | Probe P9: archivo guardado byte-idéntico y recargable con el mismo estado | ✅ PASS |
+| Formato §5.4 exacto | Probe P10: 8 cabeceras [GRUPO X], 7 campos por fila, sin derrotados | ✅ PASS |
+| datos/resultados.txt estable | sha256 e08bdc4e… tras cargar y salir (no se autoguarda) | ✅ PASS |
+
+### Correctness (Evidencia estática, F7)
+
+| Requisito | Estado | Notas |
+|---|---|---|
+| RF-RES-02 | ✅ Implementado | `resultados_validar` con el catálogo §8.1 completo y mensaje específico por caso; teclado y archivo la usan antes de delegar en `torneo_aplicar_resultado` |
+| RF-RES-03 | ✅ Implementado | El teclado muestra los participantes resueltos y no los pide; el archivo exige ids == resueltos |
+| RF-RES-01/04 | ✅ Implementado | Parciales permitidos; `resultados_mostrar_pendientes`; archivo con 5 o 7 campos |
+| RF-ENT-03 | ✅ Implementado | `archivos_guardar_entrenadores` (formato §5.2); determinismo D2 por id al recargar |
+| RF-CLS-01 | ✅ Implementado | `archivos_guardar_clasificacion` con formato §5.4 exacto (sin derrotados) vía `torneo_clasificacion_grupo` (orden compartido con la pantalla) |
+| RF-MEN-01 | ✅ Implementado | Opción 6 (submenú teclado/archivo + pendientes), opción 7 guarda; entrenadores se guardan al salir si cambiaron |
+
+### Coherencia con el Diseño (F7)
+
+| Decisión del diseño | ¿Cumplida? | Notas |
+|---|---|---|
+| §5.2 entrenadores.txt entrada/salida | ✅ Sí | Cargador F2 + `archivos_guardar_entrenadores`; stats no persistidas, re-derivadas con D2 (probe P2) |
+| §5.3 resultados.txt con parciales y KOs opcionales | ✅ Sí | Esquema NUM;ID1;ID2;RESULTADO;GANADOR[;KOS1;KOS2]; «-» para empates; recargable |
+| §5.4 clasificacion.txt EXACTO sin derrotados | ✅ Sí | Cabecera + 7 campos por fila; la pantalla sí muestra derrotados (8 campos) |
+| §1.3 `archivos_guardar_clasificacion(const Torneo *, const char *)` | ⚠️ Menor | Se añade `const RegistroEntrenadores *` para resolver los nombres (el diseño no lo incluía); patrón de la desviación de F6 en `torneo_mostrar_posiciones_finales` |
+| §1.2 `resultados` delega la aplicación en `torneo` | ✅ Sí | `resultados_validar` valida; `torneo_aplicar_resultado` aplica (validación idempotente) |
+| §1.2 `resultados` depende de `validacion` | ⚠️ Diferido | Los lectores triestado locales replican el patrón de main.c; F8 los unificará en `validacion.c` (RF-TEC-03) |
+| §8.1 «Resultado compatible con rondas previas» | ✅ Sí | Ronda/estado + fuentes G#/P# sin resolver ⇒ «no está disponible aún» (P13/P7) |
+
+### Hallazgos (F7)
+
+**CRITICAL**: Ninguno.
+
+**WARNING**: Ninguno.
+
+**LOW**:
+1. **Firma de `archivos_guardar_clasificacion`**: el diseño §1.3 la declaraba sin el registro; se añadió `const RegistroEntrenadores *` porque el formato §5.4 incluye NOMBRE y el torneo solo guarda ids. No cambia contratos previos (no se usaba).
+2. **`torneo_clasificacion_grupo` nueva pública**: se añade a `torneo.h` para que el archivo y la pantalla compartan la ordenación exacta de RF-TRN-04 (evita duplicar el comparador en `archivos.c`).
+3. **Resultados NO autoguardados al salir**: `archivos_guardar_resultados` existe y se verifica por probe (round-trip byte-idéntico), pero el menú no la invoca automáticamente: evita que una sesión de teclado pise `data/resultados.txt` (el ejemplo debe permanecer estable para las baterías). El enunciado solo pide autoguardar entrenadores y clasificación.
+
+**SUGGESTION**:
+1. F8 (validación integral) puede unificar los lectores triestado de `main.c` y `resultados.c` en `validacion.c` (RF-TEC-03).
+2. F9 puede cablear opcionalmente el guardado explícito de resultados (p. ej. dentro de la opción 6) si se desea persistir teclado sin reescribir el ejemplo.
+
+### Veredicto F7
+
+**PASS**
+El lote F7 cumple RF-RES-01, RF-RES-02 (catálogo §8.1 completo: parciales, entrenador inexistente, duplicado, ronda incorrecta, empate en eliminatoria, eliminado que no reaparece, participante manual), RF-RES-03 (completo con teclado), RF-RES-04, RF-ENT-03 (guardar/recargar con stats D2 idénticas) y RF-CLS-01 (salida a archivo con formato §5.4 exacto), con el cableado de la opción 6 y el guardado de clasificación/entrenadores: las 4 tareas F7 están completas, el build es limpio (cero warnings, nueve `.c`, `binary_hash d8f9ef0b…`), la batería F7 pasa 13/13, el probe F7 pasa 39/39 y la regresión completa F5/F6 pasa (probe F6 43/43 + batería F6 13/13 + probe F5 104/104 + batería F5 17/17). Sin CRITICAL ni WARNING; tres LOW informativos no bloquean. Presupuesto del lote: 797 líneas cambiadas en `src/` (≤ 800 ✓); `data/resultados.txt` (20 líneas, dato) no cuenta como código.
+
+---
+
+## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5 + F6 + F7)
 
 **PASS WITH WARNINGS por lote; FAIL del envelope por evidencia incompleta del cambio en curso**
-Los lotes F0, F1, F2, F3, F4, F5 y F6 pasan (F3–F6 sin warnings: 0 CRITICAL, 0 blockers). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F7–F11 (resultados/archivos, validación integral, pruebas completas, documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1), DOC-04 (ortografía del Doxyfile), RF-CLS-01 (salida a archivo → F7) y RF-RES-02 (escenario «Entrenador inexistente» → F7). Conteos autoritativos contra los 11 specs del cambio (42 requirements / 70 scenarios): **36/42 requirements y 64/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05, RF-TRN-01..06, RF-TEC-03, RF-ELM-01..05 y RF-RES-03 completos; DOC-03/DOC-04/RF-CLS-01 y RF-RES-02 parciales; RF-RES-01/04 pendientes de F7). RF-ELM-01..05 y RF-RES-03 quedan verificados en F6 (batería 13/13 + probe 43/43 + regresión completa F5, 2026-09-21); RF-TRN-01..06 verificados en F5. Siguiente lote: F7 (archivos y resultados: carga por teclado/archivo, validación RF-RES-02 completa y salida de clasificación).
+Los lotes F0, F1, F2, F3, F4, F5, F6 y F7 pasan (F3–F7 sin warnings: 0 CRITICAL, 0 blockers). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F8–F11 (validación integral, pruebas completas, documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1) y DOC-04 (ortografía del Doxyfile → F10.3). Conteos autoritativos contra los 11 specs del cambio (42 requirements / 70 scenarios): **40/42 requirements y 68/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-TEC-03, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05, RF-TRN-01..06, RF-ELM-01..05, RF-RES-01..04 y RF-CLS-01 completos; DOC-03/DOC-04 parciales). RF-RES-01, RF-RES-02 (escenario «Entrenador inexistente»), RF-RES-04 y RF-CLS-01 («Salida a archivo») quedan verificados en F7 (batería 13/13 + probe 39/39 + regresión completa F5/F6, 2026-09-21). Siguiente lote: F8 (validación integral de entradas RF-TEC-03 con `validacion.c`).
