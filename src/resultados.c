@@ -10,14 +10,19 @@
  * @date 2026-09-21
  */
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "resultados.h"
+#include "validacion.h"
 
 /* Combates de la fase de grupos (48); el resto (49..64) es eliminatoria. */
 #define COMBATES_GRUPO 48
+
+/* Máximo de campos por línea del esquema §5.3 (NUM;ID1;ID2;RES;GAN;KOS1;KOS2). */
+#define CAMPOS_MAX_LINEA 8
 
 /* Busca un entrenador por id sin mutar el registro (solo lectura). */
 static const Entrenador *entrenador_por_id(const RegistroEntrenadores *reg,
@@ -33,37 +38,6 @@ static const Entrenador *entrenador_por_id(const RegistroEntrenadores *reg,
         }
     }
     return NULL;
-}
-
-/* Descarta el resto de la línea actual de stdin (tras un scanf de entero). */
-static void descartar_linea(void)
-{
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) {
-        /* descartar */
-    }
-}
-
-/**
- * Lee un entero de stdin validando la conversión (RF-TEC-03): 1 si se leyó
- * un entero; 0 si la entrada no es numérica; -1 ante EOF (cierre ordenado).
- * Ninguna entrada inválida termina el programa. Patrón idéntico al lector
- * de main.c; la fase F8 lo unificará en el módulo validacion.
- */
-static int leer_entero(int *salida)
-{
-    int leido = scanf("%d", salida);
-
-    if (leido == EOF) {
-        return -1;
-    }
-    if (leido != 1) {
-        printf("Entrada inválida.\n");
-        descartar_linea();
-        return 0;
-    }
-    descartar_linea();
-    return 1;
 }
 
 bool resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
@@ -214,21 +188,20 @@ bool resultados_cargar_teclado(Torneo *t, RegistroEntrenadores *reg)
         int id1;
         int id2;
         int res_opcion;
-        int leido;
         const Entrenador *e1;
         const Entrenador *e2;
+        char prompt[64];
+        char msg_combate[64];
 
-        printf("Número de combate (1-%d, 0 para terminar): ", TOTAL_COMBATES);
-        leido = leer_entero(&numero);
-        if (leido == -1 || numero == 0) {
-            break;   /* EOF o "terminar": cierre ordenado */
-        }
-        if (leido == 0) {
-            continue;   /* entrada no numérica: reintentar */
-        }
-        if (numero < 1 || numero > TOTAL_COMBATES) {
-            printf("Número de combate inválido (1-%d).\n", TOTAL_COMBATES);
-            continue;
+        snprintf(msg_combate, sizeof(msg_combate),
+                 "Número de combate inválido (1-%d).", TOTAL_COMBATES);
+        snprintf(prompt, sizeof(prompt),
+                 "Número de combate (1-%d, 0 para terminar): ",
+                 TOTAL_COMBATES);
+        numero = validar_leer_entero_msg(prompt, 0, TOTAL_COMBATES,
+                                         msg_combate);
+        if (numero == 0) {
+            break;   /* "terminar" o EOF: cierre ordenado */
         }
 
         /* El sistema resuelve los participantes (RF-RES-03). */
@@ -244,47 +217,32 @@ bool resultados_cargar_teclado(Torneo *t, RegistroEntrenadores *reg)
                e1 != NULL ? e1->nombre : "?", id1,
                e2 != NULL ? e2->nombre : "?", id2);
 
-        if (numero <= COMBATES_GRUPO) {
-            printf("Resultado (1=V1, 2=V2, 3=Empate, 0=terminar): ");
-        } else {
-            printf("Resultado (1=V1, 2=V2, 0=terminar): ");
+        res_opcion = validar_leer_entero_msg(
+            (numero <= COMBATES_GRUPO)
+                ? "Resultado (1=V1, 2=V2, 3=Empate, 0=terminar): "
+                : "Resultado (1=V1, 2=V2, 0=terminar): ",
+            0, 3, "Resultado inválido para este combate.");
+        if (res_opcion == 0) {
+            break;   /* "terminar" o EOF */
         }
-        leido = leer_entero(&res_opcion);
-        if (leido == -1 || res_opcion == 0) {
-            break;   /* EOF o "terminar" */
-        }
-        if (leido == 0) {
-            continue;
-        }
-        if (res_opcion < 1 || res_opcion > 3 ||
-            (numero > COMBATES_GRUPO && res_opcion == 3)) {
+        if (numero > COMBATES_GRUPO && res_opcion == 3) {
             printf("Resultado inválido para este combate.\n");
             continue;
         }
 
-        printf("KOs del entrenador %d (>=0): ", id1);
-        leido = leer_entero(&r.kos1);
-        if (leido == -1) {
-            break;
+        snprintf(prompt, sizeof(prompt), "KOs del entrenador %d (>=0): ",
+                 id1);
+        r.kos1 = validar_leer_entero_msg(
+            prompt, 0, INT_MAX, "Los KOs no pueden ser negativos.");
+        if (r.kos1 == 0 && feof(stdin)) {
+            break;   /* EOF: cierre ordenado */
         }
-        if (leido == 0) {
-            continue;
-        }
-        if (r.kos1 < 0) {
-            printf("Los KOs no pueden ser negativos.\n");
-            continue;
-        }
-        printf("KOs del entrenador %d (>=0): ", id2);
-        leido = leer_entero(&r.kos2);
-        if (leido == -1) {
-            break;
-        }
-        if (leido == 0) {
-            continue;
-        }
-        if (r.kos2 < 0) {
-            printf("Los KOs no pueden ser negativos.\n");
-            continue;
+        snprintf(prompt, sizeof(prompt), "KOs del entrenador %d (>=0): ",
+                 id2);
+        r.kos2 = validar_leer_entero_msg(
+            prompt, 0, INT_MAX, "Los KOs no pueden ser negativos.");
+        if (r.kos2 == 0 && feof(stdin)) {
+            break;   /* EOF: cierre ordenado */
         }
 
         r.numero = numero;
@@ -323,8 +281,9 @@ bool resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
 
     while (fgets(linea, (int)sizeof(linea), archivo) != NULL) {
         ResultadoCargado r;
-        char *tok;
-        char *tok_ganador;
+        char *campos[CAMPOS_MAX_LINEA];
+        int ncampos;
+        int i;
         size_t largo;
 
         numero_linea++;
@@ -339,56 +298,38 @@ bool resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
 
         /* Esquema §5.3: NUM;ID1;ID2;RESULTADO;GANADOR[;KOS1;KOS2].
            Los 5 primeros campos son el mínimo de RF-RES-04: si la línea
-           trae solo 5, los KOs valen 0. */
-        tok = strtok(linea, ";");
-        if (tok == NULL) {
+           trae solo 5, los KOs valen 0. F8: se separa sin omitir campos
+           vacíos (';;') para no desplazar los campos silenciosamente
+           (cierre del hallazgo SUGGESTION F2). */
+        ncampos = validar_separar_campos(linea, campos, CAMPOS_MAX_LINEA);
+        if (ncampos < 5 || ncampos == 6 || ncampos > 7) {
             goto linea_invalida;
         }
-        r.numero = atoi(tok);
-        tok = strtok(NULL, ";");
-        if (tok == NULL) {
-            goto linea_invalida;
+        for (i = 0; i < ncampos; i++) {
+            if (campos[i][0] == '\0') {
+                goto linea_invalida;   /* campo vacío (';;') */
+            }
         }
-        r.id_entrenador1 = atoi(tok);
-        tok = strtok(NULL, ";");
-        if (tok == NULL) {
-            goto linea_invalida;
-        }
-        r.id_entrenador2 = atoi(tok);
-        tok = strtok(NULL, ";");
-        if (tok == NULL) {
-            goto linea_invalida;
-        }
-        if (strcmp(tok, "V1") == 0) {
+        r.numero = atoi(campos[0]);
+        r.id_entrenador1 = atoi(campos[1]);
+        r.id_entrenador2 = atoi(campos[2]);
+        if (strcmp(campos[3], "V1") == 0) {
             r.resultado = RES_V1;
-        } else if (strcmp(tok, "V2") == 0) {
+        } else if (strcmp(campos[3], "V2") == 0) {
             r.resultado = RES_V2;
-        } else if (strcmp(tok, "E") == 0) {
+        } else if (strcmp(campos[3], "E") == 0) {
             r.resultado = RES_EMPATE;
         } else {
             goto linea_invalida;
         }
-        tok = strtok(NULL, ";");
-        if (tok == NULL) {
-            goto linea_invalida;
-        }
-        tok_ganador = tok;
-        r.id_ganador = (strcmp(tok_ganador, "-") == 0) ? 0 : atoi(tok_ganador);
+        r.id_ganador = (strcmp(campos[4], "-") == 0) ? 0 : atoi(campos[4]);
 
-        tok = strtok(NULL, ";");
-        if (tok == NULL) {
-            r.kos1 = 0;   /* solo 5 campos: KOs por defecto en 0 */
+        if (ncampos == 5) {
+            r.kos1 = 0;   /* mínimo de RF-RES-04: KOs por defecto en 0 */
             r.kos2 = 0;
         } else {
-            r.kos1 = atoi(tok);
-            tok = strtok(NULL, ";");
-            if (tok == NULL) {
-                goto linea_invalida;   /* 6 campos: malformado */
-            }
-            r.kos2 = atoi(tok);
-            if (strtok(NULL, ";") != NULL) {
-                goto linea_invalida;   /* mas de 7 campos */
-            }
+            r.kos1 = atoi(campos[5]);
+            r.kos2 = atoi(campos[6]);
         }
 
         if (aplicar_resultado(t, reg, &r)) {

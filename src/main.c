@@ -5,12 +5,14 @@
  * @date 2026-09-01
  */
 
+#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "constantes.h"
+#include "validacion.h"
 #include "pokedex.h"
 #include "tipos.h"
 #include "entrenador.h"
@@ -43,81 +45,19 @@ static void mostrar_menu(void)
     printf("10. Mostrar resultados del torneo\n");
     printf("11. Mostrar campeón\n");
     printf("12. Salir\n");
-    printf("Seleccione una opción (1-12): ");
 }
 
-/**
- * Lee la opcion del menu con validacion de rango (RF-MEN-01, RF-TEC-03).
- * Devuelve 0 ante EOF para un cierre ordenado, -1 si la entrada no es un
- * entero valido y la opcion leida en caso contrario.
- */
+/* Lee la opción del menú con la API común (RF-TEC-03); 0 ante EOF. */
 static int leer_opcion(void)
 {
-    int opcion = 0;
-    int leido = scanf("%d", &opcion);
-
-    if (leido == EOF) {
-        return 0;   /* cierre ordenado */
-    }
-    if (leido == 0) {
-        /* entrada no numerica: descartar el resto de la linea */
-        int c;
-        while ((c = getchar()) != '\n' && c != EOF) {
-            /* descartar */
-        }
-        return -1;
-    }
-    return opcion;
+    return validar_leer_entero_msg("Seleccione una opción (1-12): ", 1, 12,
+                                   "Opción inválida. Intente de nuevo.");
 }
 
-/**
- * Lee una linea de texto desde stdin (sin el '\n' final). Devuelve false
- * ante EOF. Se usa para capturar el nombre de una especie a buscar.
- */
-static bool leer_linea(char *buf, size_t n)
+/* Lee un id de entrenador (el dominio lo valida el llamador); 0 ante EOF. */
+static int leer_id_entrenador(const char *prompt)
 {
-    if (fgets(buf, (int)n, stdin) == NULL) {
-        return false;
-    }
-    size_t largo = strlen(buf);
-    if (largo > 0 && buf[largo - 1] == '\n') {
-        buf[largo - 1] = '\0';
-    }
-    return true;
-}
-
-/**
- * Descarta el resto de la linea actual de stdin (tras un scanf de entero).
- */
-static void descartar_linea(void)
-{
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) {
-        /* descartar */
-    }
-}
-
-/**
- * Lee un entero de stdin validando la conversión (RF-TEC-03).
- * Devuelve 1 si se leyó un entero; 0 si la entrada no es numérica
- * (imprime aviso y descarta la línea); -1 ante EOF (cierre ordenado).
- * Ninguna entrada inválida termina el programa: el llamador decide si
- * reintenta o abandona.
- */
-static int leer_entero(int *salida)
-{
-    int leido = scanf("%d", salida);
-
-    if (leido == EOF) {
-        return -1;
-    }
-    if (leido != 1) {
-        printf("Entrada inválida.\n");
-        descartar_linea();
-        return 0;
-    }
-    descartar_linea();
-    return 1;
+    return validar_leer_entero(prompt, INT_MIN, INT_MAX);
 }
 
 /**
@@ -141,53 +81,55 @@ static void mostrar_resultado_busqueda(const Especie *esp)
  */
 static void consultar_pokedex(const Pokedex *pd)
 {
-    int salir_submenu = 0;
+    /* Cierre del hallazgo F1 (WARNING): si la Pokédex no está cargada, el
+       submenú completo avisa y vuelve al menú en lugar de responder
+       "No se encontró la especie solicitada." en las ramas 2/3/4
+       (RF-PDX-06, RF-TEC-03). */
+    if (pd->cantidad == 0) {
+        printf("La Pokédex no está cargada.\n");
+        return;
+    }
 
-    while (!salir_submenu) {
+    for (;;) {
         printf("\n--- Consultar Pokédex ---\n");
         printf("1. Mostrar todas las especies\n");
         printf("2. Buscar por número\n");
         printf("3. Buscar por nombre\n");
         printf("4. Consultar ficha completa\n");
         printf("0. Volver al menú principal\n");
-        printf("Seleccione una opción: ");
 
-        int opcion = leer_opcion();
+        int opcion = validar_leer_entero_msg(
+            "Seleccione una opción: ", 0, 4,
+            "Opción inválida. Intente de nuevo.");
 
         if (opcion == 0) {
             printf("\n");
-            return;   /* EOF: cierre ordenado */
+            return;   /* "volver" o EOF: cierre ordenado */
         }
 
         switch (opcion) {
-        case 0:
-            salir_submenu = 1;
-            break;
         case 1:
-            if (pd->cantidad == 0) {
-                printf("La Pokédex no está cargada.\n");
-            } else {
-                pokedex_mostrar_todas(pd);
-            }
+            pokedex_mostrar_todas(pd);
             break;
         case 2:
         case 4: {
             int numero;
-            printf("Ingrese el número de especie: ");
-            if (leer_entero(&numero) <= 0) {
-                break;
+            numero = validar_leer_entero("Ingrese el número de especie: ",
+                                         1, POKEDEX_MAX);
+            if (numero == 0) {
+                break;   /* EOF: vuelve al submenú */
             }
             mostrar_resultado_busqueda(pokedex_buscar_numero(pd, numero));
             break;
         }
         case 3: {
             char nombre[TAM_MAX_APODO * 2];
-            descartar_linea();
-            printf("Ingrese el nombre de la especie: ");
-            if (leer_linea(nombre, sizeof(nombre))) {
-                mostrar_resultado_busqueda(
-                    pokedex_buscar_nombre(pd, nombre));
+            if (!validar_leer_cadena("Ingrese el nombre de la especie: ",
+                                     nombre, sizeof(nombre))) {
+                printf("\n");
+                return;   /* EOF: cierre ordenado */
             }
+            mostrar_resultado_busqueda(pokedex_buscar_nombre(pd, nombre));
             break;
         }
         default:
@@ -208,16 +150,16 @@ static void registrar_entrenador(RegistroEntrenadores *reg)
     int id;
     char nombre[TAM_MAX_NOMBRE];
 
-    printf("Ingrese el id del entrenador: ");
-    if (leer_entero(&id) <= 0) {
-        return;
+    id = leer_id_entrenador("Ingrese el id del entrenador: ");
+    if (id == 0 && feof(stdin)) {
+        return;   /* EOF: cierre ordenado */
     }
     if (id <= 0) {
         printf("Id inválido: debe ser un entero positivo.\n");
         return;
     }
-    printf("Ingrese el nombre del entrenador: ");
-    if (!leer_linea(nombre, sizeof(nombre))) {
+    if (!validar_leer_cadena("Ingrese el nombre del entrenador: ",
+                             nombre, sizeof(nombre))) {
         return;   /* EOF: cierre ordenado */
     }
     if (nombre[0] == '\0') {
@@ -252,68 +194,37 @@ static void formar_equipo_automatico(const Pokedex *pd, Entrenador *ent)
     RestriccionesEquipo restricciones;
     Ejemplar *equipo = NULL;
     int cantidad = 0;
-    int valor;
+    char msg_cantidad[64];
+    char msg_tipos[64];
 
     if (pd->cantidad == 0) {
         printf("La Pokédex no está cargada; no se puede formar un equipo.\n");
         return;
     }
 
-    for (;;) {
-        printf("Cantidad de Pokémon (1-%d): ", MAX_EQUIPO);
-        {
-            int leido = leer_entero(&valor);
-            if (leido == -1) {
-                return;   /* EOF: cierre ordenado */
-            }
-            if (leido == 0) {
-                continue;
-            }
-        }
-        if (valor < 1 || valor > MAX_EQUIPO) {
-            printf("Cantidad inválida: debe estar entre 1 y %d.\n",
-                   MAX_EQUIPO);
-            continue;
-        }
-        restricciones.cantidad = valor;
-        break;
+    /* Mensajes específicos de rechazo (F8): se conservan los textos que la
+       batería F4 verifica, con la API común validar_leer_entero_msg. */
+    snprintf(msg_cantidad, sizeof(msg_cantidad),
+             "Cantidad inválida: debe estar entre 1 y %d.", MAX_EQUIPO);
+    snprintf(msg_tipos, sizeof(msg_tipos),
+             "Cantidad de tipos inválida: debe estar entre 1 y %d.",
+             CANT_TIPOS);
+
+    restricciones.cantidad = validar_leer_entero_msg(
+        "Cantidad de Pokémon (1-6): ", 1, MAX_EQUIPO, msg_cantidad);
+    if (restricciones.cantidad == 0) {
+        return;   /* EOF: cierre ordenado */
     }
-    for (;;) {
-        printf("Nivel total máximo (entero positivo): ");
-        {
-            int leido = leer_entero(&valor);
-            if (leido == -1) {
-                return;   /* EOF: cierre ordenado */
-            }
-            if (leido == 0) {
-                continue;
-            }
-        }
-        if (valor < 1) {
-            printf("Nivel total inválido: debe ser positivo.\n");
-            continue;
-        }
-        restricciones.nivel_total_max = valor;
-        break;
+    restricciones.nivel_total_max = validar_leer_entero_msg(
+        "Nivel total máximo (entero positivo): ", 1, INT_MAX,
+        "Nivel total inválido: debe ser positivo.");
+    if (restricciones.nivel_total_max == 0) {
+        return;   /* EOF: cierre ordenado */
     }
-    for (;;) {
-        printf("Mínimo de tipos diferentes (1-%d): ", CANT_TIPOS);
-        {
-            int leido = leer_entero(&valor);
-            if (leido == -1) {
-                return;   /* EOF: cierre ordenado */
-            }
-            if (leido == 0) {
-                continue;
-            }
-        }
-        if (valor < 1 || valor > CANT_TIPOS) {
-            printf("Cantidad de tipos inválida: debe estar entre 1 y %d.\n",
-                   CANT_TIPOS);
-            continue;
-        }
-        restricciones.min_tipos = valor;
-        break;
+    restricciones.min_tipos = validar_leer_entero_msg(
+        "Mínimo de tipos diferentes (1-18): ", 1, CANT_TIPOS, msg_tipos);
+    if (restricciones.min_tipos == 0) {
+        return;   /* EOF: cierre ordenado */
     }
     restricciones.ataque_total_min = 0;
     restricciones.permitir_repetidas = false;
@@ -351,20 +262,17 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
     printf("1. Formación manual\n");
     printf("2. Formación automática (backtracking)\n");
     printf("0. Volver al menú principal\n");
-    printf("Seleccione una opción: ");
-    modo = leer_opcion();
+    modo = validar_leer_entero_msg(
+        "Seleccione una opción: ", 0, 2,
+        "Opción inválida. Intente de nuevo.");
     if (modo == 0) {
         printf("\n");
-        return;   /* EOF o "volver": cierre ordenado */
-    }
-    if (modo != 1 && modo != 2) {
-        printf("Opción inválida. Intente de nuevo.\n");
-        return;
+        return;   /* "volver" o EOF: cierre ordenado */
     }
 
-    printf("Ingrese el id del entrenador: ");
-    if (leer_entero(&id_ent) <= 0) {
-        return;
+    id_ent = leer_id_entrenador("Ingrese el id del entrenador: ");
+    if (id_ent == 0 && feof(stdin)) {
+        return;   /* EOF: cierre ordenado */
     }
     ent = entrenador_buscar(reg, id_ent);
     if (ent == NULL) {
@@ -388,21 +296,16 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
         int nivel;
         int id_ejemplar;
         char apodo[TAM_MAX_APODO];
+        char msg_nivel[64];
+        char prompt_nivel[64];
         const Especie *esp;
         Ejemplar *ej;
 
-        printf("Ingrese el número de especie (0 para terminar): ");
-        {
-            int leido = leer_entero(&numero);
-            if (leido == -1) {
-                break;   /* EOF: cierre ordenado de la creación */
-            }
-            if (leido == 0) {
-                continue;   /* entrada no numérica: reintentar */
-            }
-        }
+        numero = validar_leer_entero(
+            "Ingrese el número de especie (0 para terminar): ",
+            INT_MIN, INT_MAX);
         if (numero == 0) {
-            break;
+            break;   /* "terminar" o EOF: cierre ordenado de la creación */
         }
         esp = pokedex_buscar_numero(pd, numero);
         if (esp == NULL) {
@@ -415,27 +318,20 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
             break;
         }
 
-        for (;;) {
-            printf("Ingrese el nivel del ejemplar (%d-%d): ",
-                   NIVEL_MIN, NIVEL_MAX);
-            {
-                int leido = leer_entero(&nivel);
-                if (leido == -1) {
-                    break;   /* EOF: se omite este ejemplar */
-                }
-                if (leido == 0) {
-                    continue;   /* entrada no numérica: reintentar */
-                }
-            }
-            if (nivel < NIVEL_MIN || nivel > NIVEL_MAX) {
-                printf("Nivel inválido (rango %d-%d).\n", NIVEL_MIN, NIVEL_MAX);
-                continue;
-            }
-            break;
+        snprintf(msg_nivel, sizeof(msg_nivel),
+                 "Nivel inválido (rango %d-%d).", NIVEL_MIN, NIVEL_MAX);
+        snprintf(prompt_nivel, sizeof(prompt_nivel),
+                 "Ingrese el nivel del ejemplar (%d-%d): ",
+                 NIVEL_MIN, NIVEL_MAX);
+        nivel = validar_leer_entero_msg(prompt_nivel,
+                                        NIVEL_MIN, NIVEL_MAX, msg_nivel);
+        if (nivel == 0) {
+            break;   /* EOF: se omite este ejemplar */
         }
 
-        printf("Nombre/apodo (Enter = nombre de la especie): ");
-        if (!leer_linea(apodo, sizeof(apodo))) {
+        if (!validar_leer_cadena(
+                "Nombre/apodo (Enter = nombre de la especie): ",
+                apodo, sizeof(apodo))) {
             return;   /* EOF: cierre ordenado */
         }
         if (apodo[0] == '\0') {
@@ -474,9 +370,9 @@ static void consultar_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
     int id_ent;
     Entrenador *ent;
 
-    printf("Ingrese el id del entrenador: ");
-    if (leer_entero(&id_ent) <= 0) {
-        return;
+    id_ent = leer_id_entrenador("Ingrese el id del entrenador: ");
+    if (id_ent == 0 && feof(stdin)) {
+        return;   /* EOF: cierre ordenado */
     }
     ent = entrenador_buscar(reg, id_ent);
     if (ent == NULL) {
@@ -529,24 +425,19 @@ static int seleccionar_pokemon_activo(const Entrenador *ent, const char *rol)
         }
     }
 
-    for (;;) {
-        int leido = scanf("%d", &posicion);
-        if (leido == EOF) {
-            return -1;
+    {
+        char prompt[64];
+        char msg_pos[64];
+        snprintf(prompt, sizeof(prompt), "Seleccione posición (1-%d): ",
+                 disponibles);
+        snprintf(msg_pos, sizeof(msg_pos), "Posición inválida (1-%d).",
+                 disponibles);
+        posicion = validar_leer_entero_msg(prompt, 1, disponibles, msg_pos);
+        if (posicion == 0) {
+            return -1;   /* EOF: se cancela el combate */
         }
-        if (leido != 1) {
-            printf("Entrada inválida.\n");
-            descartar_linea();
-            continue;
-        }
-        if (posicion < 1 || posicion > disponibles) {
-            printf("Posición inválida (1-%d).\n", disponibles);
-            descartar_linea();
-            continue;
-        }
-        descartar_linea();
-        return posicion;
     }
+    return posicion;
 }
 
 /**
@@ -571,24 +462,21 @@ static void jugar_combate(const Pokedex *pd, RegistroEntrenadores *reg)
     printf("1. Fase de grupos (admite empate)\n");
     printf("2. Eliminatoria (desempate forzoso)\n");
     printf("0. Volver al menú principal\n");
-    printf("Seleccione una opción: ");
-    modo = leer_opcion();
+    modo = validar_leer_entero_msg(
+        "Seleccione una opción: ", 0, 2,
+        "Opción inválida. Intente de nuevo.");
     if (modo == 0) {
         printf("\n");
-        return;   /* EOF o "volver": cierre ordenado */
-    }
-    if (modo != 1 && modo != 2) {
-        printf("Opción inválida. Intente de nuevo.\n");
-        return;
+        return;   /* "volver" o EOF: cierre ordenado */
     }
 
-    printf("Id del entrenador local: ");
-    if (leer_entero(&id_local) <= 0) {
-        return;
+    id_local = leer_id_entrenador("Id del entrenador local: ");
+    if (id_local == 0 && feof(stdin)) {
+        return;   /* EOF: cierre ordenado */
     }
-    printf("Id del entrenador visitante: ");
-    if (leer_entero(&id_visita) <= 0) {
-        return;
+    id_visita = leer_id_entrenador("Id del entrenador visitante: ");
+    if (id_visita == 0 && feof(stdin)) {
+        return;   /* EOF: cierre ordenado */
     }
     local = entrenador_buscar(reg, id_local);
     if (local == NULL) {
@@ -693,11 +581,12 @@ static void consultar_enfrentamientos(const Pokedex *pd,
     printf("1. Combate amistoso\n");
     printf("2. Calendario del torneo (combates 1-48)\n");
     printf("0. Volver al menú principal\n");
-    printf("Seleccione una opción: ");
-    sub = leer_opcion();
+    sub = validar_leer_entero_msg(
+        "Seleccione una opción: ", 0, 2,
+        "Opción inválida. Intente de nuevo.");
     if (sub == 0) {
         printf("\n");
-        return;   /* EOF o "volver": cierre ordenado */
+        return;   /* "volver" o EOF: cierre ordenado */
     }
     if (sub == 1) {
         jugar_combate(pd, reg);
@@ -729,15 +618,12 @@ static void cargar_resultados(Torneo *t, RegistroEntrenadores *reg)
     printf("1. Por teclado\n");
     printf("2. Desde archivo (%s)\n", RUTA_RESULTADOS);
     printf("0. Volver al menú principal\n");
-    printf("Seleccione una opción: ");
-    sub = leer_opcion();
+    sub = validar_leer_entero_msg(
+        "Seleccione una opción: ", 0, 2,
+        "Opción inválida. Intente de nuevo.");
     if (sub == 0) {
         printf("\n");
-        return;   /* EOF o "volver": cierre ordenado */
-    }
-    if (sub != 1 && sub != 2) {
-        printf("Opción inválida. Intente de nuevo.\n");
-        return;
+        return;   /* "volver" o EOF: cierre ordenado */
     }
     if (!armar_torneo_si_falta(t, reg)) {
         return;
@@ -823,10 +709,6 @@ int main(void)
             /* EOF: cierre ordenado (el guardado al salir corre al final) */
             printf("\n");
             salir = 1;
-            continue;
-        }
-        if (opcion < 1 || opcion > 12) {
-            printf("Opción inválida. Intente de nuevo.\n");
             continue;
         }
         if (opcion == 12) {
