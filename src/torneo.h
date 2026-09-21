@@ -166,12 +166,40 @@ void torneo_mostrar_enfrentamientos(const Torneo *t,
                                     const RegistroEntrenadores *reg);
 
 /**
+ * @brief Muestra el bracket de la eliminatoria (combates 49-64).
+ *
+ * Lista cada combate con su ronda, la etiqueta de origen de cada
+ * participante (1A, G49, P61, ...), los ids y nombres resueltos por el
+ * sistema y el ganador (0 si está pendiente). Si el torneo finalizó,
+ * imprime además las posiciones finales (RF-ELM-05).
+ *
+ * @param t   Puntero al estado del torneo (no debe ser NULL).
+ * @param reg Puntero al registro de entrenadores (no debe ser NULL).
+ */
+void torneo_mostrar_resultados(const Torneo *t,
+                               const RegistroEntrenadores *reg);
+
+/**
+ * @brief Muestra el campeón del torneo (RF-ELM-05).
+ *
+ * Solo existe campeón cuando el torneo finalizó (combate 64 aplicado);
+ * en otro caso informa que aún no hay campeón.
+ *
+ * @param t   Puntero al estado del torneo (no debe ser NULL).
+ * @param reg Puntero al registro de entrenadores (no debe ser NULL).
+ */
+void torneo_mostrar_campeon(const Torneo *t,
+                            const RegistroEntrenadores *reg);
+
+/**
  * @brief Muestra las posiciones finales del torneo (RF-ELM-05).
  *
  * Campeón = G64, subcampeón = P64, tercero = G63, cuarto = P63.
  *
- * @param t Puntero al estado del torneo finalizado (no debe ser NULL).
+ * @param t   Puntero al estado del torneo finalizado (no debe ser NULL).
+ * @param reg Puntero al registro de entrenadores (no debe ser NULL).
  */
-void torneo_mostrar_posiciones_finales(const Torneo *t);
+void torneo_mostrar_posiciones_finales(const Torneo *t,
+                                       const RegistroEntrenadores *reg);
 
 #endif /* TORNEO_H */

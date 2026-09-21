@@ -1,10 +1,12 @@
 /**
  * @file torneo.c
- * @brief Estado del torneo: grupos A-H, calendario 1-48, puntuación 3/1/0
- *        y clasificación con desempates (RF-TRN-01..06, RF-CLS-01, D9/D10).
+ * @brief Estado del torneo: grupos A-H, calendario 1-48, puntuación 3/1/0,
+ *        clasificación (RF-TRN-01..06, RF-CLS-01, D9/D10) y bracket
+ *        eliminatorio 49-64 (RF-ELM-01..05, RF-RES-03).
  *
- * F5: fase de grupos completa. La transición a eliminatorias (49-64) y la
- * tabla de bracket se completan en F6.
+ * F5: fase de grupos. F6: bracket 49-64 con participantes resueltos por el
+ * sistema, transición GRUPOS -> ELIMINATORIAS -> FINALIZADO y posiciones
+ * finales (campeón, subcampeón, tercero y cuarto).
  * @author <Nombre del estudiante>
  * @date 2026-09-21
  */
@@ -24,6 +26,52 @@
    (m0,m1) (m0,m2) (m0,m3) (m1,m2) (m1,m3) (m2,m3). */
 static const int PARES[6][2] = {
     {0, 1}, {0, 2}, {0, 3}, {1, 2}, {1, 3}, {2, 3}
+};
+
+/* ---- Fuentes de los participantes del bracket (diseño §6.2) ---- */
+
+/* Tipo de fuente de un participante en la tabla ORIGEN_PARTICIPANTE. */
+typedef enum {
+    ORIGEN_NINGUNO = 0,   /* 1..48: los fija el calendario (RF-TRN-02) */
+    ORIGEN_CLASIFICADO,   /* 49..56: puesto del grupo en id_clasificados */
+    ORIGEN_GANADOR,       /* 57..64: ganador del combate fuente (G#) */
+    ORIGEN_PERDEDOR       /* 63: perdedor del combate fuente (P61/P62) */
+} TipoOrigen;
+
+/* Un participante del bracket según su origen (RF-RES-03). */
+typedef struct {
+    TipoOrigen tipo;
+    int valor;   /* índice 0..15 de id_clasificados, o número de combate */
+} OrigenParticipante;
+
+/* Tabla estática de orígenes (RF-RES-03): de dónde sale cada participante
+   de los combates 49..64. Las filas 1..48 quedan en ORIGEN_NINGUNO (el
+   calendario las fija en torneo_armar_grupos). Orden de id_clasificados:
+   1A,2A,1B,2B,...,1H,2H (índices 0..15). Los octavos enfrentan a los 16
+   clasificados con los cruces fijos de RF-ELM-02 y los cuartos/semifinales/
+   tercer lugar/final encadenan ganadores y perdedores (RF-ELM-03/04/05). */
+static const OrigenParticipante ORIGEN_PARTICIPANTE[TOTAL_COMBATES][2] = {
+    /* Octavos 49-52: cruces superiores del cuadro (RF-ELM-02) */
+    [48] = { {ORIGEN_CLASIFICADO, 0},  {ORIGEN_CLASIFICADO, 3} },  /* 1A-2B */
+    [49] = { {ORIGEN_CLASIFICADO, 4},  {ORIGEN_CLASIFICADO, 7} },  /* 1C-2D */
+    [50] = { {ORIGEN_CLASIFICADO, 8},  {ORIGEN_CLASIFICADO, 11} }, /* 1E-2F */
+    [51] = { {ORIGEN_CLASIFICADO, 12}, {ORIGEN_CLASIFICADO, 15} }, /* 1G-2H */
+    /* Octavos 53-56: cruces inferiores del cuadro (RF-ELM-02) */
+    [52] = { {ORIGEN_CLASIFICADO, 2},  {ORIGEN_CLASIFICADO, 1} },  /* 1B-2A */
+    [53] = { {ORIGEN_CLASIFICADO, 6},  {ORIGEN_CLASIFICADO, 5} },  /* 1D-2C */
+    [54] = { {ORIGEN_CLASIFICADO, 10}, {ORIGEN_CLASIFICADO, 9} },  /* 1F-2E */
+    [55] = { {ORIGEN_CLASIFICADO, 14}, {ORIGEN_CLASIFICADO, 13} }, /* 1H-2G */
+    /* Cuartos 57-60 (RF-ELM-03) */
+    [56] = { {ORIGEN_GANADOR, 49}, {ORIGEN_GANADOR, 50} },  /* G49-G50 */
+    [57] = { {ORIGEN_GANADOR, 53}, {ORIGEN_GANADOR, 54} },  /* G53-G54 */
+    [58] = { {ORIGEN_GANADOR, 51}, {ORIGEN_GANADOR, 52} },  /* G51-G52 */
+    [59] = { {ORIGEN_GANADOR, 55}, {ORIGEN_GANADOR, 56} },  /* G55-G56 */
+    /* Semifinales 61-62 (RF-ELM-04) */
+    [60] = { {ORIGEN_GANADOR, 57}, {ORIGEN_GANADOR, 58} },  /* G57-G58 */
+    [61] = { {ORIGEN_GANADOR, 59}, {ORIGEN_GANADOR, 60} },  /* G59-G60 */
+    /* Tercer lugar 63 y final 64 (RF-ELM-05) */
+    [62] = { {ORIGEN_PERDEDOR, 61}, {ORIGEN_PERDEDOR, 62} }, /* P61-P62 */
+    [63] = { {ORIGEN_GANADOR, 61},  {ORIGEN_GANADOR, 62} }   /* G61-G62 */
 };
 
 /**
@@ -219,6 +267,147 @@ static const Entrenador *entrenador_por_id(const RegistroEntrenadores *reg,
     return NULL;
 }
 
+/**
+ * Nombre de un entrenador, o "?" si el id no existe en el registro.
+ */
+static const char *nombre_entrenador(const RegistroEntrenadores *reg, int id)
+{
+    const Entrenador *e = entrenador_por_id(reg, id);
+    return e != NULL ? e->nombre : "?";
+}
+
+/**
+ * Resuelve el id del entrenador que produce una fuente del bracket.
+ * CLASIFICADO: id_clasificados[valor] (0 si la fase de grupos no terminó).
+ * GANADOR: ganador del combate fuente (0 si está pendiente). PERDEDOR:
+ * perdedor del combate fuente (el que no ganó; 0 si está pendiente).
+ * ORIGEN_NINGUNO: 0 (no aplica a los combates 1..48).
+ */
+static int resolver_origen(const Torneo *t, const OrigenParticipante *o)
+{
+    const Combate *c;
+
+    if (o->tipo == ORIGEN_CLASIFICADO) {
+        return t->id_clasificados[o->valor];
+    }
+    if (o->tipo == ORIGEN_GANADOR) {
+        c = &t->combates[o->valor - 1];
+        if (c->estado == RES_PENDIENTE) {
+            return 0;
+        }
+        return c->id_ganador;
+    }
+    if (o->tipo == ORIGEN_PERDEDOR) {
+        c = &t->combates[o->valor - 1];
+        if (c->estado == RES_PENDIENTE) {
+            return 0;
+        }
+        return (c->id_ganador == c->id_entrenador1)
+                   ? c->id_entrenador2
+                   : c->id_entrenador1;
+    }
+    return 0;
+}
+
+void torneo_participantes(const Torneo *t, int numero, int *id1, int *id2)
+{
+    if (id1 != NULL) {
+        *id1 = 0;
+    }
+    if (id2 != NULL) {
+        *id2 = 0;
+    }
+    if (t == NULL || id1 == NULL || id2 == NULL) {
+        return;
+    }
+    if (numero < 1 || numero > TOTAL_COMBATES) {
+        return;
+    }
+    if (numero <= COMBATES_GRUPO) {
+        *id1 = t->combates[numero - 1].id_entrenador1;
+        *id2 = t->combates[numero - 1].id_entrenador2;
+        return;
+    }
+    *id1 = resolver_origen(t, &ORIGEN_PARTICIPANTE[numero - 1][0]);
+    *id2 = resolver_origen(t, &ORIGEN_PARTICIPANTE[numero - 1][1]);
+}
+
+/**
+ * Ronda del bracket a la que pertenece un combate de eliminatoria:
+ * 1 octavos, 2 cuartos, 3 semifinal, 4 tercer lugar, 5 final (RF-ELM-01).
+ */
+static int ronda_de(int numero)
+{
+    if (numero <= 56) {
+        return 1;
+    }
+    if (numero <= 60) {
+        return 2;
+    }
+    if (numero <= 62) {
+        return 3;
+    }
+    return (numero == 63) ? 4 : 5;
+}
+
+/**
+ * Nombre textual de la ronda de un combate de eliminatoria (RF-ELM-01).
+ */
+static const char *ronda_a_texto(int numero)
+{
+    static const char *const RONDAS[5] = {
+        "Octavos", "Cuartos", "Semifinal", "Tercer lugar", "Final"
+    };
+    return RONDAS[ronda_de(numero) - 1];
+}
+
+/**
+ * Escribe la etiqueta de una fuente del bracket ("1A", "G49", "P61" o "-"
+ * para el calendario) en el buffer buf (diseño §6.2).
+ */
+static void etiqueta_origen(const OrigenParticipante *o, char *buf, size_t n)
+{
+    if (o->tipo == ORIGEN_CLASIFICADO) {
+        snprintf(buf, n, "%d%c", (o->valor % 2) + 1,
+                 (char)('A' + o->valor / 2));
+    } else if (o->tipo == ORIGEN_GANADOR) {
+        snprintf(buf, n, "G%d", o->valor);
+    } else if (o->tipo == ORIGEN_PERDEDOR) {
+        snprintf(buf, n, "P%d", o->valor);
+    } else {
+        snprintf(buf, n, "-");
+    }
+}
+
+/**
+ * Imprime las posiciones finales del torneo (RF-ELM-05): campeon = G64,
+ * subcampeon = P64, tercero = G63, cuarto = P63.
+ */
+static void mostrar_posiciones(const Torneo *t,
+                               const RegistroEntrenadores *reg)
+{
+    const Combate *c64 = &t->combates[63];
+    const Combate *c63 = &t->combates[62];
+    int campeon = c64->id_ganador;
+    int subcampeon = (campeon == c64->id_entrenador1)
+                         ? c64->id_entrenador2
+                         : c64->id_entrenador1;
+    int tercero = c63->id_ganador;
+    int cuarto = (tercero == c63->id_entrenador1)
+                     ? c63->id_entrenador2
+                     : c63->id_entrenador1;
+
+    printf("Posiciones finales:\n");
+    printf("1. Campeón: %s (id %d)\n", nombre_entrenador(reg, campeon),
+           campeon);
+    printf("2. Subcampeón: %s (id %d)\n", nombre_entrenador(reg, subcampeon),
+           subcampeon);
+    printf("3. Tercer lugar: %s (id %d)\n", nombre_entrenador(reg, tercero),
+           tercero);
+    printf("4. Cuarto lugar: %s (id %d)\n", nombre_entrenador(reg, cuarto),
+           cuarto);
+}
+
 bool torneo_armar_grupos(Torneo *t, const RegistroEntrenadores *reg)
 {
     int g, par, k;
@@ -265,8 +454,10 @@ bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
     Combate *c;
     Entrenador *e1;
     Entrenador *e2;
+    const Entrenador *ganador;
     int k;
     int completos;
+    int es_eliminatoria;
 
     if (t == NULL || reg == NULL || r == NULL || msg == NULL || n == 0) {
         return false;
@@ -280,25 +471,59 @@ bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
         snprintf(msg, n, "Número de combate inválido: %d.", r->numero);
         return false;
     }
-    if (r->numero > COMBATES_GRUPO) {
-        snprintf(msg, n, "El combate %d pertenece a la fase eliminatoria "
-                         "(aún no disponible).", r->numero);
+    if (t->estado == TORNEO_FINALIZADO) {
+        snprintf(msg, n, "El torneo ya finalizó; no se aceptan más "
+                         "resultados.");
         return false;
     }
+    es_eliminatoria = (r->numero > COMBATES_GRUPO);
+    if (es_eliminatoria && t->estado != TORNEO_ELIMINATORIAS) {
+        snprintf(msg, n, "La fase de grupos no está completa: faltan "
+                         "resultados de los combates 1-48.");
+        return false;
+    }
+
     c = &t->combates[r->numero - 1];
     if (c->estado != RES_PENDIENTE) {
         snprintf(msg, n, "El combate %d ya tiene resultado.", r->numero);
         return false;
     }
-    if (r->id_entrenador1 != c->id_entrenador1 ||
-        r->id_entrenador2 != c->id_entrenador2) {
+
+    /* Participantes resueltos por el sistema (RF-RES-03): el calendario
+       fija 1..48 y el bracket (clasificados / G# / P#) resuelve 49..64. */
+    if (es_eliminatoria) {
+        int id1;
+        int id2;
+        torneo_participantes(t, r->numero, &id1, &id2);
+        if (id1 == 0 || id2 == 0) {
+            snprintf(msg, n, "El combate %d no está disponible aún: sus "
+                             "fuentes (clasificados o G#/P#) no están "
+                             "resueltas.", r->numero);
+            return false;
+        }
+        if (r->id_entrenador1 != id1 || r->id_entrenador2 != id2) {
+            snprintf(msg, n, "Los participantes no coinciden con los "
+                             "resueltos por el sistema (RF-RES-03).");
+            return false;
+        }
+        /* Persiste los participantes resueltos: el perdedor de una fuente
+           P# y las consultas del bracket los leen del combate. */
+        c->id_entrenador1 = id1;
+        c->id_entrenador2 = id2;
+    } else if (r->id_entrenador1 != c->id_entrenador1 ||
+               r->id_entrenador2 != c->id_entrenador2) {
         snprintf(msg, n, "Los participantes no coinciden con los resueltos "
                          "por el sistema (RF-RES-03).");
         return false;
     }
+
     if (r->resultado != RES_V1 && r->resultado != RES_V2 &&
         r->resultado != RES_EMPATE) {
         snprintf(msg, n, "Resultado inválido para el combate %d.", r->numero);
+        return false;
+    }
+    if (es_eliminatoria && r->resultado == RES_EMPATE) {
+        snprintf(msg, n, "La eliminatoria no admite empates (RF-ELM-01).");
         return false;
     }
     if (r->kos1 < 0 || r->kos2 < 0) {
@@ -326,11 +551,29 @@ bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
                  r->numero);
         return false;
     }
+    ganador = (r->id_ganador == c->id_entrenador1) ? e1 : e2;
 
     c->estado = r->resultado;
     c->id_ganador = r->id_ganador;
     c->kos1 = r->kos1;
     c->kos2 = r->kos2;
+
+    if (es_eliminatoria) {
+        /* La eliminatoria no toca los contadores de grupos (RF-TRN-03
+           puntúa 3/1/0 solo en 1..48): solo avanza G#/P# en el estado. */
+        snprintf(msg, n, "Resultado del combate %d (%s) aplicado: victoria "
+                         "de %s (id %d).", r->numero,
+                 ronda_a_texto(r->numero),
+                 ganador != NULL ? ganador->nombre : "?", r->id_ganador);
+        if (r->numero == TOTAL_COMBATES) {
+            t->estado = TORNEO_FINALIZADO;
+            /* RF-ELM-05: al finalizar, el sistema muestra los 4 primeros. */
+            mostrar_posiciones(t, reg);
+            snprintf(msg, n, "Torneo finalizado: el campeón es %s (id %d).",
+                     ganador != NULL ? ganador->nombre : "?", r->id_ganador);
+        }
+        return true;
+    }
 
     /* Puntuación 3/1/0 (RF-TRN-03) y KOs (criterio 3 de RF-TRN-04). */
     if (r->resultado == RES_EMPATE) {
@@ -354,8 +597,9 @@ bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
              r->numero, letra_grupo((r->numero - 1) / 6),
              r->resultado == RES_EMPATE ? "empate" : "victoria");
 
-    /* Al completar los 48 combates de grupos se ordena y se definen los
-       clasificados (RF-TRN-06); la transición a eliminatorias es de F6. */
+    /* Al completar los 48 combates de grupos se ordena, se definen los
+       clasificados (RF-TRN-06), se resuelven los octavos 49..56 y el
+       torneo pasa a la eliminatoria (diseño §6.1). */
     completos = 0;
     for (k = 0; k < COMBATES_GRUPO; k++) {
         if (t->combates[k].estado != RES_PENDIENTE) {
@@ -364,8 +608,17 @@ bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
     }
     if (completos == COMBATES_GRUPO) {
         torneo_ordenar_grupos(t);
+        for (k = 49; k <= 56; k++) {
+            int id1;
+            int id2;
+            torneo_participantes(t, k, &id1, &id2);
+            t->combates[k - 1].id_entrenador1 = id1;
+            t->combates[k - 1].id_entrenador2 = id2;
+        }
+        t->estado = TORNEO_ELIMINATORIAS;
         snprintf(msg, n, "Fase de grupos completada: clasificados "
-                         "1A/2A...1H/2H definidos.");
+                         "1A/2A...1H/2H definidos; comienza la eliminatoria "
+                         "(combates 49-64).");
     }
     return true;
 }
@@ -439,4 +692,79 @@ void torneo_mostrar_enfrentamientos(const Torneo *t,
                c->id_entrenador1, e1 != NULL ? e1->nombre : "?",
                c->id_entrenador2, e2 != NULL ? e2->nombre : "?");
     }
+}
+
+void torneo_mostrar_resultados(const Torneo *t,
+                               const RegistroEntrenadores *reg)
+{
+    int numero;
+    int ronda_prev;
+
+    if (t == NULL || reg == NULL) {
+        return;
+    }
+    if (t->estado == TORNEO_SIN_INICIAR) {
+        printf("El torneo no está armado.\n");
+        return;
+    }
+
+    printf("=== Resultados del torneo (combates 49-64) ===\n");
+    ronda_prev = 0;
+    for (numero = 49; numero <= TOTAL_COMBATES; numero++) {
+        const Combate *c = &t->combates[numero - 1];
+        const OrigenParticipante *o1 = &ORIGEN_PARTICIPANTE[numero - 1][0];
+        const OrigenParticipante *o2 = &ORIGEN_PARTICIPANTE[numero - 1][1];
+        char et1[8];
+        char et2[8];
+        int id1;
+        int id2;
+        int ronda = ronda_de(numero);
+
+        if (ronda != ronda_prev) {
+            printf("[%s]\n", ronda_a_texto(numero));
+            ronda_prev = ronda;
+        }
+        torneo_participantes(t, numero, &id1, &id2);
+        etiqueta_origen(o1, et1, sizeof(et1));
+        etiqueta_origen(o2, et2, sizeof(et2));
+        printf("%d;%s;%d;%s;%s;%d;%s;%d\n", numero, et1, id1,
+               id1 > 0 ? nombre_entrenador(reg, id1) : "?",
+               et2, id2, id2 > 0 ? nombre_entrenador(reg, id2) : "?",
+               c->estado == RES_PENDIENTE ? 0 : c->id_ganador);
+    }
+
+    if (t->estado == TORNEO_FINALIZADO) {
+        mostrar_posiciones(t, reg);
+    }
+}
+
+void torneo_mostrar_campeon(const Torneo *t,
+                            const RegistroEntrenadores *reg)
+{
+    const Entrenador *campeon;
+
+    if (t == NULL || reg == NULL) {
+        return;
+    }
+    if (t->estado != TORNEO_FINALIZADO) {
+        printf("El torneo aún no ha finalizado; aún no hay campeón.\n");
+        return;
+    }
+    campeon = entrenador_por_id(reg, t->combates[63].id_ganador);
+    printf("El campeón del torneo es %s (id %d).\n",
+           campeon != NULL ? campeon->nombre : "?",
+           t->combates[63].id_ganador);
+}
+
+void torneo_mostrar_posiciones_finales(const Torneo *t,
+                                       const RegistroEntrenadores *reg)
+{
+    if (t == NULL || reg == NULL) {
+        return;
+    }
+    if (t->estado != TORNEO_FINALIZADO) {
+        printf("El torneo aún no ha finalizado.\n");
+        return;
+    }
+    mostrar_posiciones(t, reg);
 }
