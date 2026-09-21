@@ -16,6 +16,7 @@
 #include "entrenador.h"
 #include "equipo.h"
 #include "combate.h"
+#include "torneo.h"
 #include "archivos.h"
 
 /**
@@ -617,6 +618,87 @@ static void jugar_combate(const Pokedex *pd, RegistroEntrenadores *reg)
 }
 
 /**
+ * @brief Arma los grupos del torneo si aún no están armados.
+ *
+ * La distribución es determinista por orden de registro (diseño §6.1) y
+ * exige exactamente 32 entrenadores (D10). Se invoca desde las consultas
+ * de clasificación y enfrentamientos; si el conteo no es 32 informa el
+ * rechazo sin terminar el programa (RF-TEC-03).
+ *
+ * @param t   Puntero al estado del torneo (no debe ser NULL).
+ * @param reg Puntero al registro de entrenadores (no debe ser NULL).
+ * @return true si el torneo quedó armado (o ya lo estaba); false si los
+ *         parámetros son inválidos o el conteo no es 32.
+ */
+static bool armar_torneo_si_falta(Torneo *t, const RegistroEntrenadores *reg)
+{
+    if (t->estado != TORNEO_SIN_INICIAR) {
+        return true;
+    }
+    if (!torneo_armar_grupos(t, reg)) {
+        printf("El torneo requiere exactamente %d entrenadores para armar "
+               "los grupos (actualmente %d).\n", MAX_ENTRENADORES,
+               reg->cantidad);
+        return false;
+    }
+    printf("Torneo armado: 8 grupos de 4 entrenadores (combates 1-48).\n");
+    return true;
+}
+
+/**
+ * @brief Opcion 7: consultar la clasificación de la fase de grupos.
+ *
+ * Arma los grupos si hace falta (32 entrenadores exactos, D10) y delega la
+ * tabla en torneo_mostrar_clasificacion (RF-CLS-01, RF-TRN-05).
+ */
+static void consultar_clasificacion(Torneo *t, const RegistroEntrenadores *reg)
+{
+    printf("\n--- Consultar clasificación ---\n");
+    if (!armar_torneo_si_falta(t, reg)) {
+        return;
+    }
+    torneo_mostrar_clasificacion(t, reg);
+}
+
+/**
+ * @brief Opcion 8: consultar los enfrentamientos del torneo.
+ *
+ * Submenu que ofrece el combate amistoso (migrado de F3, antes opcion
+ * directa) y el calendario de la fase de grupos (combates 1-48 con los
+ * participantes resueltos por el sistema, RF-RES-03). Ninguna entrada
+ * invalida termina el programa (RF-TEC-03).
+ */
+static void consultar_enfrentamientos(const Pokedex *pd,
+                                      RegistroEntrenadores *reg,
+                                      Torneo *t)
+{
+    int sub;
+
+    printf("\n--- Consultar enfrentamientos ---\n");
+    printf("1. Combate amistoso\n");
+    printf("2. Calendario del torneo (combates 1-48)\n");
+    printf("0. Volver al menú principal\n");
+    printf("Seleccione una opción: ");
+    sub = leer_opcion();
+    if (sub == 0) {
+        printf("\n");
+        return;   /* EOF o "volver": cierre ordenado */
+    }
+    if (sub == 1) {
+        jugar_combate(pd, reg);
+        return;
+    }
+    if (sub == 2) {
+        if (!armar_torneo_si_falta(t, reg)) {
+            return;
+        }
+        torneo_mostrar_enfrentamientos(t, reg);
+        return;
+    }
+    printf("Opción inválida. Intente de nuevo.\n");
+}
+
+/**
  * @brief Punto de entrada: carga los datos iniciales, muestra el menú y
  *        despacha las 12 opciones.
  *
@@ -624,16 +706,21 @@ static void jugar_combate(const Pokedex *pd, RegistroEntrenadores *reg)
  * entrenadores; las opciones 1..5 quedan cableadas y la opción 12 sale
  * liberando todos los equipos (sin fugas).
  *
+ * F5: las opciones 7 (clasificación) y 8 (enfrentamientos) delegan en el
+ * módulo torneo; el torneo se arma al primer uso con 32 entrenadores.
+ *
  * @return 0 al salir de forma ordenada.
  */
 int main(void)
 {
     Pokedex pokedex;
     RegistroEntrenadores registro;
+    Torneo torneo;
     int salir = 0;
     int i;
 
     registro.cantidad = 0;
+    torneo.estado = TORNEO_SIN_INICIAR;
 
     /* Carga inicial de datos: tipos, Pokédex y entrenadores (RF-PDX-06). */
     tipos_inicializar();
@@ -685,8 +772,11 @@ int main(void)
         case 5:
             consultar_equipo(&pokedex, &registro);
             break;
+        case 7:
+            consultar_clasificacion(&torneo, &registro);
+            break;
         case 8:
-            jugar_combate(&pokedex, &registro);
+            consultar_enfrentamientos(&pokedex, &registro, &torneo);
             break;
         default:
             printf("Opción %d en construcción\n", opcion);
