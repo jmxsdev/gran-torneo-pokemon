@@ -17,7 +17,13 @@
 #include "equipo.h"
 #include "combate.h"
 #include "torneo.h"
+#include "resultados.h"
 #include "archivos.h"
+
+/* Marca de modificación de entrenadores en sesión: solo se guarda el
+   archivo si el registro cambió (RF-ENT-03). Los resultados NO se
+   autoguardan: se persisten vía archivos_guardar_resultados (F7). */
+static bool entrenadores_sucios = false;
 
 /**
  * Muestra el menú de las 12 opciones del torneo (RF-MEN-01).
@@ -228,6 +234,7 @@ static void registrar_entrenador(RegistroEntrenadores *reg)
                MAX_ENTRENADORES);
         return;
     }
+    entrenadores_sucios = true;
     printf("Entrenador registrado: id %d, %s.\n", id, nombre);
 }
 
@@ -318,6 +325,7 @@ static void formar_equipo_automatico(const Pokedex *pd, Entrenador *ent)
         return;
     }
     equipo_asignar(ent, equipo);
+    entrenadores_sucios = true;
     printf("Equipo generado: %d ejemplar(es) que cumplen todas las "
            "restricciones.\n", cantidad);
     equipo_mostrar(pd, ent);
@@ -373,6 +381,7 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
         equipo_liberar(ent);
         printf("Equipo anterior liberado.\n");
     }
+    entrenadores_sucios = true;
 
     for (;;) {
         int numero;
@@ -648,8 +657,8 @@ static bool armar_torneo_si_falta(Torneo *t, const RegistroEntrenadores *reg)
 /**
  * @brief Opcion 7: consultar la clasificación de la fase de grupos.
  *
- * Arma los grupos si hace falta (32 entrenadores exactos, D10) y delega la
- * tabla en torneo_mostrar_clasificacion (RF-CLS-01, RF-TRN-05).
+ * Arma los grupos si hace falta (32, D10), muestra la tabla (RF-CLS-01) y
+ * guarda la clasificación en data/clasificacion.txt (formato §5.4).
  */
 static void consultar_clasificacion(Torneo *t, const RegistroEntrenadores *reg)
 {
@@ -658,6 +667,12 @@ static void consultar_clasificacion(Torneo *t, const RegistroEntrenadores *reg)
         return;
     }
     torneo_mostrar_clasificacion(t, reg);
+    if (archivos_guardar_clasificacion(t, reg, RUTA_CLASIFICACION)) {
+        printf("Clasificación guardada en %s.\n", RUTA_CLASIFICACION);
+    } else {
+        printf("Aviso: no se pudo guardar la clasificación en %s.\n",
+               RUTA_CLASIFICACION);
+    }
 }
 
 /**
@@ -699,6 +714,61 @@ static void consultar_enfrentamientos(const Pokedex *pd,
 }
 
 /**
+ * @brief Opcion 6: cargar resultados del torneo (RF-RES-01/RF-RES-04).
+ *
+ * Submenu teclado o data/resultados.txt (admite parciales); arma el torneo
+ * si hace falta (32, D10) y muestra los pendientes. Los participantes los
+ * resuelve el sistema (RF-RES-03); cada registro pasa por
+ * resultados_validar (RF-RES-02).
+ */
+static void cargar_resultados(Torneo *t, RegistroEntrenadores *reg)
+{
+    int sub;
+
+    printf("\n--- Cargar resultados ---\n");
+    printf("1. Por teclado\n");
+    printf("2. Desde archivo (%s)\n", RUTA_RESULTADOS);
+    printf("0. Volver al menú principal\n");
+    printf("Seleccione una opción: ");
+    sub = leer_opcion();
+    if (sub == 0) {
+        printf("\n");
+        return;   /* EOF o "volver": cierre ordenado */
+    }
+    if (sub != 1 && sub != 2) {
+        printf("Opción inválida. Intente de nuevo.\n");
+        return;
+    }
+    if (!armar_torneo_si_falta(t, reg)) {
+        return;
+    }
+    if (sub == 1) {
+        resultados_cargar_teclado(t, reg);
+    } else {
+        resultados_cargar_archivo(t, reg, RUTA_RESULTADOS);
+    }
+    resultados_mostrar_pendientes(t);
+}
+
+/**
+ * @brief Persiste los entrenadores modificados en la sesión al salir.
+ *
+ * Solo escribe si el registro cambió (RF-ENT-03), para no reescribir datos
+ * intactos. La clasificación se guarda en la opción 7 y los resultados se
+ * persisten vía archivos_guardar_resultados (F7, no autoguardado).
+ */
+static void guardar_al_salir(const RegistroEntrenadores *reg)
+{
+    if (entrenadores_sucios) {
+        if (archivos_guardar_entrenadores(reg, RUTA_ENTRENADORES)) {
+            printf("Entrenadores guardados en %s.\n", RUTA_ENTRENADORES);
+        } else {
+            printf("Aviso: no se pudieron guardar los entrenadores.\n");
+        }
+    }
+}
+
+/**
  * @brief Punto de entrada: carga los datos iniciales, muestra el menú y
  *        despacha las 12 opciones.
  *
@@ -710,8 +780,12 @@ static void consultar_enfrentamientos(const Pokedex *pd,
  * módulo torneo; el torneo se arma al primer uso con 32 entrenadores.
  *
  * F6: las opciones 10 (resultados del torneo: bracket 49-64) y 11 (campeón)
- * delegan en el módulo torneo; la opción 6 (cargar resultados) se completa
- * en F7.
+ * delegan en el módulo torneo.
+ *
+ * F7: la opción 6 (cargar resultados) delega en resultados (teclado o
+ * archivo, con pendientes), la opción 7 guarda la clasificación en
+ * data/clasificacion.txt y al salir se persisten los entrenadores
+ * modificados en la sesión.
  *
  * @return 0 al salir de forma ordenada.
  */
@@ -746,9 +820,10 @@ int main(void)
         int opcion = leer_opcion();
 
         if (opcion == 0) {
-            /* EOF: cierre ordenado */
+            /* EOF: cierre ordenado (el guardado al salir corre al final) */
             printf("\n");
-            break;
+            salir = 1;
+            continue;
         }
         if (opcion < 1 || opcion > 12) {
             printf("Opción inválida. Intente de nuevo.\n");
@@ -776,6 +851,9 @@ int main(void)
         case 5:
             consultar_equipo(&pokedex, &registro);
             break;
+        case 6:
+            cargar_resultados(&torneo, &registro);
+            break;
         case 7:
             consultar_clasificacion(&torneo, &registro);
             break;
@@ -794,7 +872,9 @@ int main(void)
         }
     }
 
-    /* Liberación disciplinada de todos los equipos al salir (sin fugas). */
+    /* Persistencia de los entrenadores modificados en la sesión (RF-ENT-03)
+       antes de liberar los equipos (sin fugas). */
+    guardar_al_salir(&registro);
     for (i = 0; i < registro.cantidad; i++) {
         equipo_liberar(&registro.entrenadores[i]);
     }

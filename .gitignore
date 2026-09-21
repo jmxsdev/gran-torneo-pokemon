@@ -11,3 +11,6 @@ build/
 
 # Test output
 /tmp/out.txt
+
+# Generated artifact (design §15: clasificacion.txt is write-free output)
+data/clasificacion.txt
