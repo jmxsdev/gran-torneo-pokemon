@@ -1,14 +1,14 @@
 ```yaml
 schema: gentle-ai.verify-result/v1
-evidence_revision: sha256:226197d301d324e94de4424756f7ec6acfd779dc2af26a11fec435149318076c
+evidence_revision: sha256:d69ce6da6a319e145d523947e5cfda1f124b3bdf6c7189bcdc5850f8d274aacf
 verdict: fail
 blockers: 0
 critical_findings: 0
 requirements: 25/26
 scenarios: 43/44
-test_command: batería scriptada F3 /tmp/opencode/bateria_f3.sh (16 casos stdin→grep: build limpio, victoria por agotamiento Ash vs Misty 1 a 3, empate 20 turnos Jessie vs Gary (fantasma vs normal), anti-empate por HP 108-424 gana Gary, entrenador inexistente/mismo/sin equipo, modo y posición inválidos con reintento, volver+salir, EOF en submenú y en selección sin colgar, sha256 pokedex/efectividad intactos) + probe F3 /tmp/opencode/probe_f3 (21 comprobaciones: D1 exacto ×2 46, ×1 21, ×0.5 7, ×0 0, ×4 88, ×0.25 4, mínimo 1 con mult 0.25; D3 60/45/60; D4 empate; D5a HP, D5b nivel, D5c entrenador 1; CMB-04 con y sin reemplazo; validación de parámetros) — cotejo contra spec por caso
+test_command: batería scriptada F3 /tmp/opencode/bateria_f3.sh (16 casos stdin→grep: build limpio, victoria por agotamiento Ash vs Misty 1 a 3, empate 20 turnos Jessie vs Gary (fantasma vs normal), anti-empate por HP 108-424 gana Gary, entrenador inexistente/mismo/sin equipo, modo y posición inválidos con reintento, volver+salir, EOF en submenú y en selección sin colgar, sha256 pokedex/efectividad intactos) + probe F3 /tmp/opencode/probe_f3 (21 comprobaciones: D1 exacto ×2 46, ×1 21, ×0.5 7, ×0 0, ×4 88, ×0.25 4, mínimo 1 con mult 0.25; D3 60/45/60; D4 empate; D5a HP, D5b nivel, D5c entrenador 1; CMB-04 con y sin reemplazo; validación de parámetros) — cotejo contra spec por caso; re-ejecutada íntegramente en la verificación formal (2026-09-21): 16/16 + 21/21 PASS reproducidos byte a byte en resultados
 test_exit_code: 0
-test_output_hash: sha256:f49d7e551403c5e9109388721eed74c74b5e66d214d6e4d2c0d45e60b7af0af9
+test_output_hash: sha256:c823d33059445a07304f746bbe8f089c28aea67309f0fe3b26f4084072492f91
 build_command: make clean && make (gcc -std=c99 -Wall -Wextra)
 build_exit_code: 0
 build_output_hash: sha256:deccd3364d3e6ffb9dcc295bf968544189e57bfed95979a3e410a4c10e66c3fd
@@ -415,6 +415,27 @@ Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los siet
 
 **Resumen de cumplimiento F3**: 11/11 escenarios del alcance F3 completos (5/5 requisitos RF-CMB-01..05). El escenario «Mínimo 1 si hay efecto» (D1, RF-CMB-03) se verifica en el probe P (base 2 × 0.25 → daño 1).
 
+#### Veredicto por requisito (verificación formal, 2026-09-21)
+
+| Requisito | Veredicto | Evidencia (1 línea) |
+|---|---|---|
+| RF-CMB-01 | ✅ COMPLIANT | B1/B2 re-ejecutados: prompts «Selección de Pokémon activo (local/visita)» para ambos entrenadores con selección validada 1..N (B4e reintenta) |
+| RF-CMB-02 | ✅ COMPLIANT | Probe re-ejecutado: 60 vs 45 → local; 45 vs 60 → visita; 60 vs 60 → local (entrenador 1, D3) |
+| RF-CMB-03 | ✅ COMPLIANT | Probe re-ejecutado: daño ×2=46, ×1=21, ×0.5=7, ×0=0, ×4=88, ×0.25=4, mínimo 1 (base 2 × 0.25) |
+| RF-CMB-04 | ✅ COMPLIANT | B1 re-ejecutado: KO de Llama/Pato/Sparky/Bulbi con reemplazos y «Victoria de Misty… (KOs: 1 a 3)»; probe: KO sin reemplazo → victoria inmediata |
+| RF-CMB-05 | ✅ COMPLIANT | Probe re-ejecutado: 7 multiplicadores coinciden con `data/efectividad.txt` vía `tipos_multiplicador` (matriz 18×18) |
+
+#### Revisión de manejo de bordes (RF-TEC-03 / RF-CMB-01..04)
+
+| Borde | Evidencia re-ejecutada | Resultado |
+|---|---|---|
+| Equipos vacíos | B4c: entrenador sin equipo → «Ambos entrenadores deben tener un equipo válido (1-6 ejemplares).»; probe: `combate_ejecutar` con equipo vacío → false | ✅ PASS |
+| NULL | Probe: entrenador NULL, `seleccionar` NULL y equipo vacío → `combate_ejecutar` devuelve false sin crash; `combate_calcular_danio(NULL,…)` → 0; `combate_ataca_primero(NULL,…)` → true (no dereferencia) | ✅ PASS |
+| Selección fuera de rango (1..N con reintento) | B4e: posición 99 → «Posición inválida (1-3).» + reintento exitoso y combate completo; `seleccionar_pokemon_activo` valida `posicion < 1 || posicion > disponibles` y repregunta | ✅ PASS |
+| EOF en selección (no colgar) | B6 + verificación con `timeout 5`: `8\n1\n1\n2\n1\n` → «Combate cancelado.», exit 0 en < 5 s (no cuelga); probe: devuelve -1 → cancelación | ✅ PASS |
+| EOF en submenú | B6b + `timeout 5`: `8\n` → submenú mostrado y cierre ordenado, exit 0 (no cuelga) | ✅ PASS |
+| Inmutabilidad de datos | sha256 de `data/pokedex.txt` y `data/efectividad.txt` idénticos antes/después de la batería completa (RF-PDX-04) | ✅ PASS |
+
 ### Correctness (Evidencia estática, F3)
 
 | Requisito | Estado | Notas |
@@ -459,7 +480,7 @@ Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los siet
 ### Veredicto F3
 
 **PASS**
-El lote F3 cumple RF-CMB-01..05 y las decisiones D1/D2/D3/D4/D5: las 3 tareas F3 están completas, el build es limpio (cero warnings, siete `.c`), la batería scriptada pasa 16/16 y el probe 21/21 con la fórmula de daño exacta (multiplicadores 2/1/0.5/0, productos ×4/×0.25 y mínimo 1), el orden por velocidad con desempate D3, el empate por 20 turnos en grupos (D4) y la cadena anti-empate HP → nivel → entrenador 1 (D5). La selección de Pokémon activo se valida con reintentos y EOF ordenado (RF-TEC-03); la Pokédex permanece inmutable (sha256 estable). Sin CRITICAL ni WARNING; dos LOW informativos no bloquean. Presupuesto del lote: 546 líneas de código nuevas (≤ 800 ✓).
+El lote F3 cumple RF-CMB-01..05 y las decisiones D1/D2/D3/D4/D5: las 3 tareas F3 están completas, el build es limpio (cero warnings, siete `.c`, hash `deccd336…` reproducido en la verificación formal), la batería scriptada pasa 16/16 y el probe 21/21 re-ejecutados en esta fase (evidencia fresca: daño exacto 46/21/7/0/88/4 y mínimo 1, orden D3 60/45/60, empate D4 por 20 turnos, cadena D5 HP→nivel→entrenador 1, KO con/sin reemplazo, validación NULL/equipo vacío), la selección de Pokémon activo se valida con reintentos y EOF ordenado sin colgar (RF-TEC-03) y la Pokédex permanece inmutable (sha256 estable). Sin CRITICAL ni WARNING; dos LOW informativos no bloquean. Presupuesto del lote: 546 líneas de código nuevas (≤ 800 ✓).
 
 ---
 
