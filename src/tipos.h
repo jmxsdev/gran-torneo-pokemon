@@ -1,7 +1,7 @@
 /**
  * @file tipos.h
  * @brief Catálogo de los 18 tipos Pokémon y su efectividad (RF-CMB-05).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-01
  */
 

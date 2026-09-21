@@ -2,7 +2,7 @@
  * @file archivos.h
  * @brief E/S de los archivos de texto del torneo (D8): entrenadores,
  *        resultados y clasificación.
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-01
  */
 

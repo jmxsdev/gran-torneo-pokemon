@@ -1,7 +1,7 @@
 /**
  * @file main.c
  * @brief Bucle del menú principal y flujo general del torneo (RF-MEN-01).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-01
  */
 

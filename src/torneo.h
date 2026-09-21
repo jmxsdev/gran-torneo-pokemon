@@ -2,7 +2,7 @@
  * @file torneo.h
  * @brief Estado del torneo: grupos, calendario 1-48, clasificación y
  *        eliminatorias 49-64 (RF-TRN-01..06, RF-ELM-01..05, RF-RES-03).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-01
  */
 

@@ -1,7 +1,7 @@
 /**
  * @file constantes.h
  * @brief Constantes de dominio del torneo en un solo lugar (diseño §1.2).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-01
  */
 

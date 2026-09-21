@@ -1,7 +1,7 @@
 /**
  * @file entrenador.h
  * @brief Entrenadores: registro con id único, búsqueda y listado (RF-ENT-01..02).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-01
  */
 

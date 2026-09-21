@@ -2,7 +2,7 @@
  * @file pokedex.c
  * @brief Implementación del módulo Pokédex: carga y consulta de las 150
  *        especies de la 1.ª generación (RF-PDX-01..06).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-01
  */
 
@@ -57,19 +57,7 @@ static void pokedex_normalizar(const char *entrada, char *salida)
     salida[j] = '\0';
 }
 
-/**
- * @brief Carga las 150 especies desde un archivo de texto.
- *
- * Parseo estricto (formato D8, separador ';'): exactamente 8 campos por
- * linea y 150 lineas no vacias. Cada linea malformada se reporta con su
- * numero de linea; ante cualquier desvio la Pokédex queda con cantidad = 0
- * y el programa continua (RF-PDX-06). El archivo no se modifica (RF-PDX-04).
- *
- * @param pd   Puntero a la Pokédex que se completa (no debe ser NULL).
- * @param ruta Ruta del archivo de datos (p. ej. RUTA_POKEDEX).
- * @return true si se cargaron las 150 especies; false si el archivo no se
- *         pudo abrir, tiene formato invalido o no contiene 150 lineas.
- */
+/* Implementación de pokedex_cargar: documentación canónica en pokedex.h. */
 bool pokedex_cargar(Pokedex *pd, const char *ruta)
 {
     FILE *archivo;

@@ -2,7 +2,7 @@
  * @file equipo.h
  * @brief Ejemplares y equipos: creación desde especie, agregación,
  *        validación, liberación y consulta (RF-EQP-01..05).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-01
  */
 

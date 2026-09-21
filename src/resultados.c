@@ -6,7 +6,7 @@
  * F7: catálogo de validación del diseño §8.1. Los participantes los
  * resuelve el sistema (RF-RES-03); la aplicación se delega en
  * torneo_aplicar_resultado.
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-21
  */
 

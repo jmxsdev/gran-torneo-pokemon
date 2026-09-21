@@ -2,7 +2,7 @@
  * @file resultados.h
  * @brief Carga de resultados por teclado o archivo con validación completa
  *        (RF-RES-01, RF-RES-02, RF-RES-04).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-01
  */
 

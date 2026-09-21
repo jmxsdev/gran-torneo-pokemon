@@ -2,7 +2,7 @@
  * @file entrenador.c
  * @brief Implementación del módulo de entrenadores: registro con id único,
  *        búsqueda y listado (RF-ENT-01..02).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-19
  */
 
@@ -11,16 +11,7 @@
 
 #include "entrenador.h"
 
-/**
- * @brief Busca un entrenador por su id en el registro.
- *
- * Recorrido lineal sobre el arreglo estático (capacidad MAX_ENTRENADORES).
- *
- * @param reg Puntero al registro (no debe ser NULL).
- * @param id  Identificador a buscar.
- * @return Puntero al entrenador encontrado; NULL si no existe o el
- *         registro es inválido.
- */
+/* Implementación de entrenador_buscar: documentación canónica en entrenador.h. */
 Entrenador *entrenador_buscar(RegistroEntrenadores *reg, int id)
 {
     int i;
@@ -35,18 +26,7 @@ Entrenador *entrenador_buscar(RegistroEntrenadores *reg, int id)
     return NULL;
 }
 
-/**
- * @brief Registra un entrenador nuevo con id único (RF-ENT-02).
- *
- * Valida id positivo, nombre no vacío, id no repetido (búsqueda previa) y
- * capacidad del registro. El equipo queda vacío y los contadores en cero.
- *
- * @param reg    Puntero al registro (no debe ser NULL).
- * @param id     Identificador único propuesto (entero > 0).
- * @param nombre Nombre del entrenador (no debe ser NULL).
- * @return true si se registró; false si el id ya existe, los parámetros
- *         son inválidos o el registro está lleno.
- */
+/* Implementación de entrenador_registrar: documentación canónica en entrenador.h. */
 bool entrenador_registrar(RegistroEntrenadores *reg, int id, const char *nombre)
 {
     Entrenador *ent;
@@ -74,14 +54,7 @@ bool entrenador_registrar(RegistroEntrenadores *reg, int id, const char *nombre)
     return true;
 }
 
-/**
- * @brief Muestra por consola todos los entrenadores del registro.
- *
- * Incluye id, nombre, contadores de fase de grupos y tamaño del equipo
- * (RF-ENT-01).
- *
- * @param reg Puntero al registro (no debe ser NULL).
- */
+/* Implementación de entrenador_mostrar_todos: documentación canónica en entrenador.h. */
 void entrenador_mostrar_todos(const RegistroEntrenadores *reg)
 {
     int i;

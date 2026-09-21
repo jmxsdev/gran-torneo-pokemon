@@ -7,7 +7,7 @@
  * F5: fase de grupos. F6: bracket 49-64 con participantes resueltos por el
  * sistema, transición GRUPOS -> ELIMINATORIAS -> FINALIZADO y posiciones
  * finales (campeón, subcampeón, tercero y cuarto).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-21
  */
 

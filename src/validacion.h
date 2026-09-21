@@ -1,7 +1,7 @@
 /**
  * @file validacion.h
  * @brief Lectura segura de entradas con reintentos (RF-TEC-03).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-01
  */
 

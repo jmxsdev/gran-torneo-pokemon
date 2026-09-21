@@ -1,7 +1,7 @@
 /**
  * @file pokedex.h
  * @brief Pokédex: carga y consulta de las 150 especies (RF-PDX-01..06).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-01
  */
 

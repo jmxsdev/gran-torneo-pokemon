@@ -4,7 +4,7 @@
  *
  * F2: carga de entrenadores (RF-ENT-03). F7: guardado de entrenadores,
  * carga y guardado de resultados y guardado de la clasificación.
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-21
  */
 
@@ -50,22 +50,7 @@ static bool entero_en_arreglo(const int *arreglo, int n, int valor)
     return false;
 }
 
-/**
- * @brief Carga entrenadores desde un archivo (RF-ENT-03).
- *
- * Formato D8 (§5.2): ID;NOMBRE;CANT;(ID_EJEMPLAR;NUM_ESPECIE;APODO;NIVEL)xCANT.
- * Cada línea se valida completa antes de registrar: ids únicos, especie
- * existente en la Pokédex (RF-EQP-01) y nivel 1..100. Las líneas inválidas
- * se rechazan con mensaje y la carga continúa; al final se reportan
- * aceptados/rechazados. Los stats se re-derivan con D2 y el contador global
- * de ids queda en el máximo del archivo (§5.2).
- *
- * @param reg  Puntero al registro que se completa (no debe ser NULL).
- * @param pd   Puntero a la Pokédex cargada (no debe ser NULL).
- * @param ruta Ruta del archivo de entrada (p. ej. RUTA_ENTRENADORES).
- * @return true si se cargó al menos un entrenador; false si el archivo no
- *         se pudo abrir, no quedó ningún entrenador o hay parámetros nulos.
- */
+/* Implementación de archivos_cargar_entrenadores: documentación canónica en archivos.h. */
 bool archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
                                   const char *ruta)
 {
@@ -205,17 +190,7 @@ linea_invalida:
     return aceptados > 0;
 }
 
-/**
- * @brief Guarda el registro de entrenadores en un archivo (RF-ENT-03).
- *
- * Formato D8 (§5.2): ID;NOMBRE;CANT;(ID_EJEMPLAR;NUM_ESPECIE;APODO;NIVEL)xCANT.
- * Los contadores no se persisten; al recargar los stats se re-derivan con
- * D2 y quedan idénticos (determinismo por id de ejemplar).
- *
- * @param reg  Puntero al registro (no debe ser NULL).
- * @param ruta Ruta del archivo de salida (p. ej. RUTA_ENTRENADORES).
- * @return true si se escribió el archivo; false en caso contrario.
- */
+/* Implementación de archivos_guardar_entrenadores: documentación canónica en archivos.h. */
 bool archivos_guardar_entrenadores(const RegistroEntrenadores *reg,
                                    const char *ruta)
 {
@@ -246,15 +221,7 @@ bool archivos_guardar_entrenadores(const RegistroEntrenadores *reg,
     return true;
 }
 
-/**
- * @brief Carga resultados desde un archivo (RF-RES-01); delega en
- *        resultados_cargar_archivo.
- *
- * @param t    Puntero al estado del torneo (no debe ser NULL).
- * @param reg  Puntero al registro de entrenadores (no debe ser NULL).
- * @param ruta Ruta del archivo de resultados (p. ej. RUTA_RESULTADOS).
- * @return true si se aplicó al menos un resultado; false en caso contrario.
- */
+/* Implementación de archivos_cargar_resultados: documentación canónica en archivos.h. */
 bool archivos_cargar_resultados(Torneo *t, RegistroEntrenadores *reg,
                                 const char *ruta)
 {

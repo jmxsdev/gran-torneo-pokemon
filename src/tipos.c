@@ -2,7 +2,7 @@
  * @file tipos.c
  * @brief Implementación del módulo de tipos: catálogo de 18 tipos y su
  *        matriz de efectividad (RF-CMB-05, RF-PDX-03).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-01
  */
 
@@ -214,17 +214,7 @@ void tipos_inicializar(void)
     }
 }
 
-/**
- * @brief Convierte el nombre textual de un tipo a su enumerado.
- *
- * Compara sin distinguir mayusculas y sin acentos: "Planta" y "PLANTA"
- * producen TIPO_PLANTA; "-" produce TIPO_NINGUNO (RF-PDX-03).
- *
- * @param nombre Cadena con el nombre del tipo (no debe ser NULL).
- * @param salida Puntero donde se escribe el Tipo resultante (no debe ser NULL).
- * @return true si el nombre es uno de los 18 tipos o "-"; false en caso
- *         contrario, dejando *salida sin cambios.
- */
+/* Implementación de tipos_es_valido: documentación canónica en tipos.h. */
 bool tipos_es_valido(const char *nombre, Tipo *salida)
 {
     static const char *const nombres[TIPO_NINGUNO] = {
@@ -257,12 +247,7 @@ bool tipos_es_valido(const char *nombre, Tipo *salida)
     return false;
 }
 
-/**
- * @brief Devuelve el texto en espanol de un tipo.
- *
- * @param t Tipo a convertir; TIPO_NINGUNO se acepta y devuelve "-".
- * @return Cadena estatica con el nombre del tipo; nunca NULL.
- */
+/* Implementación de tipos_a_texto: documentación canónica en tipos.h. */
 const char *tipos_a_texto(Tipo t)
 {
     static const char *const nombres[TIPO_NINGUNO] = {
@@ -280,18 +265,7 @@ const char *tipos_a_texto(Tipo t)
     return nombres[t];
 }
 
-/**
- * @brief Calcula el multiplicador de un ataque contra un defensor de dos tipos.
- *
- * Producto de la efectividad del tipo atacante contra cada tipo del defensor:
- * el resultado pertenece a {0.25, 0.5, 1.0, 2.0, 4.0} (RF-CMB-05).
- *
- * @param ataque Tipo del ataque (nunca TIPO_NINGUNO).
- * @param def1  Primer tipo del defensor.
- * @param def2  Segundo tipo del defensor; TIPO_NINGUNO si tiene uno solo.
- * @return Multiplicador de danio calculado; 0.0f si la matriz no fue
- *         inicializada con tipos_inicializar o si ataque es TIPO_NINGUNO.
- */
+/* Implementación de tipos_multiplicador: documentación canónica en tipos.h. */
 float tipos_multiplicador(Tipo ataque, Tipo def1, Tipo def2)
 {
     float mult1, mult2;

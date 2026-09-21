@@ -3,7 +3,7 @@
  * @brief Reglamento del combate 1 vs 1: daño (D1), orden (D3), KO y
  *        reemplazo (RF-CMB-04), empate en grupos (D4) y anti-empate en
  *        eliminatoria (D5) — RF-CMB-01..05, diseño §7.
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-21
  */
 
@@ -75,19 +75,7 @@ static Ejemplar *combate_seleccionar_activo(Entrenador *ent, const char *rol,
     return combate_ejemplar_posicion(ent, posicion);
 }
 
-/**
- * @brief Calcula el daño de un ataque del ejemplar atacante al defensor.
- *
- * Fórmula cerrada D1 con enteros en ese orden: base = (2*nivel/5 + 2) *
- * ataque / defensa + 2; mult = tipos_multiplicador(tipo primario del
- * atacante, tipo(s) del defensor); daño = (int)(base * mult). Mínimo 1 si
- * mult > 0 y daño < 1; 0 si mult == 0 (RF-CMB-03/RF-CMB-05). Solo lee
- * campos de los ejemplares: nunca muta la Pokédex (RF-PDX-04).
- *
- * @param atacante Ejemplar que ataca (no debe ser NULL).
- * @param defensor Ejemplar que recibe (no debe ser NULL).
- * @return Daño calculado, entero >= 0; 0 si los parámetros son inválidos.
- */
+/* Implementación de combate_calcular_danio: documentación canónica en combate.h. */
 int combate_calcular_danio(const Ejemplar *atacante, const Ejemplar *defensor)
 {
     int base;
@@ -110,16 +98,7 @@ int combate_calcular_danio(const Ejemplar *atacante, const Ejemplar *defensor)
     return (int)(base * mult);
 }
 
-/**
- * @brief Decide qué ejemplar ataca primero según su velocidad (D3).
- *
- * Mayor velocidad ataca primero; empate => ataca el ejemplar del entrenador
- * local (entrenador 1 del enfrentamiento, RF-CMB-02).
- *
- * @param local  Ejemplar activo del entrenador local (no debe ser NULL).
- * @param visita Ejemplar activo del entrenador visitante (no debe ser NULL).
- * @return true si ataca primero *local; false si ataca primero *visita.
- */
+/* Implementación de combate_ataca_primero: documentación canónica en combate.h. */
 bool combate_ataca_primero(const Ejemplar *local, const Ejemplar *visita)
 {
     if (local == NULL || visita == NULL) {
@@ -204,26 +183,7 @@ static int combate_total_nivel(const Entrenador *ent)
     return total;
 }
 
-/**
- * @brief Ejecuta un combate completo entre dos equipos (RF-CMB-01..05).
- *
- * Restaura hp_actual = hp_max (D2), pide el Pokémon inicial de cada
- * entrenador y aplica hasta MAX_TURNOS_COMBATE intercambios completos:
- * cada turno atacan ambos activos según el orden de velocidad (D3) y los
- * KOs se reemplazan con otro disponible (RF-CMB-04). El combate termina
- * cuando un entrenador se queda sin Pokémon disponibles (gana el otro), o
- * al agotar los turnos: empate en fase de grupos (D4) o anti-empate en
- * eliminatoria por la cadena HP total -> nivel total -> entrenador 1 (D5).
- *
- * @param local         Entrenador local (entrenador 1; no debe ser NULL).
- * @param visita        Entrenador visitante (no debe ser NULL).
- * @param es_eliminatoria true si el combate es de eliminatoria (D5); false
- *                      si es de fase de grupos (D4, admite empate).
- * @param seleccionar   Función de selección del Pokémon activo (no NULL).
- * @param res           Puntero donde se escribe el resultado (no NULL).
- * @return true si el combate se ejecutó y *res quedó definido; false si los
- *         parámetros son inválidos, un equipo está vacío o se canceló (EOF).
- */
+/* Implementación de combate_ejecutar: documentación canónica en combate.h. */
 bool combate_ejecutar(Entrenador *local, Entrenador *visita,
                       bool es_eliminatoria, CombateSeleccionar seleccionar,
                       ResultadoCombate *res)

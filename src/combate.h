@@ -1,7 +1,7 @@
 /**
  * @file combate.h
  * @brief Reglamento del combate 1 vs 1: daño (D1), orden (D3) y fin (D4/D5).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-01
  */
 

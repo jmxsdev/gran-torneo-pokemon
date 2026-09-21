@@ -6,7 +6,7 @@
  * estructural del diseño §8.1: ninguna función de validación llama a exit;
  * todos los bucles reintentan hasta entrada válida o EOF (EOF ⇒ cierre
  * ordenado decidido por el llamador).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-21
  */
 

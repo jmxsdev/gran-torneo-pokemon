@@ -3,7 +3,7 @@
  * @brief Implementación del módulo de equipos: creación de ejemplares desde
  *        especie (D2), agregación, validación, liberación y consulta
  *        (RF-EQP-01..05).
- * @author <Nombre del estudiante>
+ * @author Nombre del estudiante
  * @date 2026-09-19
  */
 
@@ -37,23 +37,7 @@ void equipo_fijar_contador_id(int id_maximo)
     }
 }
 
-/**
- * @brief Crea un ejemplar nuevo a partir de una especie de la Pokédex.
- *
- * Fórmula D2 exacta (variación determinista única por ejemplar, división
- * entera truncada de C): variacion = (id * 7) % 16; hp_max = (hp_base *
- * nivel / 50) + nivel + 10 + variacion; stat = (stat_base * nivel / 50) +
- * nivel + 5 + variacion; hp_actual = hp_max. La especie NO se muta
- * (RF-EQP-03). El ejemplar se asigna con malloc.
- *
- * @param pd             Puntero a la Pokédex cargada (no debe ser NULL).
- * @param numero_especie Número de la especie base, 1..POKEDEX_MAX.
- * @param nombre         Nombre/apodo del ejemplar (no debe ser NULL).
- * @param nivel          Nivel del ejemplar, en el rango NIVEL_MIN..NIVEL_MAX.
- * @param id_ejemplar    Identificador único global del ejemplar (> 0).
- * @return Puntero al ejemplar creado (hp_actual = hp_max); NULL si la
- *         especie no existe, los parámetros son inválidos o falla malloc.
- */
+/* Implementación de equipo_crear_ejemplar: documentación canónica en equipo.h. */
 Ejemplar *equipo_crear_ejemplar(const Pokedex *pd, int numero_especie,
                                 const char *nombre, int nivel, int id_ejemplar)
 {
@@ -108,17 +92,7 @@ int equipo_contar(const Entrenador *ent)
     return n;
 }
 
-/**
- * @brief Agrega un ejemplar al equipo respetando MAX_EQUIPO (RF-EQP-05).
- *
- * Inserta al inicio de la lista enlazada (TDA encapsulado: solo este módulo
- * toca el campo siguiente).
- *
- * @param ent   Puntero al entrenador (no debe ser NULL).
- * @param nuevo Ejemplar ya creado que pasa a ser propiedad del equipo.
- * @return true si se agregó; false si el equipo ya tiene MAX_EQUIPO
- *         ejemplares o los parámetros son inválidos.
- */
+/* Implementación de equipo_agregar_ejemplar: documentación canónica en equipo.h. */
 bool equipo_agregar_ejemplar(Entrenador *ent, Ejemplar *nuevo)
 {
     if (ent == NULL || nuevo == NULL) {
@@ -132,17 +106,7 @@ bool equipo_agregar_ejemplar(Entrenador *ent, Ejemplar *nuevo)
     return true;
 }
 
-/**
- * @brief Valida el equipo del entrenador (RF-EQP-05).
- *
- * Comprueba tamaño (1..tamano_requerido), existencia de cada especie en la
- * Pokédex (RF-EQP-01), niveles (1..100) y tipos copiados en el ejemplar.
- *
- * @param pd               Puntero a la Pokédex cargada (no debe ser NULL).
- * @param ent              Puntero al entrenador (no debe ser NULL).
- * @param tamano_requerido Tamaño máximo admitido (1..MAX_EQUIPO).
- * @return true si el equipo es válido; false en caso contrario.
- */
+/* Implementación de equipo_validar: documentación canónica en equipo.h. */
 bool equipo_validar(const Pokedex *pd, const Entrenador *ent,
                     int tamano_requerido)
 {
@@ -170,13 +134,7 @@ bool equipo_validar(const Pokedex *pd, const Entrenador *ent,
     return true;
 }
 
-/**
- * @brief Libera todos los ejemplares del equipo (free disciplinado).
- *
- * Recorre la lista liberando cada nodo con free; deja ent->equipo en NULL.
- *
- * @param ent Puntero al entrenador cuyo equipo se libera (no debe ser NULL).
- */
+/* Implementación de equipo_liberar: documentación canónica en equipo.h. */
 void equipo_liberar(Entrenador *ent)
 {
     Ejemplar *ej;
@@ -193,12 +151,7 @@ void equipo_liberar(Entrenador *ent)
     ent->equipo = NULL;
 }
 
-/**
- * @brief Muestra por consola el equipo completo de un entrenador.
- *
- * @param pd  Puntero a la Pokédex cargada (no debe ser NULL).
- * @param ent Puntero al entrenador (no debe ser NULL).
- */
+/* Implementación de equipo_mostrar: documentación canónica en equipo.h. */
 void equipo_mostrar(const Pokedex *pd, const Entrenador *ent)
 {
     const Ejemplar *ej;
@@ -447,22 +400,7 @@ static bool bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
                   tipos_dist, ataque_acum, mascara, parcial, creados);
 }
 
-/**
- * @brief Forma un equipo automáticamente con recursividad + backtracking.
- *
- * Valida las restricciones, precomputa la tabla sufijo de tipos
- * (O(18·150), §4.5) y explora con bt_rec. Si no existe solución devuelve
- * false dejando *salida en NULL: nunca se devuelve un equipo inválido
- * (spec RF-EQP-04). El primer éxito se devuelve con la lista en el orden
- * natural de inclusión de especies.
- *
- * @param pd       Puntero a la Pokédex cargada (no debe ser NULL).
- * @param r        Puntero a las restricciones (no debe ser NULL).
- * @param salida   Puntero donde se escribe la cabeza de la lista creada.
- * @param cantidad Puntero donde se escribe cuántos ejemplares se crearon.
- * @return true si existe un equipo que cumple todas las restricciones;
- *         false si no existe solución o los parámetros son inválidos.
- */
+/* Implementación de equipo_formar_backtracking: documentación canónica en equipo.h. */
 bool equipo_formar_backtracking(const Pokedex *pd, const RestriccionesEquipo *r,
                                 Ejemplar **salida, int *cantidad)
 {
