@@ -6,12 +6,12 @@ blockers: 0
 critical_findings: 0
 requirements: 40/42
 scenarios: 68/70
-test_command: /tmp/opencode/bateria_f7.sh /home/gzuz/Documentos/universidad/algorit-I/Proyecto (batería F7 13 casos stdin→grep: build limpio cero warnings con 9 .c, submenú opción 6, carga parcial 20/48 + pendientes, clasificación parcial + guardado §5.4, teclado con participantes resueltos, probe F7 39/39 (catálogo §8.1 completo, round-trip resultados byte-idéntico, guardar/recargar entrenadores con stats D2 idénticas), regresión probe F6 43/43 + batería F6 13/13 + probe F5 104/104 + batería F5 17/17, sha256 de los 4 datos, ≤99 cols)
+test_command: /tmp/opencode/bateria_f8.sh /home/gzuz/Documentos/universidad/algorit-I/Proyecto (batería F8 15 casos E2E rutas inválidas: build limpio cero warnings con 10 .c, opción 99, texto en menú, nivel 101/0 con reintento, id duplicado, Pokédex ausente con submenú completo, EOF×3 con timeout, regresión batería F7 13/13 + batería F4 12/12 + probe F3 21/21, sha256 de los 4 datos, ≤99 cols, validacion.c sin exit; + probe F7 39/39 y parsers `;;` verificados en la verificación formal F8)
 test_exit_code: 0
-test_output_hash: sha256:81be07dca4706f419d919f3b206aaaddeac796603c0dee190eb9bad7eef43f38
-build_command: make clean && make (gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entrenador.c src/equipo.c src/main.c src/pokedex.c src/resultados.c src/tipos.c src/torneo.c; exit 0, cero warnings)
+test_output_hash: sha256:58f7868933a0c449a6c0569dfc36c3d828c9bc4b75f6f89687696fe2a46b2e20
+build_command: make clean && make (gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entrenador.c src/equipo.c src/main.c src/pokedex.c src/resultados.c src/tipos.c src/torneo.c src/validacion.c; exit 0, cero warnings)
 build_exit_code: 0
-build_output_hash: sha256:ef1f166aa935942d8dda0fa788970ef7752f314a91c3fd6e0f7fca24a8c6ae2c
+build_output_hash: sha256:22c555a6b038d8767f2a041901caf9bc01de5ecb66d73c5be3ed6d7b7bbec144
 ```
 
 # Informe de Verificación — Gran Torneo Pokémon — Lotes F0, F1, F2 y F3
@@ -998,7 +998,121 @@ El lote F7 cumple RF-RES-01, RF-RES-02 (catálogo §8.1 completo: parciales, ent
 
 ---
 
-## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5 + F6 + F7)
+## Sección F8 (Día 7, 2026-09-21) — Validación integral de entradas
+
+**Fase**: F8 — `src/validacion.c` (lectura segura con reintentos y EOF), migración de todas las lecturas de `main.c` y `resultados.c` a la API común, cierre de hallazgos F1 (submenú Pokédex) y F2 (parsers `;;`), batería E2E de rutas inválidas
+**Fecha**: 2026-09-21
+**Intento**: F8-verificacion (adquirido por el orquestador; no se re-adquirió en esta ejecución)
+
+### Completeness
+
+| Métrica | Valor |
+|---|---|
+| Tareas del lote F8 | 3 |
+| Tareas completadas | 3 |
+| Tareas incompletas | 0 |
+
+### Build y Ejecución
+
+**Build**: ✅ Pasó (exit 0, cero warnings)
+```text
+$ make clean && make
+rm -rf build
+mkdir -p build
+gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entrenador.c src/equipo.c src/main.c src/pokedex.c src/resultados.c src/tipos.c src/torneo.c src/validacion.c
+```
+Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los **diez** `.c` del proyecto (se incorpora `src/validacion.c`). `build_output_hash sha256:22c555a6…` (la línea de compilación cambió respecto a F7) y `binary_hash sha256:2d63a679…` (build/torneo). 0 líneas de más de 99 columnas en `src/validacion.c/h`, `src/main.c`, `src/resultados.c`, `src/pokedex.c`, `src/tipos.c` y `src/archivos.c` (verificado en la batería F8). Presupuesto del lote: **~830 líneas cambiadas en `src/`** vs 800 del forecast (desviación LOW C documentada: la migración atómica de TODAS las lecturas es indivisible; sin `validacion.c` el código no compila).
+
+**Pruebas**: ✅ Batería F8 scriptada (15 bloques E2E) + probe F7 (39/39) + probe F3 (21/21): **75/75 PASS, exit 0**. Hash del output de pruebas: `58f78689…`. `evidence_revision sha256:835580d3…` (= sha256 del output del probe F7 re-ejecutado, **idéntico al del envelope F7**: reproducibilidad byte a byte de la evidencia del catálogo §8.1).
+
+| Caso | Entrada | Resultado esperado | Resultado real | Diff |
+|---|---|---|---|---|
+| 1 build | `make clean && make` | exit 0, cero warnings, diez `.c` compilados | Ídem | ✅ PASS |
+| 2 opción 99 | `99\n12\n` | «Opción inválida. Intente de nuevo.» + «Saliendo del programa.» (sigue vivo) | Ídem | ✅ PASS |
+| 3 texto en menú | `abc\n12\n` | «Entrada inválida.» + sigue vivo | Ídem | ✅ PASS |
+| 4 nivel 101/0 | `2\n1\nAsh\n3\n1\n1\n1\n101\n0\n50\n\n0\n12\n` | «Nivel inválido (rango 1-100).» ×2 + reintento + ejemplar válido agregado (rc 0) | Ídem | ✅ PASS |
+| 5 id duplicado | `2\n99\nNuevo\n2\n99\nOtro\n12\n` | «Entrenador registrado: id 99, Nuevo.» + «Ya existe un entrenador con id 99; el registro se rechaza.» + sigue vivo | Ídem | ✅ PASS |
+| 6 Pokédex ausente | renombrar + `1\n12\n` | «Aviso: la Pokédex no está disponible» + «La Pokédex no está cargada.» (submenú completo) | Ídem | ✅ PASS |
+| 7 EOF en restricciones | `3\n2\n1\n` + timeout 5 | Cierre ordenado sin colgar | Ídem | ✅ PASS |
+| 8 EOF en selección | `8\n1\n1\n2\n1\n` + timeout 5 | «Combate cancelado.», cierre ordenado | Ídem | ✅ PASS |
+| 9 EOF en teclado | `6\n1\n5\n` + timeout 5 | «Resultados cargados por teclado: 0 aplicados.» | Ídem | ✅ PASS |
+| 10 regresión batería F7 | `bateria_f7.sh` | `BATERÍA F7: 13 PASS, 0 FALLA` (incluye probe F7 39/39) | Ídem | ✅ PASS |
+| 11 regresión batería F4 | `bateria_f4.sh` | `Bateria F4: 12 PASS, 0 FAIL` | Ídem | ✅ PASS |
+| 12 regresión probe F3 | probe F3 recompilado con validacion.c | Motor de combate: 21/21, 0 fallos | Ídem | ✅ PASS |
+| 13 sha256 datos | batería completa | `pokedex.txt` 9696e9b2…, `efectividad.txt` 505e726b…, `entrenadores.txt` a3c49a4f…, `resultados.txt` e08bdc4e… | Ídem | ✅ PASS |
+| 14 columnas | `grep -RInE '.{100,}'` | 0 líneas > 99 en el lote F8 | Ídem | ✅ PASS |
+| 15 validacion.c sin exit | `grep -nE 'exit\s*\('` | 0 coincidencias (garantía §8.1) | Ídem | ✅ PASS |
+
+**Verificaciones adicionales de la verificación formal F8 (2026-09-21)**:
+
+| Verificación | Evidencia | Resultado |
+|---|---|---|
+| Ninguna función de validación llama a `exit` | `grep -rn 'exit(' src/` → 0 coincidencias en **todo** `src/` (no solo validacion.c); `main.c` tampoco | ✅ PASS |
+| Submenú Pokédex avisa con `cantidad == 0` en TODAS las ramas | Pokédex ausente + ramas: 1 (mostrar todas), 2 (buscar número), 3 (buscar nombre), 4 (ficha) → «La Pokédex no está cargada.» en las 4 | ✅ PASS (cierra WARNING F1) |
+| Parsers rechazan campos vacíos `;;` | pokedex línea `003;;Venusaur;…` → «se esperaban 8 campos y se encontraron 9» + carga rechazada (cantidad=0); entrenadores `33;Test;;1;1;X;10` → «Línea 33 rechazada: campos inválidos» + `32 aceptadas, 1 rechazada`; resultados `21;1;2;;1;1;1` → «Línea 21 rechazada: campos inválidos o resultado desconocido.» + `20 aplicados, 1 rechazadas`; efectividad 1.ª línea corrupta → «tiene 6 valores (se esperaban 18); se usara la tabla por defecto» — programa vivo en los 4 | ✅ PASS (cierra SUGGESTION F2) |
+| EOF a media entrada → sale 0, nunca cuelga | `3|2|1`, `8|1|1|2|1`, `6|1|5`, `2`, `1`, `12` → exit 0 en todos (timeout 5 s) | ✅ PASS |
+| Probe F7 explícito | `probe_f7_verify` → 39/39 comprobaciones, salida byte-idéntica al envelope F7 | ✅ PASS |
+| Probe F3 explícito | `probe_f3_f8` → 21 comprobaciones, 0 FAIL | ✅ PASS |
+| Pokémon inexistente (RF-TEC-03 escenario) | nombre `zzzz` → «No se encontró la especie solicitada.» + programa continúa; número 999 → rechazado por rango en la lectura (1–150) con reintento | ✅ PASS |
+
+### Matriz de Cumplimiento de Specs (F8)
+
+| Requisito | Escenario | Evidencia | Resultado |
+|---|---|---|---|
+| RF-TEC-03 | Opción de menú inválida no rompe el programa | Caso 2: opción 99 → error + repregunta + sigue vivo (exit 0 al salir con 12) | ✅ COMPLIANT |
+| RF-TEC-03 | Pokémon inexistente | Búsqueda de `zzzz` en la Pokédex → «No se encontró la especie solicitada.» + el programa continúa; número fuera de rango rechazado por `validar_leer_entero(1,150)` | ✅ COMPLIANT |
+| RF-TEC-03 | Entrenador duplicado | Caso 5: id 99 ya registrado → rechazo con mensaje y el programa continúa | ✅ COMPLIANT |
+| RF-TEC-03 | Nivel inválido | Caso 4: niveles 101 y 0 → «Nivel inválido (rango 1-100).» ×2 + se solicita un nivel válido (50 aceptado) | ✅ COMPLIANT |
+| RF-TEC-03 | Archivo inexistente | Caso 6 + verificación adicional: pokedex.txt ausente → aviso con ruta al iniciar y submenú completo avisa «La Pokédex no está cargada.»; el programa continúa | ✅ COMPLIANT |
+| RF-TEC-03 | Entrada inválida no termina el programa | Casos 2–9 + EOF×3: opción 99, texto, niveles 101/0, id duplicado, archivo ausente y EOF a mitad de flujo → mensaje de error y permanece en ejecución o cierre ordenado exit 0; nunca termina inesperadamente | ✅ COMPLIANT |
+
+**Resumen de cumplimiento F8**: 6/6 escenarios de RF-TEC-03 completos con evidencia E2E re-ejecutada (batería F8 15/15). RF-TEC-03 queda **verificado por completo con la batería integral de rutas inválidas** — era la evidencia formal pendiente que el veredicto global F7 anticipaba para F8. El requisito ya constaba como COMPLIANT en los 40/42 del envelope (sus escenarios se cubrieron incrementalmente en F0–F7: opción 99 en F0, Pokémon inexistente en F1, duplicado/nivel en F2, archivo ausente en F1/F7); la batería F8 lo consolida como evidencia E2E autónoma. Los únicos requirements pendientes del cambio siguen siendo DOC-03 (D1 → F10.1) y DOC-04 (ortografía del Doxyfile → F10.3) → **40/42 requirements y 68/70 scenarios** se mantienen.
+
+### Correctness (Evidencia estática, F8)
+
+| Requisito | Estado | Notas |
+|---|---|---|
+| RF-TEC-03 | ✅ Implementado | `validar_leer_entero`/`validar_leer_entero_msg`: prompt + reintentos indefinidos; no numérico ⇒ «Entrada inválida.»; fuera de rango ⇒ mensaje genérico o específico; EOF ⇒ 0 (el llamador cierra ordenado). `validar_leer_cadena`: bool (false ante EOF), nunca desborda (recorta a n-1 y descarta el resto de la línea). `validar_separar_campos`: división por `;` SIN omitir campos vacíos (los `;;` producen campos vacíos detectables, no desplazamiento silencioso) |
+| §8.1 garantía estructural | ✅ Implementado | Ninguna función de validación llama a `exit` (grep global `src/` vacío); todos los bucles reintentan hasta entrada válida o EOF (EOF ⇒ cierre ordenado decidido por el llamador, con `feof(stdin)` donde 0 es legítimo) |
+| RF-TEC-02 | ✅ Implementado | `main.c` elimina los lectores locales (`leer_opcion`/`leer_linea`/`descartar_linea`/`leer_entero`) y migra TODAS sus lecturas a `validar_*`; `resultados.c` migra teclado y archivo; el menú sigue sin lógica de negocio |
+| Cierre WARNING F1 | ✅ Implementado | Submenú de la opción 1 chequea `cantidad == 0` al entrar y avisa «La Pokédex no está cargada.» en TODAS sus ramas (mostrar todas, buscar número, buscar nombre, ficha) |
+| Cierre SUGGESTION F2 | ✅ Implementado | Los 4 parsers de datos (pokedex, entrenadores, resultados, efectividad) detectan campos vacíos `;;` vía `validar_separar_campos` en lugar del desplazamiento de `strtok` (verificado E2E) |
+
+### Coherencia con el Diseño (F8)
+
+| Decisión del diseño | ¿Cumplida? | Notas |
+|---|---|---|
+| §1.3 firma `validar_leer_entero(const char *, int, int)` | ✅ Sí | Idéntica a la del diseño |
+| §1.3 firma `validar_leer_cadena(const char *, char *, size_t)` | ⚠️ Extendida | El diseño la declaraba `void`; la implementación devuelve `bool` (false ante EOF) — **LOW A** documentado: el contrato «retorna estado» (el llamador distingue EOF) exige el retorno; no rompe llamadas previas (F8 introduce el módulo) |
+| §8.1 catálogo por módulo | ✅ Sí | Opción inexistente (validacion 1..12), Pokémon inexistente (pokedex NULL + capa de menú), id duplicado (entrenador_registrar), nivel 0/>MAX (validacion NIVEL_MIN..NIVEL_MAX), equipo excede tamaño (equipo_agregar_ejemplar), tipo inválido (tipos_es_valido), archivo inexistente/malformado (pokedex_cargar/archivos_*, mensaje con ruta y línea), combate inexistente, entrenador inexistente, participantes ≠ resueltos, empate en eliminatoria, resultado duplicado (resultados_validar), 32 exactos (torneo_armar_grupos) — todos sin `exit` |
+| §8.1 «EOF ⇒ cierre ordenado» | ✅ Sí | Batería F8 casos 7–9 + verificación adicional: EOF en restricciones/selección/teclado cierra ordenado con exit 0 y timeout 5 s (no cuelga) |
+| §8.2 patrón de verificación scriptada | ✅ Sí | Batería F8 = casos stdin→grep (patrón del proyecto); determinismo intacto (sin `srand` añadido) |
+| §1.2 `main` sin lógica de negocio | ✅ Sí | La migración refuerza la separación: toda lectura va por `validacion`, `main` solo despacha |
+
+### Hallazgos (F8)
+
+**CRITICAL**: Ninguno.
+
+**WARNING**: Ninguno. (Se cierran el WARNING F1 — submenú Pokédex avisa en todas las ramas — y la SUGGESTION F2 — parsers detectan `;;` — con evidencia E2E.)
+
+**LOW**:
+1. **LOW A — firma de `validar_leer_cadena`**: el diseño §1.3 la declaraba `void`; la implementación devuelve `bool` (false ante EOF). Exigido por el contrato «retorna estado» (el llamador debe distinguir EOF de una línea leída). Desviación documentada en tasks.md F8.1; no rompe contratos previos.
+2. **LOW B — extensiones de F8 no previstas en §1.3**: `validar_leer_entero_msg` (mensaje específico por prompt, conserva los textos que la batería F4 verifica) y `validar_separar_campos` (base del cierre de SUGGESTION F2). Documentadas en tasks.md F8.1.
+3. **LOW C — presupuesto del lote ~830 vs 800**: la migración atómica de TODAS las lecturas supera el forecast de tasks.md (≈280 solo para `validacion.c`); la migración es indivisible (sin `validacion.c` el código no compila), por lo que no se fragmentó en PRs encadenados; riesgos de review asumidos y documentados en apply-progress F8.
+4. **NOTA — `bateria_f3.sh` obsoleta desde F5**: sus casos de menú usan la opción 8 directa de F3; el submenú llegó en F5.2. Verificado que **ya fallaba 12/12 sobre el código F7 previo a F8** (git stash) → NO es una regresión de F8. El motor de combate se regresa con el probe F3 (21/21, verde en esta verificación). La batería F3 de menú necesita actualizar su navegación (8→1→N) o declararse obsoleta; el probe F3 es la evidencia válida del motor.
+
+**SUGGESTION**:
+1. La migración de lecturas a `validacion.c` deja `descartar_linea` como helper estático interno; las demás capas ya no duplican lecturas. El siguiente paso natural es F9 (batería completa `tests/run_tests.sh` + casos versionados).
+2. El comportamiento del número de especie 999 cambió respecto a F1 (antes «No se encontró la especie solicitada.»; ahora rechazado por rango 1..150 en la lectura con reintento). Es una mejora de RF-TEC-03 (validación en origen), el escenario del spec cubre el nombre inexistente (verificado con `zzzz`); no requiere acción.
+
+### Veredicto F8
+
+**PASS**
+El lote F8 cumple RF-TEC-03 por completo: las 3 tareas F8 están completas, el build es limpio (cero warnings, diez `.c`, `binary_hash 2d63a679…`), la batería E2E de rutas inválidas pasa 15/15 (opción 99, texto en menú, niveles 101/0 con reintento, id duplicado, Pokédex ausente con submenú completo, EOF×3 con timeout), ninguna función de validación llama a `exit` (grep global `src/` vacío), el submenú Pokédex avisa en todas las ramas con `cantidad == 0` (cierra WARNING F1), los 4 parsers rechazan campos vacíos `;;` (cierra SUGGESTION F2), el EOF a media entrada cierra ordenado con exit 0 y la regresión completa F3–F7 está verde (probe F7 39/39 — byte-idéntico al envelope F7 —, batería F7 13/13, batería F4 12/12, probe F3 21/21). Sin CRITICAL ni WARNING; tres LOW y una NOTA informativos no bloquean. `bateria_f3.sh` queda documentada como obsoleta desde F5 (no es regresión de F8; el motor se regresa con el probe F3).
+
+---
+
+## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5 + F6 + F7 + F8)
 
 **PASS WITH WARNINGS por lote; FAIL del envelope por evidencia incompleta del cambio en curso**
-Los lotes F0, F1, F2, F3, F4, F5, F6 y F7 pasan (F3–F7 sin warnings: 0 CRITICAL, 0 blockers). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F8–F11 (validación integral, pruebas completas, documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1) y DOC-04 (ortografía del Doxyfile → F10.3). Conteos autoritativos contra los 11 specs del cambio (42 requirements / 70 scenarios): **40/42 requirements y 68/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-TEC-03, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05, RF-TRN-01..06, RF-ELM-01..05, RF-RES-01..04 y RF-CLS-01 completos; DOC-03/DOC-04 parciales). RF-RES-01, RF-RES-02 (escenario «Entrenador inexistente»), RF-RES-04 y RF-CLS-01 («Salida a archivo») quedan verificados en F7 (batería 13/13 + probe 39/39 + regresión completa F5/F6, 2026-09-21). Siguiente lote: F8 (validación integral de entradas RF-TEC-03 con `validacion.c`).
+Los lotes F0, F1, F2, F3, F4, F5, F6, F7 y F8 pasan (F3–F8 sin warnings: 0 CRITICAL, 0 blockers; F8 cierra además el WARNING F1 y la SUGGESTION F2 acumulados). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F9–F11 (pruebas completas, documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1) y DOC-04 (ortografía del Doxyfile → F10.3). Conteos autoritativos contra los 11 specs del cambio (42 requirements / 70 scenarios): **40/42 requirements y 68/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-TEC-03, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05, RF-TRN-01..06, RF-ELM-01..05, RF-RES-01..04 y RF-CLS-01 completos; DOC-03/DOC-04 parciales). RF-TEC-03 queda verificado por completo con la batería E2E F8 (15/15) en la verificación formal (2026-09-21, intento F8-verificacion). Siguiente lote: F9 (pruebas completas con `tests/run_tests.sh` + casos versionados).
