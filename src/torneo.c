@@ -639,6 +639,34 @@ void torneo_clasificados(Torneo *t)
     clasificar_grupos(t);
 }
 
+void torneo_clasificacion_grupo(const Torneo *t, int grupo, int filas[4][7])
+{
+    int ids[POR_GRUPO];
+    int p;
+
+    if (t == NULL || filas == NULL || grupo < 0 || grupo >= CANT_GRUPOS) {
+        return;
+    }
+    ids_del_grupo(t, grupo, ids);
+    ordenar_grupo(t, ids);
+    for (p = 0; p < POR_GRUPO; p++) {
+        int puntos;
+        int victorias;
+        int empates;
+        int derrotas;
+        int derrotados;
+        stats_de_combates(t, ids[p], &puntos, &victorias, &empates,
+                          &derrotas, &derrotados);
+        filas[p][0] = p + 1;
+        filas[p][1] = ids[p];
+        filas[p][2] = victorias;
+        filas[p][3] = empates;
+        filas[p][4] = derrotas;
+        filas[p][5] = puntos;
+        filas[p][6] = derrotados;
+    }
+}
+
 void torneo_mostrar_clasificacion(const Torneo *t,
                                   const RegistroEntrenadores *reg)
 {

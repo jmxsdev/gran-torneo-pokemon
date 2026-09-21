@@ -2,9 +2,10 @@
  * @file archivos.c
  * @brief E/S de los archivos de texto del torneo (D8).
  *
- * F2: solo la carga de entrenadores (RF-ENT-03); el resto se completa en F7.
+ * F2: carga de entrenadores (RF-ENT-03). F7: guardado de entrenadores,
+ * carga y guardado de resultados y guardado de la clasificación.
  * @author <Nombre del estudiante>
- * @date 2026-09-19
+ * @date 2026-09-21
  */
 
 #include <stdio.h>
@@ -12,6 +13,23 @@
 #include <string.h>
 
 #include "archivos.h"
+#include "resultados.h"   /* archivos_cargar_resultados delega aquí */
+
+/* Busca un entrenador por id sin mutar el registro (solo lectura). */
+static const Entrenador *entrenador_por_id(const RegistroEntrenadores *reg,
+                                           int id)
+{
+    int i;
+    if (reg == NULL) {
+        return NULL;
+    }
+    for (i = 0; i < reg->cantidad; i++) {
+        if (reg->entrenadores[i].id == id) {
+            return &reg->entrenadores[i];
+        }
+    }
+    return NULL;
+}
 
 /**
  * Indica si un entero ya está en un arreglo de valores vistos (detección de
@@ -195,4 +213,156 @@ linea_invalida:
     printf("Entrenadores cargados: %d, líneas rechazadas: %d.\n",
            aceptados, rechazadas);
     return aceptados > 0;
+}
+
+/**
+ * @brief Guarda el registro de entrenadores en un archivo (RF-ENT-03).
+ *
+ * Formato D8 (§5.2): ID;NOMBRE;CANT;(ID_EJEMPLAR;NUM_ESPECIE;APODO;NIVEL)xCANT.
+ * Los contadores no se persisten; al recargar los stats se re-derivan con
+ * D2 y quedan idénticos (determinismo por id de ejemplar).
+ *
+ * @param reg  Puntero al registro (no debe ser NULL).
+ * @param ruta Ruta del archivo de salida (p. ej. RUTA_ENTRENADORES).
+ * @return true si se escribió el archivo; false en caso contrario.
+ */
+bool archivos_guardar_entrenadores(const RegistroEntrenadores *reg,
+                                   const char *ruta)
+{
+    FILE *archivo;
+    int i;
+
+    if (reg == NULL || ruta == NULL) {
+        return false;
+    }
+    archivo = fopen(ruta, "w");
+    if (archivo == NULL) {
+        printf("Error: no se pudo abrir el archivo de entrenadores: %s\n",
+               ruta);
+        return false;
+    }
+    for (i = 0; i < reg->cantidad; i++) {
+        const Entrenador *ent = &reg->entrenadores[i];
+        const Ejemplar *ej;
+        fprintf(archivo, "%d;%s;%d", ent->id, ent->nombre,
+                equipo_contar(ent));
+        for (ej = ent->equipo; ej != NULL; ej = ej->siguiente) {
+            fprintf(archivo, ";%d;%d;%s;%d", ej->id, ej->numero_especie,
+                    ej->nombre, ej->nivel);
+        }
+        fprintf(archivo, "\n");
+    }
+    fclose(archivo);
+    return true;
+}
+
+/**
+ * @brief Carga resultados desde un archivo (RF-RES-01); delega en
+ *        resultados_cargar_archivo.
+ *
+ * @param t    Puntero al estado del torneo (no debe ser NULL).
+ * @param reg  Puntero al registro de entrenadores (no debe ser NULL).
+ * @param ruta Ruta del archivo de resultados (p. ej. RUTA_RESULTADOS).
+ * @return true si se aplicó al menos un resultado; false en caso contrario.
+ */
+bool archivos_cargar_resultados(Torneo *t, RegistroEntrenadores *reg,
+                                const char *ruta)
+{
+    return resultados_cargar_archivo(t, reg, ruta);
+}
+
+/**
+ * @brief Guarda los resultados aplicados del torneo en un archivo (§5.3).
+ *
+ * Escribe una línea por combate con resultado definido (los pendientes se
+ * omiten): NUM;ID1;ID2;RESULTADO;GANADOR;KOS1;KOS2, con "-" como ganador
+ * de un empate (recargable, RF-RES-01/04).
+ *
+ * @param t    Puntero al estado del torneo (no debe ser NULL).
+ * @param ruta Ruta del archivo de salida (p. ej. RUTA_RESULTADOS).
+ * @return true si se escribió el archivo; false en caso contrario.
+ */
+bool archivos_guardar_resultados(const Torneo *t, const char *ruta)
+{
+    FILE *archivo;
+    int k;
+
+    if (t == NULL || ruta == NULL) {
+        return false;
+    }
+    archivo = fopen(ruta, "w");
+    if (archivo == NULL) {
+        printf("Error: no se pudo abrir el archivo de resultados: %s\n",
+               ruta);
+        return false;
+    }
+    for (k = 1; k <= TOTAL_COMBATES; k++) {
+        const Combate *c = &t->combates[k - 1];
+        const char *res;
+        char ganador[16];
+        if (c->estado == RES_PENDIENTE) {
+            continue;
+        }
+        res = (c->estado == RES_V1) ? "V1"
+              : (c->estado == RES_V2) ? "V2" : "E";
+        if (c->estado == RES_EMPATE) {
+            snprintf(ganador, sizeof(ganador), "-");
+        } else {
+            snprintf(ganador, sizeof(ganador), "%d", c->id_ganador);
+        }
+        fprintf(archivo, "%d;%d;%d;%s;%s;%d;%d\n", c->numero,
+                c->id_entrenador1, c->id_entrenador2, res, ganador,
+                c->kos1, c->kos2);
+    }
+    fclose(archivo);
+    return true;
+}
+
+/**
+ * @brief Guarda la clasificación de los 8 grupos en un archivo (RF-CLS-01).
+ *
+ * Formato D8 §5.4 EXACTO: cabecera [GRUPO X] + 4 líneas
+ * POSICION;ID;NOMBRE;VICTORIAS;EMPATES;DERROTAS;PUNTOS por grupo (la
+ * columna de derrotados solo se muestra en pantalla, no se persiste);
+ * orden de la cadena completa de RF-TRN-04.
+ *
+ * @param t    Puntero al estado del torneo (no debe ser NULL).
+ * @param reg  Puntero al registro de entrenadores (no debe ser NULL).
+ * @param ruta Ruta del archivo de salida (p. ej. RUTA_CLASIFICACION).
+ * @return true si se escribió el archivo; false en caso contrario.
+ */
+bool archivos_guardar_clasificacion(const Torneo *t,
+                                    const RegistroEntrenadores *reg,
+                                    const char *ruta)
+{
+    FILE *archivo;
+    int g;
+
+    if (t == NULL || reg == NULL || ruta == NULL) {
+        return false;
+    }
+    if (t->estado == TORNEO_SIN_INICIAR) {
+        return false;   /* sin grupos no hay clasificación que guardar */
+    }
+    archivo = fopen(ruta, "w");
+    if (archivo == NULL) {
+        printf("Error: no se pudo abrir el archivo de clasificación: %s\n",
+               ruta);
+        return false;
+    }
+    for (g = 0; g < 8; g++) {
+        int filas[4][7];
+        int p;
+        torneo_clasificacion_grupo(t, g, filas);
+        fprintf(archivo, "[GRUPO %c]\n", (char)('A' + g));
+        for (p = 0; p < 4; p++) {
+            const Entrenador *e = entrenador_por_id(reg, filas[p][1]);
+            fprintf(archivo, "%d;%d;%s;%d;%d;%d;%d\n",
+                    filas[p][0], filas[p][1],
+                    e != NULL ? e->nombre : "?",
+                    filas[p][2], filas[p][3], filas[p][4], filas[p][5]);
+        }
+    }
+    fclose(archivo);
+    return true;
 }

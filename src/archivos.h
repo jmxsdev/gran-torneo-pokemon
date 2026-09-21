@@ -59,16 +59,33 @@ bool archivos_cargar_resultados(Torneo *t, RegistroEntrenadores *reg,
                                 const char *ruta);
 
 /**
- * @brief Guarda la clasificación de los 8 grupos en un archivo (RF-CLS-01).
+ * @brief Guarda los resultados aplicados del torneo en un archivo (§5.3).
  *
- * Formato D8: cabecera [GRUPO X] + 4 líneas
- * POSICION;ID;NOMBRE;VICTORIAS;EMPATES;DERROTAS;PUNTOS por grupo.
+ * Escribe una línea por combate con resultado definido (los pendientes se
+ * omiten): NUM;ID1;ID2;RESULTADO;GANADOR;KOS1;KOS2, con "-" como ganador
+ * de un empate (recargable, RF-RES-01/04).
  *
  * @param t    Puntero al estado del torneo (no debe ser NULL).
- * @param ruta Ruta del archivo de salida (p. ej. RUTA_CLASIFICACION).
- * @return true si se escribió el archivo; false si no se pudo abrir o los
- *         parámetros son inválidos.
+ * @param ruta Ruta del archivo de salida (p. ej. RUTA_RESULTADOS).
+ * @return true si se escribió el archivo; false en caso contrario.
  */
-bool archivos_guardar_clasificacion(const Torneo *t, const char *ruta);
+bool archivos_guardar_resultados(const Torneo *t, const char *ruta);
+
+/**
+ * @brief Guarda la clasificación de los 8 grupos en un archivo (RF-CLS-01).
+ *
+ * Formato D8 §5.4 EXACTO: cabecera [GRUPO X] + 4 líneas
+ * POSICION;ID;NOMBRE;VICTORIAS;EMPATES;DERROTAS;PUNTOS por grupo (la
+ * columna de derrotados solo se muestra en pantalla, no se persiste);
+ * orden de la cadena completa de RF-TRN-04.
+ *
+ * @param t    Puntero al estado del torneo (no debe ser NULL).
+ * @param reg  Puntero al registro de entrenadores (no debe ser NULL).
+ * @param ruta Ruta del archivo de salida (p. ej. RUTA_CLASIFICACION).
+ * @return true si se escribió el archivo; false en caso contrario.
+ */
+bool archivos_guardar_clasificacion(const Torneo *t,
+                                    const RegistroEntrenadores *reg,
+                                    const char *ruta);
 
 #endif /* ARCHIVOS_H */

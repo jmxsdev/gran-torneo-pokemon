@@ -141,6 +141,19 @@ void torneo_ordenar_grupos(Torneo *t);
 void torneo_clasificados(Torneo *t);
 
 /**
+ * @brief Rellena la clasificación ordenada de un grupo (RF-TRN-04/RF-CLS-01).
+ *
+ * Escribe en filas[4][7] los 4 entrenadores del grupo g (0..7) por la
+ * cadena completa de desempate: {posicion, id, victorias, empates,
+ * derrotas, puntos, derrotados}. Comparte la ordenación de la pantalla.
+ *
+ * @param t     Puntero al estado del torneo (no debe ser NULL).
+ * @param grupo Índice del grupo, 0..7 (A..H).
+ * @param filas Arreglo de salida 4x7 (no debe ser NULL).
+ */
+void torneo_clasificacion_grupo(const Torneo *t, int grupo, int filas[4][7]);
+
+/**
  * @brief Muestra la clasificación de los 8 grupos por consola (RF-CLS-01).
  *
  * Por grupo imprime la cabecera [GRUPO X] y 4 filas con el formato
