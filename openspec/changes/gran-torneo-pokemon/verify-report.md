@@ -12,7 +12,6 @@ test_output_hash: sha256:81be07dca4706f419d919f3b206aaaddeac796603c0dee190eb9bad
 build_command: make clean && make (gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entrenador.c src/equipo.c src/main.c src/pokedex.c src/resultados.c src/tipos.c src/torneo.c; exit 0, cero warnings)
 build_exit_code: 0
 build_output_hash: sha256:ef1f166aa935942d8dda0fa788970ef7752f314a91c3fd6e0f7fca24a8c6ae2c
-binary_hash: sha256:d8f9ef0bec5726fe08a25a96c24d6fccfc09bb15fc15ea085c4d584bd1774fd4
 ```
 
 # Informe de Verificación — Gran Torneo Pokémon — Lotes F0, F1, F2 y F3
