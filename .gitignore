@@ -14,3 +14,8 @@ build/
 
 # Generated artifact (design §15: clasificacion.txt is write-free output)
 data/clasificacion.txt
+
+# Doxygen output (regenerable: doxygen Doxyfile) and local doxygen toolchain
+docs/doxygen/
+doxygen_warnings.log
+tools/
