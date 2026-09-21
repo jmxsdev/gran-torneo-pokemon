@@ -1,26 +1,26 @@
 ```yaml
 schema: gentle-ai.verify-result/v1
-evidence_revision: sha256:562c14d676e49d97c32e5b86d15a3db7f7e1d1f96bd44e57527ac2c59d7db2f2
+evidence_revision: sha256:226197d301d324e94de4424756f7ec6acfd779dc2af26a11fec435149318076c
 verdict: fail
 blockers: 0
 critical_findings: 0
-requirements: 20/21
-scenarios: 32/33
-test_command: batería scriptada F2 re-derivada (los originales de /tmp se perdieron): /tmp/opencode/bateria_f2.sh (24 casos stdin→grep: build limpio, carga 32 al inicio, reconstrucción D2 al recargar, registro válido/duplicado/inválido/vacío/tope 32, #151 y #0 sin ejemplar, niveles 0/101 rechazados y 1/100 aceptados, 7.º ejemplar rechazado, 4 líneas corruptas con número de línea, sha256 pokedex.txt intacto, menú integrado exit 0, archivo ausente, opción 99 viva, EOF ordenado) + probe C /tmp/opencode/probe_f2 (D2 exacta 39/35/35/34 y 214/217/217/209, HP 35 id 101, variación id 1 vs 2 y excepción id 1 vs 17, mutación del ejemplar sin tocar la especie) — cotejo contra spec por caso
+requirements: 25/26
+scenarios: 43/44
+test_command: batería scriptada F3 /tmp/opencode/bateria_f3.sh (16 casos stdin→grep: build limpio, victoria por agotamiento Ash vs Misty 1 a 3, empate 20 turnos Jessie vs Gary (fantasma vs normal), anti-empate por HP 108-424 gana Gary, entrenador inexistente/mismo/sin equipo, modo y posición inválidos con reintento, volver+salir, EOF en submenú y en selección sin colgar, sha256 pokedex/efectividad intactos) + probe F3 /tmp/opencode/probe_f3 (21 comprobaciones: D1 exacto ×2 46, ×1 21, ×0.5 7, ×0 0, ×4 88, ×0.25 4, mínimo 1 con mult 0.25; D3 60/45/60; D4 empate; D5a HP, D5b nivel, D5c entrenador 1; CMB-04 con y sin reemplazo; validación de parámetros) — cotejo contra spec por caso
 test_exit_code: 0
-test_output_hash: sha256:18c77af0a91699ef07dd7a2ed4e4392b82759d3ad530c5c03e5ea5f614d63288
+test_output_hash: sha256:f49d7e551403c5e9109388721eed74c74b5e66d214d6e4d2c0d45e60b7af0af9
 build_command: make clean && make (gcc -std=c99 -Wall -Wextra)
 build_exit_code: 0
-build_output_hash: sha256:1c4af6b26ea14e0d2da32c3a309bc841a7362ec80bd337acba939ca62d87015b
+build_output_hash: sha256:deccd3364d3e6ffb9dcc295bf968544189e57bfed95979a3e410a4c10e66c3fd
 ```
 
-# Informe de Verificación — Gran Torneo Pokémon — Lotes F0, F1 y F2
+# Informe de Verificación — Gran Torneo Pokémon — Lotes F0, F1, F2 y F3
 
 **Change**: gran-torneo-pokemon
-**Fases**: F0 — Convenciones + entorno + esqueleto (Día 1), F1 — Pokédex + tipos + datos (Día 2) y F2 — Entrenadores y ejemplares (Día 3, 2026-09-19)
+**Fases**: F0 — Convenciones + entorno + esqueleto (Día 1), F1 — Pokédex + tipos + datos (Día 2), F2 — Entrenadores y ejemplares (Día 3, 2026-09-19) y F3 — Combate (Día 4, 2026-09-21)
 **Modo**: Standard (strict_tdd=false en `openspec/config.yaml`)
 **Idioma del artefacto**: español neutro y profesional (requisito explícito del proyecto)
-**Fecha**: 2026-09-19
+**Fecha**: 2026-09-21
 
 ---
 
@@ -355,7 +355,115 @@ El lote F2 cumple RF-ENT-01..03 y RF-EQP-01/02/03/05: las 5 tareas F2 están com
 
 ---
 
-## Veredicto global (F0 + F1 + F2)
+## Sección F3 (Día 4, 2026-09-21) — Combate
+
+**Fase**: F3 — combate.c + combate.h (daño D1, orden D3, empate D4, anti-empate D5) + cableado del combate amistoso en la opción 8 del menú
+**Fecha**: 2026-09-21
+
+### Completeness
+
+| Métrica | Valor |
+|---|---|
+| Tareas del lote F3 | 3 |
+| Tareas completadas | 3 |
+| Tareas incompletas | 0 |
+
+### Build y Ejecución
+
+**Build**: ✅ Pasó (exit 0, cero warnings)
+```text
+$ make clean && make
+mkdir -p build
+gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entrenador.c src/equipo.c src/main.c src/pokedex.c src/tipos.c
+```
+Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los siete `.c` del proyecto. Hash del build: `deccd336…`. 0 líneas de más de 99 columnas en `src/*.c`/`src/*.h` (awk).
+
+**Pruebas**: ✅ Batería F3 scriptada (16 casos stdin→grep) + probe F3 (21 comprobaciones): **37/37 PASS, exit 0**.
+
+| Caso | Entrada | Resultado esperado | Resultado real | Diff |
+|---|---|---|---|---|
+| 1 build | `make clean && make` | exit 0, cero warnings, siete `.c` compilados | Ídem | ✅ PASS |
+| 2 B1 victoria por agotamiento | `8\n1\n1\n2\n1\n1\n1\n1\n1\n12\n` | Ash vs Misty: KO de Llama y reemplazos, «Victoria de Misty: Ash se queda sin Pokémon disponibles (KOs: 1 a 3)» | Ídem | ✅ PASS |
+| 3 B2 empate 20 turnos | `8\n1\n5\n4\n1\n3\n12\n` | Jessie vs Gary (fantasma vs normal, daño 0): «Empate tras 20 turnos (fase de grupos)» | Ídem | ✅ PASS |
+| 4 B3 anti-empate eliminatoria | `8\n2\n5\n4\n1\n3\n12\n` | «Desempate en eliminatoria tras 20 turnos: HP total 108-424, nivel total 44-133; gana Gary» | Ídem | ✅ PASS |
+| 5 B4a entrenador inexistente | `8\n1\n99\n2\n12\n` | «No existe un entrenador con id 99.» sin terminar | Ídem | ✅ PASS |
+| 6 B4b mismo entrenador | `8\n1\n1\n1\n12\n` | «Deben ser dos entrenadores distintos.» | Ídem | ✅ PASS |
+| 7 B4c entrenador sin equipo | `8\n1\n9\n2\n12\n` | «Ambos entrenadores deben tener un equipo válido (1-6 ejemplares).» | Ídem | ✅ PASS |
+| 8 B4d modo inválido | `8\n3\n12\n` | «Opción inválida. Intente de nuevo.» | Ídem | ✅ PASS |
+| 9 B4e posición inválida | `8\n1\n1\n2\n99\n1\n1\n1\n1\n1\n12\n` | «Posición inválida (1-3).» + reintento exitoso + victoria | Ídem | ✅ PASS |
+| 10 B5 volver y salir | `8\n0\n12\n` | Vuelve al menú, «Saliendo del programa.», exit 0 | Ídem | ✅ PASS |
+| 11 B6 EOF en selección | `8\n1\n1\n2\n1\n` | «Combate cancelado.», cierre ordenado, exit 0 (no cuelga) | Ídem | ✅ PASS |
+| 12 B6b EOF en submenú | `8\n` | Submenú mostrado, cierre ordenado, exit 0 (no cuelga) | Ídem | ✅ PASS |
+| 13 sha256 datos | batería completa | `data/pokedex.txt` y `data/efectividad.txt` byte-idénticos antes/después (RF-PDX-04) | Ídem | ✅ PASS |
+| P1–P7 probe F3 | probe contra `src/{combate,equipo,entrenador,pokedex,tipos}.c` | D1 exacto: ×2=46, ×1=21, ×0.5=7, ×0=0, ×4=88, ×0.25=4, mínimo 1 (mult 0.25, base 2); D3 60→local, 45→visita, 60=60→local; D4 empate; D5a HP, D5b nivel, D5c entrenador 1; CMB-04 con y sin reemplazo; validación NULL/equipo vacío | Ídem | ✅ PASS |
+
+### Matriz de Cumplimiento de Specs (F3)
+
+| Requisito | Escenario | Evidencia | Resultado |
+|---|---|---|---|
+| RF-CMB-01 | Inicio de combate | B1/B2: cada entrenador selecciona su Pokémon inicial vía prompts de posición (1..N); la selección se valida y reintenta (B4e) | ✅ COMPLIANT |
+| RF-CMB-02 | Mayor velocidad ataca primero | Probe P: 60 vs 45 → ataca primero el local; 45 vs 60 → el visitante | ✅ COMPLIANT |
+| RF-CMB-02 | Igual velocidad, desempate determinista | Probe P: 60 vs 60 → ataca el ejemplar del entrenador 1 (local, D3) | ✅ COMPLIANT |
+| RF-CMB-03 | Daño normal (×1) | Probe P: Jigglypuff→Bulbasaur = 21 (base 21 × 1.0) | ✅ COMPLIANT |
+| RF-CMB-03 | Daño superefectivo (×2) | Probe P: Charmander→Bulbasaur = 46 (base 23 × 2.0) | ✅ COMPLIANT |
+| RF-CMB-03 | Daño poco efectivo (×0.5) | Probe P: Jigglypuff→Geodude = 7 (base 15 × 0.5) | ✅ COMPLIANT |
+| RF-CMB-03 | Sin efecto (×0) | Probe P: Pikachu→Geodude = 0 (Eléctrico→Tierra) | ✅ COMPLIANT |
+| RF-CMB-03 | Defensor con dos tipos (producto) | Probe P: ×4 Fuego→Bicho/Planta = 88; ×0.25 Fuego→Roca/Agua = 4 | ✅ COMPLIANT |
+| RF-CMB-04 | Derrota de un Pokémon | B1: HP llega a 0 → «¡debilitado!» y reemplazo; probe: daño 444 sobre HP 10 → KO | ✅ COMPLIANT |
+| RF-CMB-04 | Victoria por agotamiento | B1: Misty sin disponibles tras KO de Bulbi → «Victoria de Misty… se queda sin Pokémon disponibles»; probe: KO sin reemplazo → victoria inmediata | ✅ COMPLIANT |
+| RF-CMB-05 | Consulta de la tabla de efectividad | La matriz 18×18 (F1) alimenta `combate_calcular_danio` vía `tipos_multiplicador`; los 7 multiplicadores del probe coinciden con `data/efectividad.txt` | ✅ COMPLIANT |
+
+**Resumen de cumplimiento F3**: 11/11 escenarios del alcance F3 completos (5/5 requisitos RF-CMB-01..05). El escenario «Mínimo 1 si hay efecto» (D1, RF-CMB-03) se verifica en el probe P (base 2 × 0.25 → daño 1).
+
+### Correctness (Evidencia estática, F3)
+
+| Requisito | Estado | Notas |
+|---|---|---|
+| RF-CMB-01 | ✅ Implementado | `combate_ejecutar` pide el Pokémon inicial de cada entrenador vía callback `CombateSeleccionar` (la lectura vive en `main.c`, no en el motor) |
+| RF-CMB-02 | ✅ Implementado | `combate_ataca_primero`: `local->velocidad >= visita->velocidad` (mayor velocidad primero; empate → entrenador 1) |
+| RF-CMB-03 | ✅ Implementado | `combate_calcular_danio`: D1 exacta con enteros en el orden del diseño; `(int)(base*mult)`; mínimo 1 con mult > 0; 0 con mult == 0; guarda división por defensa 0 |
+| RF-CMB-04 | ✅ Implementado | `hp_actual` con piso 0; KO suma el derrotado al atacante (`kos_local`/`kos_visita`) y pide reemplazo; sin disponibles → victoria del otro |
+| RF-CMB-05 | ✅ Implementado | Reutiliza `tipos_multiplicador` (producto de ambos tipos del defensor, matriz 18×18 de F1) |
+| D4/D5 (diseño §7 paso 5) | ✅ Implementado | 20 turnos con ambos vivos: grupos → `res.empate = true`; eliminatoria → cadena HP total → nivel total → entrenador 1 |
+| D2 restauración | ✅ Implementado | `combate_restaurar_hp`: `hp_actual = hp_max` en todos los ejemplares al iniciar cada combate |
+
+### Coherencia con el Diseño (F3)
+
+| Decisión del diseño | ¿Cumplida? | Notas |
+|---|---|---|
+| D1 (§3): fórmula exacta con enteros en ese orden y mínimo 1 / sin efecto 0 | ✅ Sí | Probe F3: los 7 casos de multiplicador (2/1/0.5/0, ×4, ×0.25, mínimo 1) coinciden byte a byte con el cálculo manual documentado en el apply-progress |
+| D3 (§3): mayor velocidad, empate → entrenador 1 | ✅ Sí | Probe: 60 vs 45, 45 vs 60 y 60 vs 60 (local) |
+| D4 (§3/§7): `MAX_TURNOS_COMBATE=20`, turno = intercambio completo, empate en grupos | ✅ Sí | B2: fantasma vs normal (daño 0 mutuo) → «Empate tras 20 turnos (fase de grupos)» |
+| D5 (§3/§7): cadena HP total → nivel total → entrenador 1 | ✅ Sí | B3 por HP (108-424) y probe D5a (HP), D5b (nivel), D5c (entrenador 1) |
+| §7 paso 1: restaurar `hp_actual = hp_max` | ✅ Sí | `combate_restaurar_hp` antes del primer turno; los combates del probe D4/D5 arrancan con HP completo |
+| §7 paso 3e: KO → el atacante suma derrotado, el defensor elige reemplazo | ✅ Sí | B1: 3 KOs de Misty y 1 de Ash con reemplazos intermedios; KOs contabilizados en `ResultadoCombate` |
+| §1.3 firmas: `combate_calcular_danio(const Ejemplar*, const Ejemplar*)` y `combate_ataca_primero(const Ejemplar*, const Ejemplar*)` | ✅ Sí | Idénticas a las del diseño |
+| §1.3 firma `combate_ejecutar(local, visita, res)` | ⚠️ Extendida | El diseño exige la fase en §7 paso 5 pero omite el parámetro en §1.3: la firma ganó `bool es_eliminatoria` y el callback `CombateSeleccionar` (el motor no lee la consola; `main` provee la lectura validada, RF-TEC-02). Delta documentado en tasks.md F3.1 y en el apply-progress |
+| §2.2: el combate no consulta la Pokédex (tipos/stats copiados en el Ejemplar) | ✅ Sí | `combate.c` usa solo campos de `Ejemplar`; sha256 de `pokedex.txt` y `efectividad.txt` intactos tras 12 combates ejecutados |
+
+### Hallazgos (F3)
+
+**CRITICAL**: Ninguno.
+
+**WARNING**: Ninguno.
+
+**LOW**:
+1. **Submenú de combate con un solo intento**: una opción inválida en el submenú (p. ej. `3`) imprime el aviso y vuelve al menú principal en lugar de repreguntar como hace el submenú de la Pokédex. No viola RF-MEN-01 (el menú principal re-muestra) ni RF-TEC-03 (el programa no termina); la unificación de lecturas llegará en F8 (`validacion.c`).
+2. **Empate por «ambos sin disponibles en el mismo turno» (D4) inalcanzable en la práctica**: el segundo atacante siempre conserva su activo tras el intercambio, así que la rama de doble agotamiento del bucle solo puede darse por construcción; se mantiene por contrato (tasks.md F3.1) sin impacto observable.
+
+**SUGGESTION**:
+1. **Numeración de `docs/planificacion.md`**: desde F1 la tabla del plan etiqueta la fase de combate como «F4» (drift +1 vs `tasks.md`, que la llama F3, porque F1 quedó partida en dos filas). Este lote marcó la fila por contenido («Combate…» → ✅ Hecho) y no por número; conviene unificar la numeración en F10 cuando se cierre el plan 14/14.
+2. **Ortografía mixta en comentarios nuevos** («posicion», «Pokemon», «danio» sin tilde en `combate.c`/`main.c`): misma higiene pendiente acumulada de F0/F1/F2; unificar en el commit de higiene previsto.
+3. La firma extendida de `combate_ejecutar` (es_eliminatoria + callback) debe reflejarse en `docs/informe-tecnico.md` en F10.1 junto al resto de D1–D10.
+
+### Veredicto F3
+
+**PASS**
+El lote F3 cumple RF-CMB-01..05 y las decisiones D1/D2/D3/D4/D5: las 3 tareas F3 están completas, el build es limpio (cero warnings, siete `.c`), la batería scriptada pasa 16/16 y el probe 21/21 con la fórmula de daño exacta (multiplicadores 2/1/0.5/0, productos ×4/×0.25 y mínimo 1), el orden por velocidad con desempate D3, el empate por 20 turnos en grupos (D4) y la cadena anti-empate HP → nivel → entrenador 1 (D5). La selección de Pokémon activo se valida con reintentos y EOF ordenado (RF-TEC-03); la Pokédex permanece inmutable (sha256 estable). Sin CRITICAL ni WARNING; dos LOW informativos no bloquean. Presupuesto del lote: 546 líneas de código nuevas (≤ 800 ✓).
+
+---
+
+## Veredicto global (F0 + F1 + F2 + F3)
 
 **PASS WITH WARNINGS por lote; FAIL del envelope por evidencia incompleta del cambio en curso**
-Los lotes F0, F1 y F2 pasan con warnings (0 CRITICAL, 0 blockers). El envelope declara `verdict: fail` porque el reporte fusionado mantiene evidencia incompleta del cambio en curso: el escenario parcial DOC-03 de F0 (D1 → F10.1), el parcial DOC-04 (ortografía del Doxyfile), el hallazgo LOW de F2 (EOF en bucles internos de `crear_equipo`, anotado para F8) y RF-EQP-04 (backtracking, diferido a F4 por plan). Los 2 escenarios de RF-TEC-03 que F1 había diferido quedaron verificados en F2 (casos 6 y 10/11). Es el mismo criterio del envelope de F0/F1: persistible, pero no archive-ready hasta que F10 cierre las parcialidades documentales, F8 unifique la validación y F4 complete RF-EQP-04. Siguiente lote: F3 (combate).
+Los lotes F0, F1, F2 y F3 pasan (F3 sin warnings: 0 CRITICAL, 0 blockers, 2 LOW informativos). El envelope declara `verdict: fail` porque el reporte fusionado mantiene evidencia incompleta del cambio en curso: el escenario parcial DOC-03 de F0 (D1 → F10.1), el parcial DOC-04 (ortografía del Doxyfile), el hallazgo LOW de F2 (EOF en bucles internos de `crear_equipo`, anotado para F8), RF-EQP-04 (backtracking, diferido a F4 por plan) y el LOW de F3 (submenú de combate con un solo intento, unificado en F8). Los 2 escenarios de RF-TEC-03 que F1 había diferido quedaron verificados en F2 (casos 6 y 10/11); RF-CMB-01..05 quedan verificados en F3 (batería 16/16 + probe 21/21). Siguiente lote: F4 (backtracking).
