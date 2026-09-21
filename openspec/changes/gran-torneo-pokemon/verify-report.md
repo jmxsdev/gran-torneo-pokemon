@@ -1,18 +1,17 @@
 ```yaml
 schema: gentle-ai.verify-result/v1
-evidence_revision: sha256:ad3e8959e978a832d14b1019e5a7aa99d4fa2cafd951b7cd40c9b2bb5488778c
+evidence_revision: sha256:9619bfb5ea68214b1d9646f497e8114e05c3ad14c256dcd97f7b87d15104f63d
 verdict: fail
 blockers: 0
 critical_findings: 0
 requirements: 36/42
 scenarios: 64/70
-test_command: batería scriptada F6 /tmp/opencode/bateria_f6.sh (13 casos stdin→grep: make limpio cero warnings, opción 10 sin torneo armado "El torneo no está armado.", opción 11 sin finalizar "aún no hay campeón", armar + opción 10 con etiquetas de origen y pendientes (49;1A;0;?;2B;0;?;0, 57;G49;0;?;G50;0;?;0, 63;P61;0;?;P62;0;?;0, 64;G61;0;?;G62;0;?;0), probe F6 /tmp/opencode/probe_f6 (43 comprobaciones: bracket fijo 49..56 (RF-ELM-02), transición GRUPOS->ELIMINATORIAS al completar 48/48 y ->FINALIZADO al aplicar 64, rechazo de 49 con grupos incompletos, rechazo de 57 con fuentes sin resolver "no está disponible aún", participantes manuales rechazados (RF-RES-03), empate rechazado (RF-ELM-01), V1 incoherente rechazado, eliminado que no reaparece (RF-RES-02), encadenado G#/P# (57=G49-G50, 61=G57-G58, 63=P61-P62, 64=G61-G62), V2 en eliminatoria, campeón = G64, subcampeón = P64, tercero = G63, cuarto = P63, contadores de grupos intactos, rechazo tras finalizar) + regresión probe F5 (104/104) y batería F5 (17/17) — cotejo contra spec RF-ELM-01..05 y RF-RES-02/03 por escenario
+test_command: /tmp/opencode/bateria_f6.sh /home/gzuz/Documentos/universidad/algorit-I/Proyecto (batería F6 13 casos stdin→grep: build limpio cero warnings, opción 10 sin torneo armado, opción 11 sin finalizar, armar + opción 10 con etiquetas 49;1A/57;G49/63;P61/64;G61, probe F6 43/43 (bracket fijo RF-ELM-02, transiciones GRUPOS→ELIMINATORIAS→FINALIZADO, rechazos RF-RES-03/RF-ELM-01/RF-RES-02, encadenado G#/P#, campeón G64 + posiciones), regresión probe F5 104/104 y batería F5 17/17, sha256 datos, ≤99 cols)
 test_exit_code: 0
-test_output_hash: sha256:3869041ba8a9bc16a499f45dc0c1926c63b28603a9737a0463704ca39b972440
-build_command: make clean && make (gcc -std=c99 -Wall -Wextra, 8 .c con torneo.c)
+test_output_hash: sha256:3869041b75358648188f868d2644a83ac265cb6f63d9a326f7b60c65bd5ee5ce
+build_command: make clean && make (gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entrenador.c src/equipo.c src/main.c src/pokedex.c src/tipos.c src/torneo.c; exit 0, cero warnings)
 build_exit_code: 0
 build_output_hash: sha256:72726e4886604a8afd511cc48eaad45f7e9df86d58ee9f3d33a7a8153700c5a5
-binary_hash: sha256:35cf1f40a52f0a3f0aa0b7cbf4c96efb4b0a2ec7ab2a4b9d88a3f458fd3e0b9a
 ```
 
 # Informe de Verificación — Gran Torneo Pokémon — Lotes F0, F1, F2 y F3
@@ -761,7 +760,9 @@ gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entr
 ```
 Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los **ocho** `.c` del proyecto. Hash de la salida del build: `72726e48…` (la línea de compilación no cambió respecto a F5; el binario sí: `binary_hash sha256:35cf1f40…`). 0 líneas de más de 99 columnas en `src/torneo.c`/`src/torneo.h`/`src/main.c`. Presupuesto del lote: **394 líneas de código nuevas** (torneo.c +340/−12, torneo.h +30/−2, main.c +10) ≤ 800 ✓.
 
-**Pruebas**: ✅ Batería F6 scriptada (13 casos stdin→grep) + probe F6 (43 comprobaciones) + regresión probe F5 (104/104) y batería F5 (17/17): **177/177 PASS, exit 0**. Hash del output de pruebas: `3869041b…`. `evidence_revision sha256:ad3e8959…`.
+**Pruebas**: ✅ Batería F6 scriptada (13 casos stdin→grep) + probe F6 (43 comprobaciones) + regresión probe F5 (104/104) y batería F5 (17/17): **177/177 PASS, exit 0**. Hash del output de pruebas: `3869041b…`. `evidence_revision sha256:9619bfb5…`.
+
+**Re-verificación formal (intento F6-verificacion, 2026-09-21)**: la batería (13/13), el probe F6 (43/43) y la regresión F5 (probe 104/104 + batería 17/17) se re-ejecutaron íntegramente con los scripts persistentes de `/tmp/opencode` (`bateria_f6.sh`, `probe_f6.c`, `probe_f5.c`, `bateria_f5.sh`) sobre el árbol limpio en HEAD `275a768`. Resultados **byte-idénticos a los del apply**: `bateria_f6.out` y `probe_f6.out` reproducen los mismos sha256 (`3869041b…` y `9619bfb5…`), el log de build es idéntico (`72726e48…`) y el binario reproduce `binary_hash 35cf1f40…`. `test_output_hash` y `evidence_revision` del envelope se actualizan a los hashes reproducibles de esta ejecución (el valor previo del envelope no era reproducible desde los archivos guardados; el patrón documentado en F5 fija `evidence_revision` = sha256 del output del probe).
 
 | Caso | Entrada | Resultado esperado | Resultado real | Diff |
 |---|---|---|---|---|
