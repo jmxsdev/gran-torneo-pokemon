@@ -6,7 +6,7 @@ blockers: 0
 critical_findings: 0
 requirements: 30/42
 scenarios: 55/70
-test_command: batería scriptada F5 /tmp/opencode/bateria_f5.sh (17 casos stdin→grep: make limpio cero warnings, rechazo opción 7 con 0 entrenadores "requiere exactamente 32", clasificación armada con 8 grupos A–H y filas ordenadas, calendario 1-48 con participantes correctos (1;A;1;Ash;2;Misty ... 48;H;31;Sophocles;32;Gladion), combate amistoso accesible en opción 8→1 (RF-CMB intacto), EOF ordenado en submenú, sha256 de los 3 datos intactos, ≤99 columnas) + probe F5 /tmp/opencode/probe_f5 (104 comprobaciones: D10 rechazo 31/acepta 32, calendario round-robin 6 pares distintos por grupo con numeración A=1..6..H=43..48, puntuación 3/1/0 exacta, validaciones de aplicar_resultado (duplicado, participantes RF-RES-03, número 0/49, empate con ganador, V1 incoherente, KOs negativos, RES_PENDIENTE), desempates por victorias/derrotados/directo (D9)/id, clasificados 1A..2H y orden automático al completar 48/48) — cotejo contra spec RF-TRN-01..06 y RF-CLS-01 por escenario
+test_command: batería scriptada F5 /tmp/opencode/bateria_f5.sh (17 casos stdin→grep: make limpio cero warnings, rechazo opción 7 con 0 entrenadores "requiere exactamente 32", clasificación armada con 8 grupos A–H y filas ordenadas, calendario 1-48 con participantes correctos (1;A;1;Ash;2;Misty ... 48;H;31;Sophocles;32;Gladion), combate amistoso accesible en opción 8→1 (RF-CMB intacto), EOF ordenado en submenú, sha256 de los 3 datos intactos, ≤99 columnas) + probe F5 /tmp/opencode/probe_f5 (104 comprobaciones: D10 rechazo 31/acepta 32, calendario round-robin 6 pares distintos por grupo con numeración A=1..6..H=43..48, puntuación 3/1/0 exacta, validaciones de aplicar_resultado (duplicado, participantes RF-RES-03, número 0/49, empate con ganador, V1 incoherente, KOs negativos, RES_PENDIENTE), desempates por victorias/derrotados/directo (D9)/id, clasificados 1A..2H y orden automático al completar 48/48) + probe extra /tmp/opencode/probe_f5_extra (23 comprobaciones: D10 rechazo 30, 33 inalcanzable por registro RF-ENT-01, 8 grupos de 4 derivados del calendario con 3 combates por entrenador, 48 combates 1..48) + verificación independiente del calendario con awk (48 combates, 6 por grupo A–H, 48 pares únicos sin repetidos, cada entrenador juega 3) — cotejo contra spec RF-TRN-01..06 y RF-CLS-01 por escenario; re-ejecutada íntegramente en la verificación formal (2026-09-21): batería 17/17 y probe 104/104 reproducidos byte a byte (hashes idénticos), probe extra 23/23 y awk PASS
 test_exit_code: 0
 test_output_hash: sha256:fd70d362ec6f3e0d99a14e63ff9ca1c3a6ea39a8ae75474011addec34e3dc53b
 build_command: make clean && make (gcc -std=c99 -Wall -Wextra, 8 .c con torneo.c)
@@ -628,7 +628,9 @@ gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entr
 ```
 Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los **ocho** `.c` del proyecto (se incorpora `src/torneo.c`). Hash de la salida del build: `72726e48…` (cambió respecto a F4 porque la línea de compilación ahora incluye `torneo.c`). 0 líneas de más de 99 columnas en `src/torneo.c`/`src/torneo.h`/`src/main.c`. Presupuesto del lote: **570 líneas de código nuevas** (torneo.c +441, torneo.h +38, main.c +91) ≤ 800 ✓.
 
-**Pruebas**: ✅ Batería F5 scriptada (17 casos stdin→grep) + probe F5 (104 comprobaciones): **121/121 PASS, exit 0**. Hash del output de pruebas: `fd70d362…`.
+**Pruebas**: ✅ Batería F5 scriptada (17 casos stdin→grep) + probe F5 (104 comprobaciones) + probe extra F5 (23 comprobaciones) + verificación awk del calendario: **144/144 PASS + awk PASS, exit 0**. Hash del output de pruebas: `fd70d362…`.
+
+**Verificación formal (2026-09-21, re-ejecución íntegra)**: la batería (17/17) y el probe (104/104) se re-ejecutaron en esta verificación formal con resultados **byte-idénticos a los del apply** (`test_output_hash sha256:fd70d362…` y `evidence_revision sha256:65825f0f…` reproducidos sin cambios), confirmando la reproducibilidad de la evidencia. Se añadió el probe extra `/tmp/opencode/probe_f5_extra` (23/23 PASS: rechazo D10 con 30 entrenadores, 33 inalcanzable por capacidad del registro RF-ENT-01 con estado intacto, 32 aceptados con los 8 grupos A–H derivados del calendario — cada integrante juega exactamente 3 combates — y 48 combates numerados 1..48) y la verificación independiente del calendario con `awk` sobre la salida real del binario (48 combates, 6 por grupo A–H, 48 pares únicos sin repetidos en ningún orden, cada entrenador aparece exactamente 3 veces).
 
 | Caso | Entrada | Resultado esperado | Resultado real | Diff |
 |---|---|---|---|---|
@@ -641,14 +643,16 @@ Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los **oc
 | 7 EOF en submenú | `8\n` | Cierre ordenado, exit 0 (no cuelga, timeout 5 s) | Ídem | ✅ PASS |
 | 8 sha256 datos | batería completa | `pokedex.txt`, `efectividad.txt`, `entrenadores.txt` byte-idénticos | Ídem | ✅ PASS |
 | 9 columnas | `grep -RInE '.{100,}'` | 0 líneas > 99 en torneo.c/h y main.c | Ídem | ✅ PASS |
-| P1–P104 probe F5 | probe contra `src/{torneo,entrenador,equipo,pokedex,tipos,combate,archivos}.c` | Ver desglose abajo | Ídem | ✅ PASS |
+| P1–P104 probe F5 | probe contra `src/{torneo,entrenador,equipo,pokedex,tipos,combate,archivos}.c` | Ver desglose abajo | Ídem | ✅ PASS (re-ejecutado byte a byte) |
+| X1–X23 probe extra F5 | probe extra contra `src/{torneo,entrenador}.c` | Ver desglose abajo | Ídem | ✅ PASS |
+| awk calendario | salida real `8\n2\n12\n` + awk | 48 combates, 6/grupo, 48 pares únicos, 3 apariciones por entrenador | `OK: 48 combates, 6 por grupo (A-H), 48 pares unicos, cada entrenador juega 3` | ✅ PASS |
 
 ### Matriz de Cumplimiento de Specs (F5)
 
 | Requisito | Escenario | Evidencia | Resultado |
 |---|---|---|---|
 | RF-TRN-01 | Estructura del torneo | Probe P2 + batería 5: fase de grupos con combates 1–48 (calendario completo) y eliminatoria 49–64 reservada en el arreglo de 64 combates | ✅ COMPLIANT |
-| RF-TRN-02 | 32 entrenadores exactos | Probe P1: 31 rechazado (D10), 32 aceptado; batería 2: rechazo por menú con conteo actual | ✅ COMPLIANT |
+| RF-TRN-02 | 32 entrenadores exactos | Probe P1: 31 rechazado (D10), 32 aceptado; probe extra X1/X2: 30 rechazado y 33 inalcanzable por registro (RF-ENT-01); batería 2: rechazo por menú con conteo actual | ✅ COMPLIANT |
 | RF-TRN-02 | Round-robin de un grupo | Probe P2: 6 combates por grupo, 6 pares distintos, numeración A=1..6…H=43..48, pares (1,2)(1,3)(1,4)(2,3)(2,4)(3,4) | ✅ COMPLIANT |
 | RF-TRN-03 | Asignación de puntos | Probe P3: V1 ⇒ 3/0 con victoria/derrota; empate ⇒ 1/1; KOs acumulados en `pokemon_derrotados` | ✅ COMPLIANT |
 | RF-TRN-04 | Desempate por victorias | Probe P5-D: 1 (3 pts, 1V) antes que 2 (3 pts, 0V); criterio 2 implementado como red de seguridad (en round-robin completo a igual puntuación corresponde igual cantidad de victorias, nota documentada) | ✅ COMPLIANT |
@@ -678,7 +682,7 @@ Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los **oc
 
 | Borde | Evidencia | Resultado |
 |---|---|---|
-| ≠32 entrenadores | Probe P1 (31 rechazado, estado intacto) + batería 2 (menú con conteo) | ✅ PASS |
+| ≠32 entrenadores | Probe P1 (31 rechazado, estado intacto) + probe extra X1 (30 rechazado, estado intacto) + X3/X4 (33 inalcanzable: el registro RF-ENT-01 rechaza al 33.º) + batería 2 (menú con conteo 0) | ✅ PASS |
 | Combate fuera de grupos (49–64) | Probe P4: número 49 rechazado con mensaje (F6 lo habilita) | ✅ PASS |
 | Resultado duplicado | Probe P4: combate 1 re-aplicado ⇒ rechazo | ✅ PASS |
 | Participantes no resueltos por el sistema | Probe P4: ids inventados ⇒ rechazo (RF-RES-03) | ✅ PASS |
@@ -728,11 +732,11 @@ Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los **oc
 ### Veredicto F5
 
 **PASS**
-El lote F5 cumple RF-TRN-01..06 y el escenario «Tabla ordenada» de RF-CLS-01: las 3 tareas F5 están completas, el build es limpio (cero warnings, ocho `.c`, hash `72726e48…`), la batería scriptada pasa 17/17 y el probe 104/104 re-ejecutados en esta fase (D10 con rechazo 31/aceptación 32, calendario round-robin sin pares repetidos con numeración A=1..6…H=43..48, puntuación 3/1/0 exacta, validaciones de `aplicar_resultado` incluyendo RF-RES-03, desempates por derrotados/directo (D9)/id y el criterio de victorias como red de seguridad, clasificados 1A..2H automáticos al completar 48/48), el combate amistoso de F3 sigue accesible en la opción 8→1 y los datos permanecen inmutables (sha256 estable). Sin CRITICAL ni WARNING; dos LOW informativos no bloquean. Presupuesto del lote: 570 líneas de código nuevas (≤ 800 ✓).
+El lote F5 cumple RF-TRN-01..06 y el escenario «Tabla ordenada» de RF-CLS-01: las 3 tareas F5 están completas, el build es limpio (cero warnings, ocho `.c`, hash `72726e48…` reproducido), la batería scriptada pasa 17/17 y el probe 104/104 **re-ejecutados byte a byte en la verificación formal** (hashes `fd70d362…` y `65825f0f…` idénticos a los del apply), más el probe extra 23/23 (D10 con rechazo 30 y 33 inalcanzable por RF-ENT-01, 8 grupos de 4 con 3 combates por entrenador, 48 combates 1..48) y la verificación awk independiente del calendario (48 combates, 6 por grupo A–H, 48 pares únicos sin repetidos, cada entrenador juega 3). La evidencia cubre: calendario round-robin sin pares repetidos con numeración A=1..6…H=43..48, puntuación 3/1/0 exacta, validaciones de `aplicar_resultado` incluyendo RF-RES-03, desempates por derrotados/directo (D9)/id y el criterio de victorias como red de seguridad, clasificados 1A..2H automáticos al completar 48/48, combate amistoso de F3 accesible en opción 8→1 y datos inmutables (sha256 estable). Sin CRITICAL ni WARNING; dos LOW informativos no bloquean. Presupuesto del lote: 570 líneas de código nuevas (≤ 800 ✓).
 
 ---
 
 ## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5)
 
 **PASS WITH WARNINGS por lote; FAIL del envelope por evidencia incompleta del cambio en curso**
-Los lotes F0, F1, F2, F3, F4 y F5 pasan (F3, F4 y F5 sin warnings: 0 CRITICAL, 0 blockers). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F6–F11 (eliminatorias, resultados/archivos, validación integral, pruebas completas, documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1), DOC-04 (ortografía del Doxyfile) y RF-CLS-01 (salida a archivo → F7). Conteos autoritativos corregidos contra los 11 specs del cambio (42 requirements / 70 scenarios): **30/42 requirements y 55/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05, RF-TRN-01..06 y RF-TEC-03 completos; DOC-03/DOC-04/RF-CLS-01 parciales; eliminatorias, resultados y torneo pendientes de F6–F7). RF-TRN-01..06 quedan verificados en F5 (batería 17/17 + probe 104/104 re-ejecutados); RF-CLS-01 «Tabla ordenada» verificado en pantalla y «Salida a archivo» diferido a F7. Siguiente lote: F6 (torneo: bracket eliminatorio 49–64).
+Los lotes F0, F1, F2, F3, F4 y F5 pasan (F3, F4 y F5 sin warnings: 0 CRITICAL, 0 blockers). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F6–F11 (eliminatorias, resultados/archivos, validación integral, pruebas completas, documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1), DOC-04 (ortografía del Doxyfile) y RF-CLS-01 (salida a archivo → F7). Conteos autoritativos corregidos contra los 11 specs del cambio (42 requirements / 70 scenarios): **30/42 requirements y 55/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05, RF-TRN-01..06 y RF-TEC-03 completos; DOC-03/DOC-04/RF-CLS-01 parciales; eliminatorias, resultados y torneo pendientes de F6–F7). RF-TRN-01..06 quedan verificados en F5 (batería 17/17 + probe 104/104 re-ejecutados byte a byte + probe extra 23/23 + awk calendario, verificación formal 2026-09-21); RF-CLS-01 «Tabla ordenada» verificado en pantalla y «Salida a archivo» diferido a F7. Siguiente lote: F6 (torneo: bracket eliminatorio 49–64).
