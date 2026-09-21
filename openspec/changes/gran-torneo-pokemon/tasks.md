@@ -113,10 +113,10 @@ El docente respondió: **libertad total de modelado** (niveles, tamaño de equip
 
 ## Fase F9 — Pruebas completas
 
-- [ ] F9.1 Crear `tests/run_tests.sh` (compila, ejecuta stdin, `diff`) — §8.2.
-- [ ] F9.2 Crear `tests/casos/*` cubriendo RF-PRB-01 completo — RF-PRB-01.
-- [ ] F9.3 Caso de integración: torneo completo 32→48→clasificación→49–64→campeón — §13.
-- [ ] F9.4 Gate: batería completa verde, cero warnings — config.yaml `verify`.
+- [x] F9.1 Crear `tests/run_tests.sh` (compila, ejecuta stdin, `diff`) — §8.2. *(2026-09-21: `tests/run_tests.sh` versionado (no /tmp): gate `make clean && make` cero warnings; por caso crea un sandbox temporal con `data/` copiada (nunca toca los datos del repo) y hace `diff` byte a byte contra `tests/casos/*.esperado`; convención por sufijo `_sin_pokedex`/`_sin_entrenadores` para casos con archivos ausentes; `timeout 60` anti-cuelgue; resumen final «BATERÍA F9: N PASS, M FALLA» con exit code; compila y ejecuta los 2 probes de `tests/probes/`.)*
+- [x] F9.2 Crear `tests/casos/*` cubriendo RF-PRB-01 completo — RF-PRB-01. *(2026-09-21: 20 casos `.in`+`.esperado` UTF-8 con tildes idénticas a la salida real: Pokédex (buscar por número, por nombre existente/inexistente, mostrar 150, archivo ausente), registro válido/duplicado, ejemplares con niveles límite 1/100 e inválidos 0/101, equipo manual + validación, backtracking factible y sin solución, combate victoria/empate 20 turnos/anti-empate eliminatoria, efectividad ×0 E2E (34 líneas «sin efecto»), resultados parciales 20/48 e inválidos (49 no disponible), clasificación completa y parcial, calendario 1-48. NOTA: los flujos de menú usan la navegación actual (submenús de F4/F5), p. ej. combate amistoso = 8→1→1; las listas enlazadas se insertan al frente (Gas es posición 1 de Jessie), reflejado en las selecciones.)*
+- [x] F9.3 Caso de integración: torneo completo 32→48→clasificación→49–64→campeón — §13. *(2026-09-21: `tests/probes/probe_torneo_completo.c` (probe C versionado, 26 comprobaciones): carga 150+32, calendario 1-48, 49 rechazado en grupos, 48 resultados V1 → transición a eliminatoria y clasificados 1A..2H, octavos fijos 49-56, validaciones (empate en eliminatoria, participantes manuales, eliminado no reaparece, resultados post-final), bracket 49-64 completo → campeón G64=1, posiciones finales, contadores de grupos intactos; se usó el probe porque el menú no permite jugar 64 combates E2E con selecciones (documentado).)*
+- [x] F9.4 Gate: batería completa verde, cero warnings — config.yaml `verify`. *(2026-09-21: `bash tests/run_tests.sh` → BATERÍA F9: 23 PASS, 0 FALLA (20 casos de menú + 2 probes: efectividad 21/21 y torneo completo 26/26); `make clean && make` cero warnings; sha256 de los 4 datos intactos tras la batería; ≤99 columnas; UTF-8.)*
 
 ## Fase F10 — Documentación final
 

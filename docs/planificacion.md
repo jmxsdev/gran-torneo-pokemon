@@ -28,7 +28,7 @@
 | F7 | Eliminatorias (bracket 49–64, tercer lugar, campeón) | 2026-09-21 | ✅ Hecho |
 | F8 | Archivos y resultados (carga/validación de los 4 `.txt`) | 2026-09-21 | ✅ Hecho |
 | F9 | Validación integral de entradas (RF-TEC-03) | 2026-09-21 | ✅ Hecho |
-| F10 | Pruebas (batería scriptada completa) + documentación final | 2026-09-13 | ⏳ Pendiente |
+| F10 | Pruebas (batería scriptada completa, RF-PRB-01) — ✅; documentación final (lote F10 de `tasks.md`) — ⏳ | 2026-09-21 | ✅ Hecho (pruebas) |
 | F11 | Entrega: empaquetado, checklist y cierre | 2026-09-14 | ⏳ Pendiente |
 
 ## 3. Gate por fase
