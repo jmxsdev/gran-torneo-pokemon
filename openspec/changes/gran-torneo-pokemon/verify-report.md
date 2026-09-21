@@ -1,17 +1,18 @@
 ```yaml
 schema: gentle-ai.verify-result/v1
-evidence_revision: sha256:65825f0ff85104543ad58fcfcff2596b79b91ba77d3682e2eed4468c6a741cec
+evidence_revision: sha256:ad3e8959e978a832d14b1019e5a7aa99d4fa2cafd951b7cd40c9b2bb5488778c
 verdict: fail
 blockers: 0
 critical_findings: 0
-requirements: 30/42
-scenarios: 55/70
-test_command: batería scriptada F5 /tmp/opencode/bateria_f5.sh (17 casos stdin→grep: make limpio cero warnings, rechazo opción 7 con 0 entrenadores "requiere exactamente 32", clasificación armada con 8 grupos A–H y filas ordenadas, calendario 1-48 con participantes correctos (1;A;1;Ash;2;Misty ... 48;H;31;Sophocles;32;Gladion), combate amistoso accesible en opción 8→1 (RF-CMB intacto), EOF ordenado en submenú, sha256 de los 3 datos intactos, ≤99 columnas) + probe F5 /tmp/opencode/probe_f5 (104 comprobaciones: D10 rechazo 31/acepta 32, calendario round-robin 6 pares distintos por grupo con numeración A=1..6..H=43..48, puntuación 3/1/0 exacta, validaciones de aplicar_resultado (duplicado, participantes RF-RES-03, número 0/49, empate con ganador, V1 incoherente, KOs negativos, RES_PENDIENTE), desempates por victorias/derrotados/directo (D9)/id, clasificados 1A..2H y orden automático al completar 48/48) + probe extra /tmp/opencode/probe_f5_extra (23 comprobaciones: D10 rechazo 30, 33 inalcanzable por registro RF-ENT-01, 8 grupos de 4 derivados del calendario con 3 combates por entrenador, 48 combates 1..48) + verificación independiente del calendario con awk (48 combates, 6 por grupo A–H, 48 pares únicos sin repetidos, cada entrenador juega 3) — cotejo contra spec RF-TRN-01..06 y RF-CLS-01 por escenario; re-ejecutada íntegramente en la verificación formal (2026-09-21): batería 17/17 y probe 104/104 reproducidos byte a byte (hashes idénticos), probe extra 23/23 y awk PASS
+requirements: 36/42
+scenarios: 64/70
+test_command: batería scriptada F6 /tmp/opencode/bateria_f6.sh (13 casos stdin→grep: make limpio cero warnings, opción 10 sin torneo armado "El torneo no está armado.", opción 11 sin finalizar "aún no hay campeón", armar + opción 10 con etiquetas de origen y pendientes (49;1A;0;?;2B;0;?;0, 57;G49;0;?;G50;0;?;0, 63;P61;0;?;P62;0;?;0, 64;G61;0;?;G62;0;?;0), probe F6 /tmp/opencode/probe_f6 (43 comprobaciones: bracket fijo 49..56 (RF-ELM-02), transición GRUPOS->ELIMINATORIAS al completar 48/48 y ->FINALIZADO al aplicar 64, rechazo de 49 con grupos incompletos, rechazo de 57 con fuentes sin resolver "no está disponible aún", participantes manuales rechazados (RF-RES-03), empate rechazado (RF-ELM-01), V1 incoherente rechazado, eliminado que no reaparece (RF-RES-02), encadenado G#/P# (57=G49-G50, 61=G57-G58, 63=P61-P62, 64=G61-G62), V2 en eliminatoria, campeón = G64, subcampeón = P64, tercero = G63, cuarto = P63, contadores de grupos intactos, rechazo tras finalizar) + regresión probe F5 (104/104) y batería F5 (17/17) — cotejo contra spec RF-ELM-01..05 y RF-RES-02/03 por escenario
 test_exit_code: 0
-test_output_hash: sha256:fd70d362ec6f3e0d99a14e63ff9ca1c3a6ea39a8ae75474011addec34e3dc53b
+test_output_hash: sha256:3869041ba8a9bc16a499f45dc0c1926c63b28603a9737a0463704ca39b972440
 build_command: make clean && make (gcc -std=c99 -Wall -Wextra, 8 .c con torneo.c)
 build_exit_code: 0
 build_output_hash: sha256:72726e4886604a8afd511cc48eaad45f7e9df86d58ee9f3d33a7a8153700c5a5
+binary_hash: sha256:35cf1f40a52f0a3f0aa0b7cbf4c96efb4b0a2ec7ab2a4b9d88a3f458fd3e0b9a
 ```
 
 # Informe de Verificación — Gran Torneo Pokémon — Lotes F0, F1, F2 y F3
@@ -736,7 +737,135 @@ El lote F5 cumple RF-TRN-01..06 y el escenario «Tabla ordenada» de RF-CLS-01: 
 
 ---
 
-## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5)
+## Sección F6 (Día 6, 2026-09-21) — Eliminatorias (bracket 49–64)
+
+**Fase**: F6 — `src/torneo.c` (bracket 49–64, `ORIGEN_PARTICIPANTE`, `torneo_participantes`, transiciones GRUPOS→ELIMINATORIAS→FINALIZADO, posiciones finales) + cableado de las opciones 10 y 11 del menú
+**Fecha**: 2026-09-21
+
+### Completeness
+
+| Métrica | Valor |
+|---|---|
+| Tareas del lote F6 | 3 |
+| Tareas completadas | 3 |
+| Tareas incompletas | 0 |
+
+### Build y Ejecución
+
+**Build**: ✅ Pasó (exit 0, cero warnings)
+```text
+$ make clean && make
+rm -rf build
+mkdir -p build
+gcc -std=c99 -Wall -Wextra -o build/torneo src/archivos.c src/combate.c src/entrenador.c src/equipo.c src/main.c src/pokedex.c src/tipos.c src/torneo.c
+```
+Evidencia: `build_exit_code=0`, cero warnings con `-Wall -Wextra` sobre los **ocho** `.c` del proyecto. Hash de la salida del build: `72726e48…` (la línea de compilación no cambió respecto a F5; el binario sí: `binary_hash sha256:35cf1f40…`). 0 líneas de más de 99 columnas en `src/torneo.c`/`src/torneo.h`/`src/main.c`. Presupuesto del lote: **394 líneas de código nuevas** (torneo.c +340/−12, torneo.h +30/−2, main.c +10) ≤ 800 ✓.
+
+**Pruebas**: ✅ Batería F6 scriptada (13 casos stdin→grep) + probe F6 (43 comprobaciones) + regresión probe F5 (104/104) y batería F5 (17/17): **177/177 PASS, exit 0**. Hash del output de pruebas: `3869041b…`. `evidence_revision sha256:ad3e8959…`.
+
+| Caso | Entrada | Resultado esperado | Resultado real | Diff |
+|---|---|---|---|---|
+| 1 build | `make clean && make` | exit 0, cero warnings, ocho `.c` compilados | Ídem | ✅ PASS |
+| 2 opción 10 sin armar | `10\n12\n` | «El torneo no está armado.» | Ídem | ✅ PASS |
+| 3 opción 11 sin finalizar | `11\n12\n` | «El torneo aún no ha finalizado; aún no hay campeón.» | Ídem | ✅ PASS |
+| 4 armar + opción 10 | `7\n10\n12\n` | Cabecera + `[Octavos]` + `49;1A;0;?;2B;0;?;0` + `57;G49;0;?;G50;0;?;0` + `63;P61;0;?;P62;0;?;0` + `64;G61;0;?;G62;0;?;0` | Ídem | ✅ PASS |
+| 5 probe F6 | probe contra `src/{torneo,entrenador,equipo,pokedex,tipos,combate,archivos}.c` | 43 comprobaciones (ver desglose) | Ídem | ✅ PASS |
+| 6 probe F6 display | salida del probe | Bracket final con ganadores: `49;1A;1;Entrenador 1;2B;6;Entrenador 6;1`, `63;P61;5;Entrenador 5;P62;21;Entrenador 21;5`, `64;G61;1;Entrenador 1;G62;17;Entrenador 17;1` | Ídem | ✅ PASS |
+| 7 posiciones finales | salida del probe | `1. Campeón: Entrenador 1 (id 1)`, `2. Subcampeón: Entrenador 17 (id 17)`, `3. Tercer lugar: Entrenador 5 (id 5)`, `4. Cuarto lugar: Entrenador 21 (id 21)`, «El campeón del torneo es Entrenador 1 (id 1).» | Ídem | ✅ PASS |
+| 8 regresión probe F5 | probe F5 recompilado | `104/104 comprobaciones PASS` | Ídem | ✅ PASS |
+| 9 regresión batería F5 | `bateria_f5.sh` | `BATERÍA F5: 17 PASS, 0 FALLA` | Ídem | ✅ PASS |
+| 10 sha256 datos | batería completa | `pokedex.txt`, `efectividad.txt`, `entrenadores.txt` byte-idénticos | Ídem | ✅ PASS |
+| 11 columnas | `grep -RInE '.{100,}'` | 0 líneas > 99 en torneo.c/h y main.c | Ídem | ✅ PASS |
+
+### Matriz de Cumplimiento de Specs (F6)
+
+| Requisito | Escenario | Evidencia | Resultado |
+|---|---|---|---|
+| RF-ELM-01 | Sin empates en eliminatoria | Probe P6: empate en 57 rechazado con mensaje «La eliminatoria no admite empates (RF-ELM-01)»; torneo jugado 49–64 sin empates (probe completo) | ✅ COMPLIANT |
+| RF-ELM-01 | Perdedores de semifinal al tercer lugar | Probe P8: `torneo_participantes(63)` = P61 (5) vs P62 (21), ambos perdedores de las semifinales 61/62 | ✅ COMPLIANT |
+| RF-ELM-02 | Emparejamiento fijo de octavos | Probe P1: 49=(1,6) 1A-2B, 50=(9,14) 1C-2D, 51=(17,22) 1E-2F, 52=(25,30) 1G-2H, 53=(5,2) 1B-2A, 54=(13,10) 1D-2C, 55=(21,18) 1F-2E, 56=(29,26) 1H-2G — exactamente la tabla §6.2 | ✅ COMPLIANT |
+| RF-ELM-03 | Coherencia entre octavos y cuartos | Probe P8: 57=G49-G50 (1,9), 58=G53-G54 (5,13), 59=G51-G52 (17,25), 60=G55-G56 (21,29); el ganador de 49 (1) participa en 57 | ✅ COMPLIANT |
+| RF-ELM-04 | Perdedores identificados | Probe P8/P13: P61 = perdedor de 61, P62 = perdedor de 62; identificados automáticamente al aplicar las semifinales | ✅ COMPLIANT |
+| RF-ELM-05 | Coronación del campeón | Probe P10: campeón = G64 = 1, subcampeón = P64 = 17, tercero = G63 = 5, cuarto = P63 = 21; el sistema muestra los 4 primeros al finalizar (probe display) | ✅ COMPLIANT |
+| RF-RES-02 | Eliminado no reaparece | Probe P9: el perdedor de 49 (id 6) intenta participar en 58 ⇒ rechazo (participantes ≠ resueltos) | ✅ COMPLIANT |
+| RF-RES-02 | Empate en eliminatoria rechazado | Probe P6: `RES_EMPATE` en 57 ⇒ rechazo (RF-ELM-01) | ✅ COMPLIANT |
+| RF-RES-03 | Participante manual rechazado | Probe P5: participantes inventados (1,10) en 57 ⇒ rechazo; idem P4 (fuentes sin resolver ⇒ «no está disponible aún») y P3 (49 con grupos incompletos) | ✅ COMPLIANT (completo: grupos F5 + eliminatoria F6) |
+| RF-MEN-01 | Opciones 10 y 11 | Batería 2/3/4: menú muestra las 12 opciones; opciones 10 y 11 cableadas y delegando en `torneo` | ✅ COMPLIANT |
+
+**Resumen de cumplimiento F6**: 10/10 escenarios del alcance F6 completos (RF-ELM-01..05 íntegros, RF-RES-02 en sus escenarios de eliminatoria, RF-RES-03 completo con ambas fases, RF-MEN-01 con las opciones 10/11). Quedan pendientes de F7 los escenarios de RF-RES-02 «Entrenador inexistente» y la carga de resultados por teclado/archivo (RF-RES-01/04).
+
+#### Veredicto por requisito (2026-09-21)
+
+| Requisito | Veredicto | Evidencia (1 línea) |
+|---|---|---|
+| RF-ELM-01 | ✅ COMPLIANT | Probe P6 + torneo completo: sin empates en 49–64; P61/P62 al tercer lugar (P8) |
+| RF-ELM-02 | ✅ COMPLIANT | Probe P1: los 8 cruces de octavos byte-idénticos a la tabla §6.2 |
+| RF-ELM-03 | ✅ COMPLIANT | Probe P8: 57–60 = G#-G# encadenados a los ganadores de octavos |
+| RF-ELM-04 | ✅ COMPLIANT | Probe P8/P13: perdedores de 61/62 resueltos como P61/P62 |
+| RF-ELM-05 | ✅ COMPLIANT | Probe P10 + display: campeón G64, subcampeón P64, tercero G63, cuarto P63 |
+| RF-RES-02 | ⚠️ PARCIAL | «Eliminado no reaparece» y «Empate en eliminatoria» ✓ (F6); «Entrenador inexistente» diferido a F7 (resultados por archivo) |
+| RF-RES-03 | ✅ COMPLIANT | Probe P4/P5 + F5 P4: participantes siempre resueltos por el sistema, rechazo de manuales en 1–48 y 49–64 |
+| RF-MEN-01 | ✅ COMPLIANT | Opciones 10/11 cableadas; menú de 12 opciones intacto |
+
+#### Revisión de bordes (F6)
+
+| Borde | Evidencia | Resultado |
+|---|---|---|
+| Aplicar 49 con grupos incompletos | Probe P3: rechazo sin mutar el estado (sigue GRUPOS) | ✅ PASS |
+| Combate con fuentes sin resolver (57 antes de 49/50) | Probe P4: ids 0 + rechazo «no está disponible aún» | ✅ PASS |
+| Participantes manuales (RF-RES-03) | Probe P5: (1,10) en 57 ⇒ rechazo | ✅ PASS |
+| Empate en eliminatoria | Probe P6: RES_EMPATE en 57 ⇒ rechazo RF-ELM-01 | ✅ PASS |
+| V1 incoherente (ganador = id2) | Probe P7: rechazo sin aplicar | ✅ PASS |
+| Eliminado que reaparece | Probe P9: perdedor de 49 en 58 ⇒ rechazo (RF-RES-02) | ✅ PASS |
+| Resultados tras finalizar | Probe P11: aplicar 1 o 63 después del 64 ⇒ rechazo «ya finalizó» | ✅ PASS |
+| V2 en eliminatoria | Probe P13: gana el 2B (6) ⇒ G49 = 6 y encadena a 57 (6,9) | ✅ PASS |
+| Contadores de grupos intactos | Probe: Entrenador 1 conserva 3 victorias/9 puntos tras el torneo completo (RF-TRN-03 solo 1–48) | ✅ PASS |
+| Transición 48/48 y 64 | Probe P2: GRUPOS→ELIMINATORIAS al completar 48/48; →FINALIZADO al aplicar 64 | ✅ PASS |
+
+### Correctness (Evidencia estática, F6)
+
+| Requisito | Estado | Notas |
+|---|---|---|
+| RF-ELM-01..05 | ✅ Implementado | `ORIGEN_PARTICIPANTE[64][2]` (tabla §6.2 exacta), `torneo_participantes` (resolución contra el estado real), `resolver_origen` (CLASIFICADO/GANADOR/PERDEDOR) |
+| RF-RES-03 | ✅ Implementado | `torneo_aplicar_resultado` valida participantes == resueltos en 49–64 y persiste los ids resueltos en el combate (el perdedor de una fuente P# los lee) |
+| Transiciones §6.1 | ✅ Implementado | 48/48 ⇒ ordenar + clasificados + resolver octavos + `TORNEO_ELIMINATORIAS`; 64 ⇒ `TORNEO_FINALIZADO` + `mostrar_posiciones` (RF-ELM-05) |
+| RF-ELM-05 | ✅ Implementado | `mostrar_posiciones`: campeón = G64, subcampeón = P64, tercero = G63, cuarto = P63; públicas `torneo_mostrar_resultados`, `torneo_mostrar_campeon`, `torneo_mostrar_posiciones_finales` |
+| RF-MEN-01 | ✅ Implementado | Opciones 10/11 en `main` delegando en el módulo torneo (RF-TEC-02: sin lógica en main) |
+
+### Coherencia con el Diseño (F6)
+
+| Decisión del diseño | ¿Cumplida? | Notas |
+|---|---|---|
+| §6.2 tabla de mapeo 49–64 exacta (49=1A-2B … 64=G61-G62) | ✅ Sí | `ORIGEN_PARTICIPANTE` byte-idéntica a la tabla; probe P1/P8 verifica los 16 cruces |
+| §6.1 transición GRUPOS→ELIMINATORIAS al completar 48/48 | ✅ Sí | Ordena, define clasificados, resuelve y persiste los octavos 49–56 y cambia el estado |
+| §6.1 transición ELIMINATORIAS→FINALIZADO al aplicar 64 | ✅ Sí | Estado final + posiciones mostradas (RF-ELM-05) |
+| §6.1 «combate no disponible aún» cuando una fuente no existe | ✅ Sí | `resolver_origen` devuelve 0; mensaje explícito en `aplicar_resultado` |
+| §1.3 `torneo_participantes(const Torneo *, int, int *, int *)` | ✅ Sí | Firma idéntica al diseño; ids 0 señalan fuente sin resolver |
+| §1.3 `torneo_mostrar_posiciones_finales` | ⚠️ Menor | Se añade el parámetro `const RegistroEntrenadores *` para mostrar nombres (patrón del resto de `torneo_mostrar_*`; el diseño §1.3 solo recibía el torneo) |
+| Anti-empate D5 en eliminatoria | ✅ Sí | Ya existía en `combate.c` (`es_eliminatoria`); `torneo_aplicar_resultado` nunca recibe un empate de eliminatoria (RF-ELM-01) |
+
+### Hallazgos (F6)
+
+**CRITICAL**: Ninguno.
+
+**WARNING**: Ninguno.
+
+**LOW**:
+1. **Firma de `torneo_mostrar_posiciones_finales`**: el diseño §1.3 la declaraba solo con `const Torneo *`; se añadió `const RegistroEntrenadores *` para imprimir nombres, siguiendo el patrón de `torneo_mostrar_clasificacion`/`torneo_mostrar_enfrentamientos` (F5). No cambia contratos existentes (la función no se usaba).
+2. **`binary_hash` nuevo campo del envelope**: el hash del log de build es idéntico al de F5 (la línea de compilación no cambió), por lo que se añade `binary_hash` (sha256 del binario `build/torneo`, `35cf1f40…`) como evidencia de que el artefacto compilado sí cambió.
+
+**SUGGESTION**:
+1. La opción 6 «Cargar resultados» (teclado/archivo) se completa en F7 con `resultados.c` + `archivos.c`; `torneo_aplicar_resultado` ya está listo para recibir resultados de eliminatoria en cualquier orden con coherencia de rondas.
+2. F7 debe verificar el escenario «Entrenador inexistente» de RF-RES-02 (vía `resultados_validar` con `entrenador_buscar`), único escenario de ese requisito no cubierto por F6.
+
+### Veredicto F6
+
+**PASS**
+El lote F6 cumple RF-ELM-01..05, RF-RES-03 (completo) y los escenarios de eliminatoria de RF-RES-02, con el cableado de las opciones 10 y 11 del menú: las 3 tareas F6 están completas, el build es limpio (cero warnings, ocho `.c`, `binary_hash 35cf1f40…`), la batería scriptada pasa 13/13, el probe F6 pasa 43/43 (bracket fijo 49–56 idéntico a la tabla §6.2, transiciones GRUPOS→ELIMINATORIAS→FINALIZADO, encadenado G#/P# incluyendo P61/P62 al tercer lugar, empate rechazado, V1/V2 coherentes, eliminado que no reaparece, participantes manuales rechazados, fuente sin resolver rechazada, campeón = G64 con las 4 posiciones correctas, contadores de grupos intactos y rechazo de resultados tras finalizar) y la regresión F5 completa pasa (probe 104/104 + batería 17/17). Sin CRITICAL ni WARNING; dos LOW informativos no bloquean. Presupuesto del lote: 394 líneas de código nuevas (≤ 800 ✓).
+
+---
+
+## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5 + F6)
 
 **PASS WITH WARNINGS por lote; FAIL del envelope por evidencia incompleta del cambio en curso**
-Los lotes F0, F1, F2, F3, F4 y F5 pasan (F3, F4 y F5 sin warnings: 0 CRITICAL, 0 blockers). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F6–F11 (eliminatorias, resultados/archivos, validación integral, pruebas completas, documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1), DOC-04 (ortografía del Doxyfile) y RF-CLS-01 (salida a archivo → F7). Conteos autoritativos corregidos contra los 11 specs del cambio (42 requirements / 70 scenarios): **30/42 requirements y 55/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05, RF-TRN-01..06 y RF-TEC-03 completos; DOC-03/DOC-04/RF-CLS-01 parciales; eliminatorias, resultados y torneo pendientes de F6–F7). RF-TRN-01..06 quedan verificados en F5 (batería 17/17 + probe 104/104 re-ejecutados byte a byte + probe extra 23/23 + awk calendario, verificación formal 2026-09-21); RF-CLS-01 «Tabla ordenada» verificado en pantalla y «Salida a archivo» diferido a F7. Siguiente lote: F6 (torneo: bracket eliminatorio 49–64).
+Los lotes F0, F1, F2, F3, F4, F5 y F6 pasan (F3–F6 sin warnings: 0 CRITICAL, 0 blockers). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F7–F11 (resultados/archivos, validación integral, pruebas completas, documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1), DOC-04 (ortografía del Doxyfile), RF-CLS-01 (salida a archivo → F7) y RF-RES-02 (escenario «Entrenador inexistente» → F7). Conteos autoritativos contra los 11 specs del cambio (42 requirements / 70 scenarios): **36/42 requirements y 64/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05, RF-TRN-01..06, RF-TEC-03, RF-ELM-01..05 y RF-RES-03 completos; DOC-03/DOC-04/RF-CLS-01 y RF-RES-02 parciales; RF-RES-01/04 pendientes de F7). RF-ELM-01..05 y RF-RES-03 quedan verificados en F6 (batería 13/13 + probe 43/43 + regresión completa F5, 2026-09-21); RF-TRN-01..06 verificados en F5. Siguiente lote: F7 (archivos y resultados: carga por teclado/archivo, validación RF-RES-02 completa y salida de clasificación).
