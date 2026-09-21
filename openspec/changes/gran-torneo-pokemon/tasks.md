@@ -94,9 +94,9 @@ El docente respondió: **libertad total de modelado** (niveles, tamaño de equip
 
 ## Fase F6 — Eliminatorias (bracket 49–64)
 
-- [ ] F6.1 En `src/torneo.c`: tabla `ORIGEN_PARTICIPANTE[64][2]`, `torneo_participantes` (RF-RES-03), bracket §6.2, transición GRUPOS→ELIMINATORIAS→FINALIZADO, posiciones finales — RF-ELM-01..05, §6.2.
-- [ ] F6.2 Cablear opciones 10/11 (resultados, campeón) — RF-MEN-01.
-- [ ] F6.3 Verificación: emparejamientos fijos, encadenado G#/P#, campeón = G64 — RF-PRB-01, §13.
+- [x] F6.1 En `src/torneo.c`: tabla `ORIGEN_PARTICIPANTE[64][2]`, `torneo_participantes` (RF-RES-03), bracket §6.2, transición GRUPOS→ELIMINATORIAS→FINALIZADO, posiciones finales — RF-ELM-01..05, §6.2. *(2026-09-21: `ORIGEN_PARTICIPANTE[64][2]` con fuentes CLASIFICADO (índice en `id_clasificados`) para 49–56 y GANADOR/PERDEDOR (combate fuente) para 57–64; filas 1–48 en ORIGEN_NINGUNO (el calendario las fija). `torneo_participantes` resuelve los ids contra el estado real (0 si una fuente aún no existe ⇒ «combate no disponible aún»). `torneo_aplicar_resultado` habilita 49–64: exige estado ELIMINATORIAS, participantes == resueltos (RF-RES-03), sin empates (RF-ELM-01), ganador ∈ {id1, id2} (V1/V2), KOs ≥ 0; persiste los participantes resueltos en el combate (el perdedor de una fuente P# los lee); transición GRUPOS→ELIMINATORIAS al completar 48/48 (ordena, define clasificados y resuelve octavos 49–56) y →FINALIZADO al aplicar el 64 con posiciones (campeón G64, subcampeón P64, tercero G63, cuarto P63). La eliminatoria no toca los contadores de grupos (RF-TRN-03 puntúa solo 1–48).)*
+- [x] F6.2 Cablear opciones 10/11 (resultados, campeón) — RF-MEN-01. *(2026-09-21: opción 10 «Mostrar resultados del torneo» → `torneo_mostrar_resultados` (bracket 49–64 con ronda, etiqueta de origen 1A/G49/P61, participantes y ganador por combate; posiciones finales si terminó); opción 11 «Mostrar campeón» → `torneo_mostrar_campeon` (avisa si el torneo sigue en curso); las opciones previas 1–5, 7, 8 y 12 intactas; la 6 (cargar resultados) se completa en F7.)*
+- [x] F6.3 Verificación: emparejamientos fijos, encadenado G#/P#, campeón = G64 — RF-PRB-01, §13. *(2026-09-21: probe F6 43/43 PASS + batería F6 13/13 PASS (incluye regresión probe F5 104/104 y batería F5 17/17); detalle en apply-progress.)*
 
 ## Fase F7 — Archivos y resultados
 
