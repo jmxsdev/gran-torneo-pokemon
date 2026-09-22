@@ -1192,7 +1192,39 @@ El lote F10 completa la documentación final: informe técnico con D1–D10 just
 
 ---
 
-## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5 + F6 + F7 + F8 + F9 + F10)
+## Sección F11 (Día 8) — Entrega
 
-**PASS — envelope `pass` con 42/42 requirements y 70/70 scenarios**
-Los lotes F0–F10 pasan (F3–F10 sin warnings: 0 CRITICAL, 0 blockers; F8 cerró el WARNING F1 y la SUGGESTION F2; F10 cerró los parciales DOC-03/DOC-04). El validador nativo admite `verdict: pass` con evidencia toda verde (`evidence_revision sha256:fc4ae233…`). Queda pendiente la entrega (F11 / RF-PRB-02: empaquetado y compilación sin dependencias externas), que vive en exploration/design y **bloquea el archive** hasta verificarse. Siguiente: F11 (entrega) → archive del cambio.
+### Completeness
+
+| Tarea | Estado | Evidencia |
+|---|---|---|
+| F11.1 Empaquetado reproducible | ✅ | `scripts/empaquetar.sh` + `make entrega` → `dist/gran-torneo-pokemon-entrega.zip` (212 KB, 93 archivos, raíz relativa, 0 rutas absolutas); `dist/` ignorado en git |
+| F11.2 Compilación/ejecución sin dependencias | ✅ | `bash scripts/verificar_entrega.sh` → **7 PASS / 0 FALLA**: extracción a temporal ajeno al repo, estructura 11/11, `make clean && make` cero warnings, humo (Pokédex #25 → salir, exit 0), batería 23 PASS dentro del paquete, rutas relativas, sin rutas absolutas |
+| F11.3 Checklist de entrega | ✅ | `docs/planificacion.md` §7 con 10/10 ítems; 14/14 fases Hecho; README con sección de entrega |
+
+### Matriz de Cumplimiento (RF-PRB-02)
+
+| Requisito | Evidencia | Resultado |
+|---|---|---|
+| Único comprimido | `make entrega` → zip 212 KB, integridad OK | ✅ COMPLIANT |
+| .c/.h/main.c/Pokédex/datos/adicionales | Listado del zip (10 .c + 10 .h + main.c + 5 datos + tests + docs + Doxyfile) | ✅ COMPLIANT |
+| Documentación breve | `docs/*.md` + README dentro del paquete | ✅ COMPLIANT |
+| Compila sin externos | Gate 2 (temporal limpio, cero warnings) | ✅ COMPLIANT |
+| Ejecuta sin externos | Gates 3–5 (humo, batería 23 PASS, rutas relativas) | ✅ COMPLIANT |
+
+### Hallazgos (F11)
+
+**CRITICAL**: Ninguno. **WARNING**: Ninguno.
+**SUGGESTION**: (1) `zip` ausente en el entorno → fallback `python3 -m zipfile` (mismo formato); (2) `data/clasificacion.txt` incluida aunque es salida, no entrada (benigno); (3) `docs/doxygen/html/` excluido del paquete por regenerable.
+
+### Veredicto F11
+
+**PASS**
+La entrega cumple la sección 7 del PDF y RF-PRB-02: paquete único reproducible que compila y ejecuta sin dependencias externas (verificado en sandbox limpio), con checklist de entrega completo y plan 14/14. El envelope mantiene **42/42 requirements y 70/70 scenarios** con `verdict: pass` (RF-PRB-02 vive en exploration/design, no en los 11 specs formales). **El change queda archive-ready.**
+
+---
+
+## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5 + F6 + F7 + F8 + F9 + F10 + F11)
+
+**PASS — envelope `pass` con 42/42 requirements y 70/70 scenarios — change completo y archive-ready**
+Los 12 lotes F0–F11 pasan (F3–F11 sin warnings: 0 CRITICAL, 0 blockers; F8 cerró el WARNING F1 y la SUGGESTION F2; F10 cerró los parciales DOC-03/DOC-04; F11 cerró la entrega). Las 53 tareas del plan están completas, la batería versionada pasa 23/23, la integración del torneo 32→48→clasificación→49–64→campeón pasa 26/26, el paquete de entrega compila y ejecuta sin dependencias externas (7 PASS), y el validador nativo admite `verdict: pass` con evidencia toda verde. **Proceder con `sdd-archive`.**
