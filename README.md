@@ -18,9 +18,25 @@ Es el proyecto final de **Programación I / Algoritmos I** (Universidad de Carab
    ```
 4. **Resultado esperado**: el menú principal del torneo con 12 opciones; la opción 1 permite consultar la Pokédex completa (mostrar todas, buscar por número o por nombre).
 
+## Entrega (F11)
+
+El proyecto se entrega en un único archivo comprimido (sección 7 del enunciado):
+
+```bash
+make entrega            # o: bash scripts/empaquetar.sh
+bash scripts/verificar_entrega.sh   # verificación completa del paquete
+```
+
+`make entrega` genera `dist/gran-torneo-pokemon-entrega.zip` (NO versionado:
+`dist/` está en `.gitignore`) con `src/`, `data/`, `tests/`, `docs/` (sin el
+html de Doxygen), `openspec/`, `scripts/`, `Makefile`, `Doxyfile` y `README.md`.
+El verificador extrae el zip a un directorio temporal limpio, compila con cero
+warnings, ejecuta una prueba de humo del menú y corre la batería completa
+(23 PASS, 0 FALLA) — comprobando que el paquete no depende de archivos externos.
+
 ## Estado del proyecto
 
-Desarrollo guiado por un plan de 14 días dividido en 12 fases (ver [docs/planificacion.md](docs/planificacion.md)) — **plan 14/14**:
+Desarrollo guiado por un plan de 14 días dividido en 12 fases (ver [docs/planificacion.md](docs/planificacion.md)) — **plan 14/14 cerrado**:
 
 | Fase | Alcance | Estado |
 |------|---------|--------|
@@ -35,7 +51,7 @@ Desarrollo guiado por un plan de 14 días dividido en 12 fases (ver [docs/planif
 | F8 | Validación integral de entradas | ✅ Hecha |
 | F9 | Pruebas completas (batería scriptada versionada) | ✅ Hecha |
 | F10 | Documentación final (informe técnico, plan 14/14, Doxygen) | ✅ Hecha |
-| F11 | Entrega: empaquetado, checklist y cierre | 🔄 En curso (última) |
+| F11 | Entrega: empaquetado, checklist y cierre | ✅ Hecha |
 
 ## Pruebas
 

@@ -3,7 +3,7 @@
 **Proyecto**: El Gran Torneo Pokémon · **Curso**: Programación I / Algoritmos I
 **Documento**: DOC-02 (spec `documentacion`) · **Periodo**: 14 días (plan nominal 2026-09-01 → 2026-09-14; ejecución real hasta 2026-09-21)
 **Ritmo estimado**: 2–3 h/día · **Idioma**: español neutro y profesional
-**Estado global**: **14/14** — todas las fases cerradas (F0–F10 ✅ Hecho; F11 en curso/última, se cierra al aplicar el lote F11 de `tasks.md`)
+**Estado global**: **14/14 — proyecto cerrado** (F0–F11 ✅ Hecho; el cierre de entrega F11 se aplicó el 2026-09-21)
 
 ---
 
@@ -30,7 +30,7 @@
 | F8 | Validación integral de entradas (RF-TEC-03) | 2026-09-21 | ✅ Hecho |
 | F9 | Pruebas (batería scriptada completa versionada, RF-PRB-01) | 2026-09-21 | ✅ Hecho |
 | F10 | Documentación final: informe técnico D1–D10 completo, plan 14/14, Doxygen render sin warnings (DOC-03/DOC-04) | 2026-09-21 | ✅ Hecho |
-| F11 | Entrega: empaquetado, checklist y cierre (lote F11 de `tasks.md`) | 2026-09-14 → pendiente de aplicar | 🔄 En curso (última) |
+| F11 | Entrega: empaquetado, checklist y cierre (lote F11 de `tasks.md`) | 2026-09-21 | ✅ Hecho |
 
 Nota de numeración: las filas de esta tabla están alineadas con `tasks.md`
 (F0–F11). En versiones anteriores existió un desfase de +1 (la fila etiquetada
@@ -71,6 +71,30 @@ continuó hasta la entrega final (F10/F11) sin aplicar el aborto.
 
 ## 6. Cierre
 
-- [x] Al finalizar cada fase: actualizar el estado de la tabla y marcar tareas en `tasks.md` (hecho en F0–F10).
+- [x] Al finalizar cada fase: actualizar el estado de la tabla y marcar tareas en `tasks.md` (hecho en F0–F11).
 - [x] F10: informe técnico completo (D1–D10 + diagramas finales) y Doxygen render sin warnings del proyecto (DOC-03/DOC-04 cerrados).
-- [ ] Día 14 / lote F11: checklist de entrega (empaquetado en comprimido único, verificación sin dependencias externas) y cierre del documento con el plan 14/14.
+- [x] Día 14 / lote F11: checklist de entrega (empaquetado en comprimido único, verificación sin dependencias externas) y cierre del documento con el plan 14/14.
+
+## 7. Entrega (F11) — CHECKLIST FINAL
+
+Paquete único generado con `make entrega` (equivale a `bash scripts/empaquetar.sh`):
+`dist/gran-torneo-pokemon-entrega.zip`. Verificación completa del paquete con
+`bash scripts/verificar_entrega.sh` (extracción a directorio temporal limpio,
+compilación, prueba de humo y batería completa). Cumplimiento de la sección 7
+del enunciado:
+
+- [x] Código fuente `.c` (10 módulos en `src/`).
+- [x] Archivos de cabecera `.h` (10 en `src/`, incluido `constantes.h`).
+- [x] Archivo `main.c` (menú de 12 opciones, RF-MEN-01).
+- [x] Archivo de la Pokédex (`data/pokedex.txt`, 150 especies).
+- [x] Archivos de datos necesarios (`data/efectividad.txt`, `data/entrenadores.txt`, `data/resultados.txt`).
+- [x] Documentación breve (`docs/planificacion.md`, `docs/informe-tecnico.md`, `docs/convenciones-doxygen.md`, `README.md`; el html de Doxygen se excluye por regenerable).
+- [x] `Doxyfile` (documentación en español, DOC-01).
+- [x] Tests (`tests/` con la batería scriptada versionada: 20 casos + 2 probes).
+- [x] Paquete comprimido único (`dist/gran-torneo-pokemon-entrega.zip`, 212 KB, 93 archivos; el zip NO se versiona: `dist/` está en `.gitignore`).
+- [x] Compilación y ejecución sin dependencias externas: rutas relativas (`data/...`), sin rutas absolutas en `src/` ni en el `Makefile`; verificado F11.2 desde un directorio temporal limpio (`make clean && make` cero warnings, humo exit 0, `bash tests/run_tests.sh` → 23 PASS, 0 FALLA).
+
+**Comando de empaquetado**: `make entrega` o `bash scripts/empaquetar.sh`.
+**Comando de verificación**: `bash scripts/verificar_entrega.sh`.
+
+Con esta sección, el plan queda **cerrado 14/14**: F0–F11 todas ✅ Hecho.

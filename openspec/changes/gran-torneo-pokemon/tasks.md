@@ -126,9 +126,9 @@ El docente respondió: **libertad total de modelado** (niveles, tamaño de equip
 
 ## Fase F11 — Entrega
 
-- [ ] F11.1 Empaquetar `.c`/`.h`/`main.c`/`data`/`tests`/`docs`/`Doxyfile` en un comprimido único — RF-PRB-02.
-- [ ] F11.2 Verificar compilación y ejecución sin dependencias externas — RF-PRB-02.
-- [ ] F11.3 Checklist de entrega y cierre en `planificacion.md` — DOC-02.
+- [x] F11.1 Empaquetar `.c`/`.h`/`main.c`/`data`/`tests`/`docs`/`Doxyfile` en un comprimido único — RF-PRB-02. *(2026-09-21: `scripts/empaquetar.sh` versionado (español): staging en directorio temporal, raíz `gran-torneo-pokemon-entrega/`, contenido src/ (10 .c + 10 .h), data/ (5 .txt), tests/, docs/ SIN el html de Doxygen, openspec/, scripts/, Makefile, Doxyfile, README.md; zip si está instalado, fallback `python3 -m zipfile`; `dist/` añadido al .gitignore (el zip se regenera, NO se versiona); target `entrega` en el Makefile → `make entrega` genera `dist/gran-torneo-pokemon-entrega.zip` (212 KB, 93 archivos, integridad `unzip -t` OK).)*
+- [x] F11.2 Verificar compilación y ejecución sin dependencias externas — RF-PRB-02. *(2026-09-21: `scripts/verificar_entrega.sh` versionado: extrae el zip a un directorio temporal limpio (ajeno al repo), estructura completa (11 archivos verificados), `make clean && make` cero warnings, prueba de humo scriptada (menú → opción 1 Pokédex buscar 25 → salir 12: exit 0, salida con «025 Pikachu» y «Saliendo del programa.»), `bash tests/run_tests.sh` dentro del paquete → BATERÍA F9: 23 PASS, 0 FALLA, rutas de datos relativas (`data/...` en constantes.h) y sin rutas absolutas en src/ ni Makefile → **7 PASS, 0 FALLA**; NO depende de archivos fuera del paquete.)*
+- [x] F11.3 Checklist de entrega y cierre en `planificacion.md` — DOC-02. *(2026-09-21: nueva sección 7 «Entrega (F11) — CHECKLIST FINAL» en `docs/planificacion.md` con los 10 ítems marcados (código .c/.h, main.c, Pokédex, datos, documentación, Doxyfile, tests, paquete zip, sin dependencias externas) + nota del comando (`make entrega` / `bash scripts/empaquetar.sh`); cierre 14/14: F0–F11 todas ✅ Hecho en la tabla y en el estado global; checklist de cierre 3/3; README actualizado (fila F11 ✅ Hecha + sección «Entrega (F11)»).)*
 
 ---
 
