@@ -7,7 +7,7 @@ CFLAGS  := -std=c99 -Wall -Wextra
 TARGET  := build/torneo
 SRCS    := $(wildcard src/*.c)
 
-.PHONY: all run clean
+.PHONY: all run clean entrega
 
 all: $(TARGET)
 
@@ -20,3 +20,7 @@ run: all
 
 clean:
 	rm -rf build
+
+# F11.1: genera dist/gran-torneo-pokemon-entrega.zip (paquete de entrega único).
+entrega:
+	bash scripts/empaquetar.sh

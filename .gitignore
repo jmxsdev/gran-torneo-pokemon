@@ -9,6 +9,9 @@ build/
 *.o
 *.out
 
+# Paquete de entrega (F11): regenerable con `make entrega`, NO se versiona
+dist/
+
 # Test output
 /tmp/out.txt
 
