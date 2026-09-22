@@ -1151,7 +1151,48 @@ El lote F9 cumple RF-PRB-01: la batería completa está versionada en el reposit
 
 ---
 
-## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5 + F6 + F7 + F8 + F9)
+## Sección F10 (Día 8) — Documentación final
 
-**PASS WITH WARNINGS por lote; FAIL del envelope por evidencia incompleta del cambio en curso**
-Los lotes F0, F1, F2, F3, F4, F5, F6, F7, F8 y F9 pasan (F3–F9 sin warnings: 0 CRITICAL, 0 blockers; F8 cerró además el WARNING F1 y la SUGGESTION F2 acumulados). El envelope declara `verdict: fail` porque el cambio completo aún no está verificado: quedan F10–F11 (documentación final y entrega) y los parciales DOC-03 de F0 (D1 → F10.1) y DOC-04 (ortografía del Doxyfile → F10.3). Conteos autoritativos contra los 11 specs del cambio (42 requirements / 70 scenarios): **40/42 requirements y 68/70 scenarios verificados** (RF-MEN-01, RF-TEC-02, RF-TEC-03, RF-PDX-01..06, DOC-01/02, RF-ENT-01..03, RF-EQP-01..05, RF-CMB-01..05, RF-TRN-01..06, RF-ELM-01..05, RF-RES-01..04 y RF-CLS-01 completos; DOC-03/DOC-04 parciales). RF-TEC-03 queda verificado por completo con la batería E2E F8 (15/15) y RF-PRB-01 con el gate versionado F9 (23 PASS / 0 FALLA) en las verificaciones formales (2026-09-21). Siguiente lote: F10 (documentación final: informe técnico D1–D10, planificación 14/14, render Doxygen).
+### Completeness
+
+| Tarea | Estado | Evidencia |
+|---|---|---|
+| F10.1 Informe técnico completo (D1–D10 + diagramas) | ✅ | `docs/informe-tecnico.md`: tabla D1–D10 justificada, 6 diagramas Mermaid (graph TD, flowchart TD ×3, stateDiagram-v2, sequenceDiagram), fórmulas D1/D2 + tabla de validación Bulbasaur (niveles 1/12/50/100, cotas v=0/v=15), sección de pruebas, guía de compilación/uso |
+| F10.2 Planificación 14/14 sin drift | ✅ | `docs/planificacion.md`: 12 filas F0–F11 alineadas con tasks.md (drift +1 corregido), F0–F10 ✅ Hecho, F11 🔄 En curso, decisiones del docente 3/3 resueltas |
+| F10.3 Render Doxygen sin warnings | ✅ | `tools/doxygen-1.12.0/bin/doxygen Doxyfile` → exit 0, `docs/doxygen/html/` (135 archivos); log solo con el aviso externo del traductor español de Doxygen — cero warnings del proyecto |
+
+### Matriz de Cumplimiento (DOC-01..04)
+
+| Requisito | Veredicto | Evidencia |
+|---|---|---|
+| DOC-01 (Doxyfile + guía + render) | ✅ COMPLIANT | Doxyfile con `OUTPUT_LANGUAGE=Spanish`, UTF-8, `EXTRACT_ALL`; ortografía corregida; render real ejecutado con exit 0 |
+| DOC-02 (estados de planificación) | ✅ COMPLIANT | Planificación sin drift, estados reales por fase, decisiones resueltas, checklist |
+| DOC-03 (informe con D1 documentada) | ✅ COMPLIANT | Decisión D1 (y D2–D10) justificadas con rationale; diagramas Mermaid finales; cierra el parcial de F0 |
+| DOC-04 (documentación en español) | ✅ COMPLIANT | Doxyfile/README con tildes correctas; cierra el parcial de F0 |
+
+### Evidencia de regresión
+
+- `bash tests/run_tests.sh` → **23 PASS / 0 FALLA**, exit 0 (`test_output_hash da4b87e6…`)
+- `make clean && make` → exit 0, cero warnings (`build_output_hash 22c555a6…`, byte-idéntico a F8/F9)
+- `src/` del lote: solo líneas Doxygen (`@`), cero cambios de lógica (verificado por diff) — F0–F9 funcionalmente intactas
+
+### Envelope (validador nativo)
+
+`gentle-ai sdd-verify-validate --requirements 42 --scenarios 70` → **`valid: true`, `verdict: pass`**, `evidence_revision sha256:fc4ae233…`. El candidato previo con `verdict: fail` fue **rechazado** («fail verdict is contradictory with all-green evidence»: 42/42, 70/70, exit 0, 0 blockers). **El envelope del cambio pasa a `pass`**: los 11 specs quedan 42/42 requisitos y 70/70 escenarios. La entrega (F11/RF-PRB-02) vive en exploration/design, no en los 11 specs formales, pero **bloquea el archive** hasta su verificación.
+
+### Hallazgos (F10)
+
+**CRITICAL**: Ninguno. **WARNING**: Ninguno.
+**SUGGESTION**: (1) el aviso del traductor español de Doxygen es externo y no accionable sin violar DOC-01; (2) `docs/doxygen/` y `tools/` no se versionan por diseño (reproducibles con el binario local o `sudo apt install doxygen`).
+
+### Veredicto F10
+
+**PASS**
+El lote F10 completa la documentación final: informe técnico con D1–D10 justificados y diagramas finales, planificación 14/14 sin drift, render Doxygen real sin warnings del proyecto, y cierra los parciales DOC-03/DOC-04 de F0. Con esto el envelope del cambio alcanza **42/42 requirements y 70/70 scenarios con `verdict: pass`**.
+
+---
+
+## Veredicto global (F0 + F1 + F2 + F3 + F4 + F5 + F6 + F7 + F8 + F9 + F10)
+
+**PASS — envelope `pass` con 42/42 requirements y 70/70 scenarios**
+Los lotes F0–F10 pasan (F3–F10 sin warnings: 0 CRITICAL, 0 blockers; F8 cerró el WARNING F1 y la SUGGESTION F2; F10 cerró los parciales DOC-03/DOC-04). El validador nativo admite `verdict: pass` con evidencia toda verde (`evidence_revision sha256:fc4ae233…`). Queda pendiente la entrega (F11 / RF-PRB-02: empaquetado y compilación sin dependencias externas), que vive en exploration/design y **bloquea el archive** hasta verificarse. Siguiente: F11 (entrega) → archive del cambio.
