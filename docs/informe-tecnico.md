@@ -138,6 +138,35 @@ Cada ejemplar aporta a lo sumo **2 tipos** (primario + secundario), luego si
 `tipos_dist + 2*restantes < min_tipos` la rama es infactible y se corta. Con
 esto, `min_tipos = 18` con 6 ejemplares se descarta en microsegundos.
 
+### 2.3.1 Flujo completo de la formación automática: del formulario al backtracking
+
+La formación automática sigue el patrón **TDA**: el tipo `RestriccionesEquipo` es
+un *formulario* (solo datos) que se llena en `main.c` y que las funciones de
+`equipo.c` validan y consumen. La lógica nunca vive en el struct: vive en las
+funciones que lo reciben como `const RestriccionesEquipo *`.
+
+```mermaid
+flowchart TD
+    A["Menú: opción 3 → submenú → opción 2 (formación automática)"] --> B["1) LLENAR el formulario (struct RestriccionesEquipo)"]
+    B --> B1["cantidad ← validar_leer_entero_msg(1..MAX_EQUIPO)"]
+    B1 --> B2["nivel_total_max ← validar(1..INT_MAX)"]
+    B2 --> B3["min_tipos ← validar(1..CANT_TIPOS)"]
+    B3 --> B4["ataque_total_min=0 · permitir_repetidas=false · cantidad_permitidas=0 (todas)"]
+    B4 --> C["2) ENTREGAR: equipo_formar_backtracking(pd, &restricciones, &equipo, &cantidad)"]
+    C --> D{"3) VALIDAR el formulario (equipo.c):\ncantidad 1..MAX_EQUIPO · nivel_total_max >= 1\nmin_tipos 1..CANT_TIPOS · Pokédex cargada"}
+    D -- "inválido" --> E["false → 'No existe un equipo que cumpla las restricciones'"]
+    D -- "válido" --> F["4) BUSCAR: bt_rec con podas\n(lee r->cantidad, r->nivel_total_max, r->min_tipos, r->ataque_total_min…)"]
+    F -- "solución" --> G["equipo_asignar(ent, equipo) · entrenadores_sucios = true\nse muestra el equipo generado"]
+    F -- "sin solución" --> H["'No existe un equipo que cumpla las restricciones'"]
+```
+
+**Los campos del formulario son la traducción directa de la sección 1.5 del
+enunciado** (cantidad determinada, nivel total máximo, mínimo de tipos
+diferentes, estadísticas objetivo, restricciones sobre integrantes): cada
+condición pedida por el PDF es un campo del struct. Agregar una restricción
+nueva solo exige un campo nuevo y su uso en `bt_rec` — el resto del sistema no
+se modifica.
+
 ### 2.4 Máquina de estados del torneo — FINAL
 
 ```mermaid
