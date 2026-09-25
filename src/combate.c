@@ -111,13 +111,15 @@ bool combate_ataca_primero(const Ejemplar *local, const Ejemplar *visita)
  * Aplica un ataque dentro de un turno: calcula el daño, lo imprime en la
  * traza, lo aplica a hp_actual (piso 0) y, ante KO, suma el derrotado al
  * atacante y pide un reemplazo al defensor (si no tiene, el atacante gana).
- * Devuelve el id del ganador (0 si el combate continúa; -1 si se cancela).
+ *
+ * @param ganador id del ganador, 0 si el combate continúa o -1 si se canceló
+ *                por EOF.
  */
-static int combate_atacar(int turno, Entrenador *atacante_ent,
-                          Entrenador *defensor_ent, Ejemplar *atacante,
-                          Ejemplar **defensor, bool atacante_es_local,
-                          CombateSeleccionar seleccionar,
-                          ResultadoCombate *res)
+static void combate_atacar(int turno, Entrenador *atacante_ent,
+                           Entrenador *defensor_ent, Ejemplar *atacante,
+                           Ejemplar **defensor, bool atacante_es_local,
+                           CombateSeleccionar seleccionar,
+                           ResultadoCombate *res, int *ganador)
 {
     int danio = combate_calcular_danio(atacante, *defensor);
 
@@ -135,7 +137,8 @@ static int combate_atacar(int turno, Entrenador *atacante_ent,
                (*defensor)->hp_actual, (*defensor)->hp_max);
     }
     if ((*defensor)->hp_actual > 0) {
-        return 0;
+        *ganador = 0;
+        return;
     }
 
     /* KO (RF-CMB-04): el atacante suma un derrotado y el defensor elige
@@ -147,14 +150,16 @@ static int combate_atacar(int turno, Entrenador *atacante_ent,
         res->kos_visita++;
     }
     if (combate_disponibles(defensor_ent) == 0) {
-        return atacante_ent->id;
+        *ganador = atacante_ent->id;
+        return;
     }
     *defensor = combate_seleccionar_activo(defensor_ent, "reemplazo",
                                            seleccionar);
     if (*defensor == NULL) {
-        return -1;   /* entrada terminada: combate cancelado */
+        *ganador = -1;   /* entrada terminada: combate cancelado */
+        return;
     }
-    return 0;
+    *ganador = 0;
 }
 
 /**
@@ -184,9 +189,9 @@ static int combate_total_nivel(const Entrenador *ent)
 }
 
 /* Implementación de combate_ejecutar: documentación canónica en combate.h. */
-bool combate_ejecutar(Entrenador *local, Entrenador *visita,
+void combate_ejecutar(Entrenador *local, Entrenador *visita,
                       bool es_eliminatoria, CombateSeleccionar seleccionar,
-                      ResultadoCombate *res)
+                      ResultadoCombate *res, bool *exito)
 {
     Ejemplar *activo_local;
     Ejemplar *activo_visita;
@@ -195,10 +200,12 @@ bool combate_ejecutar(Entrenador *local, Entrenador *visita,
 
     if (local == NULL || visita == NULL || seleccionar == NULL ||
         res == NULL) {
-        return false;
+        *exito = false;
+        return;
     }
     if (equipo_contar(local) < 1 || equipo_contar(visita) < 1) {
-        return false;
+        *exito = false;
+        return;
     }
 
     res->empate = false;
@@ -215,12 +222,14 @@ bool combate_ejecutar(Entrenador *local, Entrenador *visita,
     activo_local = combate_seleccionar_activo(local, "local", seleccionar);
     if (activo_local == NULL) {
         printf("Combate cancelado.\n");
-        return false;
+        *exito = false;
+        return;
     }
     activo_visita = combate_seleccionar_activo(visita, "visita", seleccionar);
     if (activo_visita == NULL) {
         printf("Combate cancelado.\n");
-        return false;
+        *exito = false;
+        return;
     }
 
     for (turno = 1; turno <= MAX_TURNOS_COMBATE && ganador == 0; turno++) {
@@ -256,23 +265,25 @@ bool combate_ejecutar(Entrenador *local, Entrenador *visita,
         }
 
         /* Intercambio completo: ataca primero y luego el segundo activo. */
-        g = combate_atacar(turno, local_primero ? local : visita,
-                           local_primero ? visita : local, primero, &segundo,
-                           local_primero, seleccionar, res);
+        combate_atacar(turno, local_primero ? local : visita,
+                       local_primero ? visita : local, primero, &segundo,
+                       local_primero, seleccionar, res, &g);
         if (g == -1) {
             printf("Combate cancelado.\n");
-            return false;
+            *exito = false;
+            return;
         }
         if (g != 0) {
             ganador = g;
             break;
         }
-        g = combate_atacar(turno, local_primero ? visita : local,
-                           local_primero ? local : visita, segundo, &primero,
-                           !local_primero, seleccionar, res);
+        combate_atacar(turno, local_primero ? visita : local,
+                       local_primero ? local : visita, segundo, &primero,
+                       !local_primero, seleccionar, res, &g);
         if (g == -1) {
             printf("Combate cancelado.\n");
-            return false;
+            *exito = false;
+            return;
         }
         if (g != 0) {
             ganador = g;
@@ -291,7 +302,8 @@ bool combate_ejecutar(Entrenador *local, Entrenador *visita,
                ganador == local->id ? local->nombre : visita->nombre,
                ganador == local->id ? visita->nombre : local->nombre,
                res->kos_local, res->kos_visita);
-        return true;
+        *exito = true;
+        return;
     }
 
     /* 20 turnos completados con ambos equipos vivos (D4/D5). */
@@ -322,5 +334,5 @@ bool combate_ejecutar(Entrenador *local, Entrenador *visita,
         printf("Empate tras %d turnos (fase de grupos).\n",
                MAX_TURNOS_COMBATE);
     }
-    return true;
+    *exito = true;
 }

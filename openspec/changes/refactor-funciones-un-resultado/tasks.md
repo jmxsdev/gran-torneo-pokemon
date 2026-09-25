@@ -70,11 +70,11 @@ Chain strategy: pending
 
 ## R3 — combate (2 conversiones)
 
-- [ ] **R3.1** Firma `combate.h` (`combate_ejecutar`→`void(…,bool *exito)`). Ref §3 #10.
-- [ ] **R3.2** Cuerpos `combate.c`: `combate_ejecutar` (8 salidas: params, equipos vacíos, 4 cancelaciones EOF, victoria, turno 20 — checklist `*exito`) y `combate_atacar` (static, `*ganador`∈{0,id,-1}, D-B). Ref §3 #10–11.
-- [ ] **R3.3** Llamadores internos `combate.c` ~259, ~270 (`combate_atacar(…,&g)`; `if(g==-1)`/`if(g!=0)` intactos). Ref §5 L3.
-- [ ] **R3.4** Llamador `main.c` `jugar_combate` ~502. Ref §5 L3.
-- [ ] **R3.5** Probes: `probe_efectividad.c` 9× `combate_ejecutar` (3 validación→`exito==false`, 6→`exito==true`+res). Ref §6.
+- [x] **R3.1** Firma `combate.h` (`combate_ejecutar`→`void(…,bool *exito)`). Ref §3 #10.
+- [x] **R3.2** Cuerpos `combate.c`: `combate_ejecutar` (8 salidas: params, equipos vacíos, 4 cancelaciones EOF, victoria, turno 20 — checklist `*exito`) y `combate_atacar` (static, `*ganador`∈{0,id,-1}, D-B). Ref §3 #10–11.
+- [x] **R3.3** Llamadores internos `combate.c` ~259, ~270 (`combate_atacar(…,&g)`; `if(g==-1)`/`if(g!=0)` intactos). Ref §5 L3.
+- [x] **R3.4** Llamador `main.c` `jugar_combate` ~502. Ref §5 L3.
+- [x] **R3.5** Probes: `probe_efectividad.c` 9× `combate_ejecutar` (3 validación→`exito==false`, 6→`exito==true`+res). Ref §6.
 
 **GATE R3**: `make` + `run_tests.sh` 23 PASS + goldens idénticos (casos 012–014).
 

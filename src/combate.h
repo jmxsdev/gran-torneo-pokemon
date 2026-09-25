@@ -85,12 +85,13 @@ bool combate_ataca_primero(const Ejemplar *local, const Ejemplar *visita);
  *                      D5); false si es de fase de grupos (empate D4).
  * @param seleccionar   Función que elige el Pokémon activo (no NULL).
  * @param res           Puntero donde se escribe el resultado (no NULL).
- * @return true si el combate se ejecutó y *res quedó definido; false si los
- *         parámetros son inválidos, un equipo está vacío o el combate se
- *         canceló por fin de entrada (EOF).
+ * @param exito         Puntero donde se escribe true si el combate se ejecutó
+ *                      y *res quedó definido; false si los parámetros son
+ *                      inválidos, un equipo está vacío o el combate se
+ *                      canceló por fin de entrada (EOF) (no debe ser NULL).
  */
-bool combate_ejecutar(Entrenador *local, Entrenador *visita,
+void combate_ejecutar(Entrenador *local, Entrenador *visita,
                       bool es_eliminatoria, CombateSeleccionar seleccionar,
-                      ResultadoCombate *res);
+                      ResultadoCombate *res, bool *exito);
 
 #endif /* COMBATE_H */

@@ -204,7 +204,8 @@ int main(void)
     b = crear_entrenador(2, "Visita");
     crear_ejemplar(b, TIPO_NORMAL, TIPO_NINGUNO, 100, 10, 10, 10, 10, "N1");
     crear_ejemplar(b, TIPO_NORMAL, TIPO_NINGUNO, 100, 10, 10, 10, 10, "N2");
-    verificar(combate_ejecutar(a, b, false, stub_seleccionar, &res) == true,
+    combate_ejecutar(a, b, false, stub_seleccionar, &res, &exito);
+    verificar(exito == true,
               "D4 ejecución de combate en grupos OK");
     verificar(res.empate == true && res.id_ganador == 0 &&
               res.kos_local == 0 && res.kos_visita == 0,
@@ -219,7 +220,8 @@ int main(void)
     b = crear_entrenador(2, "Visita");
     crear_ejemplar(b, TIPO_NORMAL, TIPO_NINGUNO, 80, 10, 10, 10, 30, "N1");
     crear_ejemplar(b, TIPO_NORMAL, TIPO_NINGUNO, 80, 10, 10, 10, 30, "N2");
-    verificar(combate_ejecutar(a, b, true, stub_seleccionar, &res) == true,
+    combate_ejecutar(a, b, true, stub_seleccionar, &res, &exito);
+    verificar(exito == true,
               "D5a ejecución en eliminatoria OK");
     verificar(res.empate == false && res.id_ganador == 1,
               "D5a gana por mayor HP total (200 vs 160) -> local");
@@ -233,8 +235,8 @@ int main(void)
     b = crear_entrenador(2, "Visita");
     crear_ejemplar(b, TIPO_NORMAL, TIPO_NINGUNO, 100, 10, 10, 10, 15, "N1");
     crear_ejemplar(b, TIPO_NORMAL, TIPO_NINGUNO, 100, 10, 10, 10, 15, "N2");
-    verificar(combate_ejecutar(a, b, true, stub_seleccionar, &res) == true &&
-              res.empate == false && res.id_ganador == 2,
+    combate_ejecutar(a, b, true, stub_seleccionar, &res, &exito);
+    verificar(exito == true && res.empate == false && res.id_ganador == 2,
               "D5b HP empatado -> gana por mayor nivel total (30 vs 20)");
     liberar_entrenador(a);
     liberar_entrenador(b);
@@ -246,8 +248,8 @@ int main(void)
     b = crear_entrenador(2, "Visita");
     crear_ejemplar(b, TIPO_NORMAL, TIPO_NINGUNO, 100, 10, 10, 10, 10, "N1");
     crear_ejemplar(b, TIPO_NORMAL, TIPO_NINGUNO, 100, 10, 10, 10, 10, "N2");
-    verificar(combate_ejecutar(a, b, true, stub_seleccionar, &res) == true &&
-              res.empate == false && res.id_ganador == 1,
+    combate_ejecutar(a, b, true, stub_seleccionar, &res, &exito);
+    verificar(exito == true && res.empate == false && res.id_ganador == 1,
               "D5c HP y nivel empatados -> gana el entrenador 1");
     liberar_entrenador(a);
     liberar_entrenador(b);
@@ -257,8 +259,8 @@ int main(void)
     crear_ejemplar(a, TIPO_AGUA, TIPO_NINGUNO, 10, 10, 10, 10, 10, "W1");
     b = crear_entrenador(2, "Visita");
     crear_ejemplar(b, TIPO_ELECTRICO, TIPO_NINGUNO, 100, 100, 50, 50, 50, "E1");
-    verificar(combate_ejecutar(a, b, false, stub_seleccionar, &res) == true &&
-              res.empate == false && res.id_ganador == 2 &&
+    combate_ejecutar(a, b, false, stub_seleccionar, &res, &exito);
+    verificar(exito == true && res.empate == false && res.id_ganador == 2 &&
               res.kos_visita == 1 && res.kos_local == 0,
               "CMB-04 victoria por agotamiento (KO sin reemplazo)");
     liberar_entrenador(a);
@@ -270,8 +272,8 @@ int main(void)
     crear_ejemplar(a, TIPO_AGUA, TIPO_NINGUNO, 10, 10, 10, 10, 10, "W2");
     b = crear_entrenador(2, "Visita");
     crear_ejemplar(b, TIPO_ELECTRICO, TIPO_NINGUNO, 100, 100, 50, 50, 50, "E1");
-    verificar(combate_ejecutar(a, b, false, stub_seleccionar, &res) == true &&
-              res.empate == false && res.id_ganador == 2 &&
+    combate_ejecutar(a, b, false, stub_seleccionar, &res, &exito);
+    verificar(exito == true && res.empate == false && res.id_ganador == 2 &&
               res.kos_visita == 2,
               "CMB-04 KO con reemplazo: se elige otro Pokémon y se continúa");
     liberar_entrenador(a);
@@ -280,13 +282,13 @@ int main(void)
     /* ---- Validación de parámetros ------------------------------------- */
     a = crear_entrenador(1, "Local");
     crear_ejemplar(a, TIPO_NORMAL, TIPO_NINGUNO, 50, 20, 20, 20, 10, "N1");
-    verificar(combate_ejecutar(a, NULL, false, stub_seleccionar, &res) ==
-              false, "validación: entrenador NULL -> false");
-    verificar(combate_ejecutar(a, a, false, NULL, &res) == false,
-              "validación: seleccionar NULL -> false");
+    combate_ejecutar(a, NULL, false, stub_seleccionar, &res, &exito);
+    verificar(exito == false, "validación: entrenador NULL -> false");
+    combate_ejecutar(a, a, false, NULL, &res, &exito);
+    verificar(exito == false, "validación: seleccionar NULL -> false");
     b = crear_entrenador(2, "Visita");   /* equipo vacío */
-    verificar(combate_ejecutar(a, b, false, stub_seleccionar, &res) == false,
-              "validación: equipo vacío -> false");
+    combate_ejecutar(a, b, false, stub_seleccionar, &res, &exito);
+    verificar(exito == false, "validación: equipo vacío -> false");
     liberar_entrenador(a);
     liberar_entrenador(b);
 

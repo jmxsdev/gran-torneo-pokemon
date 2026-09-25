@@ -467,6 +467,7 @@ static void jugar_combate(const Pokedex *pd, RegistroEntrenadores *reg)
     Entrenador *local;
     Entrenador *visita;
     ResultadoCombate res;
+    bool exito;
 
     printf("\n--- Combate amistoso ---\n");
     printf("1. Fase de grupos (admite empate)\n");
@@ -509,8 +510,9 @@ static void jugar_combate(const Pokedex *pd, RegistroEntrenadores *reg)
         return;
     }
 
-    if (!combate_ejecutar(local, visita, modo == 2,
-                          seleccionar_pokemon_activo, &res)) {
+    combate_ejecutar(local, visita, modo == 2,
+                     seleccionar_pokemon_activo, &res, &exito);
+    if (!exito) {
         printf("El combate no se pudo ejecutar.\n");
         return;
     }
