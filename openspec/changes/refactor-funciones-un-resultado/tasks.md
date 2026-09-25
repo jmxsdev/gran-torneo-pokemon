@@ -97,4 +97,4 @@ Chain strategy: pending
 - [x] **R5.2** `docs/informe-tecnico.md`: §2.1 (`wc -l`), §2.3 mermaid (`*exito=true`), §3.1 viñeta, nueva §3.2. Buscar firmas `bool`/`res` citadas. Ref design §8.
 - [x] **R5.3** `docs/apuntes-tecnicos.md`: §4 tercer uso de `void`, §5 snippet `bool exito;` + `archivos_guardar_entrenadores(…,&exito)`. Ref design §8.
 - [x] **R5.4** `docs/trazabilidad-requisitos.md`: anotar RF-TEC-03 (`validar_leer_cadena/separar_campos` son `void`). Ref design §8 (opcional).
-- [ ] **R5.5** Auditoría final: `rg -n '^\s*(bool|int|float)\s+\w+\(' src/*.h` lista solo sección 4; `run_tests.sh` 23 PASS; `sha256sum` goldens byte a byte; `git status --porcelain tests/casos/ data/` vacío. Ref §9.
+- [x] **R5.5** Auditoría final: `rg -n '^\s*(bool|int|float)\s+\w+\(' src/*.h` lista solo sección 4; `run_tests.sh` 23 PASS; `sha256sum` goldens byte a byte; `git status --porcelain tests/casos/ data/` vacío. Ref §9.
