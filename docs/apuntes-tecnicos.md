@@ -124,12 +124,13 @@ batería F8 verifica "EOF a media entrada → exit 0, sin colgar".
 
 ---
 
-## 4. `void`: dos significados según su posición
+## 4. `void`: tres significados en el proyecto
 
 | Posición | Significado | Ejemplo del proyecto |
 |---|---|---|
 | Antes del nombre (retorno) | No devuelve nada | `static void mostrar_menu(void)` |
 | En la lista de parámetros `(void)` | No recibe nada | `leer_opcion(void)` |
+| Retorno `void` + parámetros por referencia | Procedimiento multi-salida: entrega sus resultados escribiendo los punteros | `void validar_leer_cadena(..., bool *exito)` |
 
 Son dimensiones independientes:
 
@@ -137,7 +138,18 @@ Son dimensiones independientes:
 static void mostrar_menu(void)                    // no retorna, no recibe
 static void consultar_pokedex(const Pokedex *pd)  // no retorna, RECIBE un puntero
 static int  leer_opcion(void)                     // retorna int, no recibe
+void validar_leer_cadena(const char *msg, char *buf, size_t n,
+                         bool *exito)             // no retorna; ESCRIBE *exito
 ```
+
+El **tercer uso** es la convención del curso (refactor 2026-09-25): cuando una
+operación produce más de un resultado — p. ej. `validar_leer_cadena` escribe el
+`buf` y además el éxito — se declara `void` y las salidas viajan por parámetros
+por referencia, con el éxito al final (`bool *exito`). Es la diferencia entre
+**función** (devuelve un único valor con `return`) y **procedimiento** (entrega
+sus resultados por referencia). Las 23 funciones que devolvían `bool`/`int` y
+además mutaban parámetros se convirtieron a este patrón; las puras (un solo
+`return`) se conservan como funciones.
 
 La opción 1 del menú ejecuta `consultar_pokedex(const Pokedex *pd)`: recibe un
 **puntero** a la Pokédex (no una copia — sería inútil copiar 150 especies) y el
@@ -149,8 +161,11 @@ Pokédex, requisito central).
 Convención usada en todo el proyecto.
 
 > **Frase de defensa**: "`void` como retorno significa que no devuelve nada;
-> `(void)` en los parámetros significa que no recibe nada. Lo que una función
-> recibe lo define su lista de parámetros, no el `void`."
+> `(void)` en los parámetros significa que no recibe nada; y `void` con
+> parámetros por referencia es el procedimiento multi-salida de la convención:
+> la operación entrega sus resultados escribiendo los punteros, con el éxito al
+> final. Lo que una función recibe lo define su lista de parámetros, no el
+> `void`."
 
 ---
 
@@ -162,16 +177,22 @@ Responde a una pregunta: **¿los datos en memoria difieren de los del disco?**
 static bool entrenadores_sucios = false;   // arranca limpio
 
 // Se marca en los TRES puntos donde se MUTAN los entrenadores:
-entrenadores_sucios = true;   // registrar entrenador (línea 179)
-entrenadores_sucios = true;   // formar equipo automático (239)
-entrenadores_sucios = true;   // crear equipo manual (292)
+entrenadores_sucios = true;   // registrar entrenador (línea 184)
+entrenadores_sucios = true;   // formar equipo automático (246)
+entrenadores_sucios = true;   // crear equipo manual (299)
 
 // Al salir (opción 12) se consulta:
 static void guardar_al_salir(const RegistroEntrenadores *reg)
 {
+    bool exito;
+
     if (entrenadores_sucios) {            // solo si hubo cambios
-        archivos_guardar_entrenadores(reg, RUTA_ENTRENADORES);
-        ...
+        archivos_guardar_entrenadores(reg, RUTA_ENTRENADORES, &exito);
+        if (exito) {
+            printf("Entrenadores guardados en %s.\n", RUTA_ENTRENADORES);
+        } else {
+            printf("Aviso: no se pudieron guardar los entrenadores.\n");
+        }
     }
 }
 ```

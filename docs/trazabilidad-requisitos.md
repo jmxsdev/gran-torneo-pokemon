@@ -151,7 +151,7 @@ La columna **Verificación** indica el lote de la batería de pruebas
 
 | Código | Requisito | Esc. | Implementación | Verificación |
 |---|---|---|---|---|
-| RF-TEC-03 | Validación de entradas | 6 | `src/validacion.c` (`validar_leer_entero/cadena`, `validar_separar_campos`) | F8 · verify §F8 |
+| RF-TEC-03 | Validación de entradas | 6 | `src/validacion.c` (`validar_leer_entero*` con retorno único; `validar_leer_cadena` y `validar_separar_campos` como procedimientos `void` con salida por referencia, refactor 2026-09-25) | F8 · verify §F8 |
 
 ### Documentación — `openspec/specs/documentacion/spec.md`
 

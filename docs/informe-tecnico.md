@@ -66,16 +66,20 @@ Contratos por módulo (resumen de la implementación final):
 
 | Módulo | Responsabilidad única | Líneas |
 |---|---|---|
-| `main.c` | Menú de 12 opciones (RF-MEN-01), carga inicial, despacho; cero lógica de negocio | 764 |
-| `pokedex.c` | Carga estricta de las 150 especies (D8), búsquedas por número/nombre, mostrado | 311 |
-| `tipos.c` | Enum de 18 tipos, matriz `float[18][18]` (MINOR-1: vive en `.c`), multiplicador | 307 |
-| `entrenador.c` | Registro con id único (RF-ENT-02), búsqueda, listado | 104 |
-| `equipo.c` | Ejemplar desde especie (D2), validación (RF-EQP-05), liberación, **backtracking** (RF-EQP-04) | 513 |
-| `combate.c` | Daño D1, orden D3, KO/reemplazo (RF-CMB-04), empate D4 / anti-empate D5 | 366 |
-| `torneo.c` | Grupos A–H, calendario 1–48, clasificación RF-TRN-04, bracket 49–64, campeón | 798 |
-| `resultados.c` | Carga teclado/archivo, validación completa (RF-RES-02), pendientes | 373 |
-| `archivos.c` | E/S de `entrenadores.txt`, `resultados.txt`, `clasificacion.txt` | 358 |
-| `validacion.c` | Lectura segura con reintentos y EOF (RF-TEC-03), separación de campos | 130 |
+| `main.c` | Menú de 12 opciones (RF-MEN-01), carga inicial, despacho; cero lógica de negocio | 794 |
+| `pokedex.c` | Carga estricta de las 150 especies (D8), búsquedas por número/nombre, mostrado | 308 |
+| `tipos.c` | Enum de 18 tipos, matriz `float[18][18]` (MINOR-1: vive en `.c`), multiplicador | 285 |
+| `entrenador.c` | Registro con id único (RF-ENT-02), búsqueda, listado | 80 |
+| `equipo.c` | Ejemplar desde especie (D2), validación (RF-EQP-05), liberación, **backtracking** (RF-EQP-04) | 467 |
+| `combate.c` | Daño D1, orden D3, KO/reemplazo (RF-CMB-04), empate D4 / anti-empate D5 | 337 |
+| `torneo.c` | Grupos A–H, calendario 1–48, clasificación RF-TRN-04, bracket 49–64, campeón | 818 |
+| `resultados.c` | Carga teclado/archivo, validación completa (RF-RES-02), pendientes | 398 |
+| `archivos.c` | E/S de `entrenadores.txt`, `resultados.txt`, `clasificacion.txt` | 340 |
+| `validacion.c` | Lectura segura con reintentos y EOF (RF-TEC-03), separación de campos | 134 |
+
+> Conteos `wc -l` recalculados tras el refactor de convención (2026-09-26): los
+> módulos tocados cambiaron de tamaño al convertir 23 funciones a `void` con
+> salida por referencia.
 
 ### 2.2 Flujo de combate (D1, D3, D4, D5) — FINAL
 
@@ -111,7 +115,7 @@ solución (salida temprana).
 flowchart TD
     A["bt_rec(i, restantes, nivel_acum, tipos_dist, ataque_acum,\nmáscara de tipos, parcial, creados)"] --> B{"restantes == 0?"}
     B -- "sí" --> C{"tipos_dist >= min_tipos Y\nataque_acum >= ataque_total_min?"}
-    C -- "sí" --> D["SOLUCIÓN: propagar true (primera hallada)"]
+    C -- "sí" --> D["SOLUCIÓN: propagar `*exito = true` (primera hallada)"]
     C -- "no" --> E["retroceder: false"]
     B -- "no" --> F{"poda cantidad:\nrestantes > POKEDEX_MAX - i ?"}
     F -- "sí" --> E
@@ -296,6 +300,62 @@ menores, todas documentadas en `tasks.md` y en los apply-progress de cada lote:
 3. **Migración de lecturas** (F8): todos los bucles de entrada de `main` y
    `resultados` pasaron a `validacion.c`; EOF ⇒ cierre ordenado (ninguna
    función de validación llama a `exit` — garantía §8.1 del diseño).
+4. **Convención de funciones de un solo resultado** (2026-09-25, resolución del
+   docente): 23 funciones que devolvían `bool`/`int` y además mutaban
+   almacenamiento visible pasaron a procedimientos `void` con salida por
+   referencia (`bool *exito`, `int *n`, `int *id`, `int *ganador`). Gate
+   verificado: `make` cero warnings, batería 23 PASS / 0 FALLA y los 20 goldens
+   sin regenerar. Detalle en §3.2.
+
+---
+
+## 3.2 Convención de funciones de un solo resultado (refactor 2026-09-25)
+
+El docente fijó la regla: **toda función no-void devuelve exactamente un
+resultado** mediante `return`, y una función no-void NO modifica valores a
+través de sus parámetros (ni por referencia, ni archivos escritos, ni
+contadores globales). Las operaciones con más de una salida se expresan como
+**procedimiento `void`** con parámetros por referencia, incluida la salida de
+éxito al final:
+
+```c
+/* Antes (dos resultados): el bool + el out/archivo/contador */
+bool f(..., X *out);
+
+/* Después (procedimiento, éxito al FINAL) */
+void f(..., X *out, bool *exito);
+
+/* Llamador */
+bool exito;
+f(..., &out, &exito);
+if (!exito) { /* mensaje idéntico al actual */ }
+```
+
+La conversión es mecánica y sin cambio observable: cada `return V;` del cuerpo
+pasó a `*exito = V; return;`, los llamadores separaron la llamada del uso de la
+variable local, y los textos de `printf`/`msg` y el orden de sentencias no se
+tocaron (los 20 goldens se verificaron byte a byte). Los nombres se conservan.
+
+Excepciones (funciones que NO se convirtieron, por ser de retorno único):
+
+| Función(es) | Firma | Por qué se conserva |
+|---|---|---|
+| `combate_calcular_danio` | `int (const, const)` | Pura: parámetros `const`, un único resultado |
+| `tipos_multiplicador` | `float (Tipo, Tipo, Tipo)` | Pura; matriz estática de solo lectura |
+| `tipos_a_texto` | `const char *(Tipo)` | Pura, retorno único |
+| `combate_ataca_primero` | `bool (const, const)` | Pura, retorno único |
+| `equipo_contar` | `int (const Entrenador *)` | Consulta pura sobre lista enlazada |
+| `equipo_validar` | `bool (const, const, int)` | Chequeo puro, sin mutación |
+| `entrenador_buscar` | `Entrenador *(RegistroEntrenadores *, int)` | Devuelve puntero a un elemento; no escribe el registro |
+| `pokedex_buscar_numero/nombre` | `const Especie *(…, …)` | Búsquedas de retorno único |
+| `equipo_crear_ejemplar` | `Ejemplar *(…, int id)` | El ejemplar creado ES el único resultado |
+| `validar_leer_entero*` | `int (…)` | Retorno único (rango/EOF codificados); stdin es entrada, no salida |
+
+Tres procedimientos conservan un **centinela entero** en lugar de `bool *exito`
+porque su entero agota la información (design §2 D-B): `validar_separar_campos`
+(`int *n`, 0 = entrada inválida), `equipo_siguiente_id` (`int *id`, siempre
+éxito) y `combate_atacar` (`int *ganador` ∈ {-1 cancelado, 0 continúa, id
+ganador}).
 
 ---
 
