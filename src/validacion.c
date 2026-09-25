@@ -70,16 +70,19 @@ int validar_leer_entero_msg(const char *mensaje, int min, int max,
     return leer_entero_validado(mensaje, min, max, msg_invalido);
 }
 
-bool validar_leer_cadena(const char *mensaje, char *buf, size_t n)
+void validar_leer_cadena(const char *mensaje, char *buf, size_t n,
+                         bool *exito)
 {
     size_t largo;
 
     if (buf == NULL || n == 0) {
-        return false;
+        *exito = false;
+        return;
     }
     printf("%s", mensaje);
     if (fgets(buf, (int)n, stdin) == NULL) {
-        return false;   /* EOF: cierre ordenado decidido por el llamador */
+        *exito = false;   /* EOF: cierre ordenado decidido por el llamador */
+        return;
     }
     largo = strlen(buf);
     if (largo > 0 && buf[largo - 1] == '\n') {
@@ -98,16 +101,18 @@ bool validar_leer_cadena(const char *mensaje, char *buf, size_t n)
             /* descartar */
         }
     }
-    return true;
+    *exito = true;
 }
 
-int validar_separar_campos(char *linea, char *campos[], int max_campos)
+void validar_separar_campos(char *linea, char *campos[], int max_campos,
+                            int *n)
 {
-    int n = 0;
+    int n_campos = 0;
     char *p;
 
     if (linea == NULL || campos == NULL || max_campos <= 0) {
-        return 0;
+        *n = 0;
+        return;
     }
     p = linea;
     for (;;) {
@@ -115,10 +120,10 @@ int validar_separar_campos(char *linea, char *campos[], int max_campos)
         while (*p != '\0' && *p != ';') {
             p++;
         }
-        if (n < max_campos) {
-            campos[n] = inicio;
+        if (n_campos < max_campos) {
+            campos[n_campos] = inicio;
         }
-        n++;
+        n_campos++;
         if (*p == ';') {
             *p = '\0';
             p++;
@@ -126,5 +131,5 @@ int validar_separar_campos(char *linea, char *campos[], int max_campos)
         }
         break;   /* fin de la línea */
     }
-    return n;
+    *n = n_campos;
 }

@@ -58,7 +58,7 @@ static void pokedex_normalizar(const char *entrada, char *salida)
 }
 
 /* Implementación de pokedex_cargar: documentación canónica en pokedex.h. */
-bool pokedex_cargar(Pokedex *pd, const char *ruta)
+void pokedex_cargar(Pokedex *pd, const char *ruta, bool *exito)
 {
     FILE *archivo;
     char linea[TAM_MAX_LINEA];
@@ -68,7 +68,8 @@ bool pokedex_cargar(Pokedex *pd, const char *ruta)
     int vistos[POKEDEX_MAX + 1];
 
     if (pd == NULL || ruta == NULL) {
-        return false;
+        *exito = false;
+        return;
     }
 
     pd->cantidad = 0;
@@ -77,7 +78,8 @@ bool pokedex_cargar(Pokedex *pd, const char *ruta)
     archivo = fopen(ruta, "r");
     if (archivo == NULL) {
         printf("Error: no se pudo abrir el archivo de la Pokédex: %s\n", ruta);
-        return false;
+        *exito = false;
+        return;
     }
 
     while (fgets(linea, (int)sizeof(linea), archivo) != NULL) {
@@ -88,6 +90,7 @@ bool pokedex_cargar(Pokedex *pd, const char *ruta)
         int hp, ataque, defensa, velocidad;
         Especie *esp;
         size_t largo;
+        bool ok1, ok2;
 
         numero_linea++;
 
@@ -105,7 +108,7 @@ bool pokedex_cargar(Pokedex *pd, const char *ruta)
            campos vacios (';;') para no desplazar los campos siguientes y se
            rechaza cualquier exceso de campos (cierre del hallazgo
            SUGGESTION F2). */
-        ncampos = validar_separar_campos(linea, campos, 8);
+        validar_separar_campos(linea, campos, 8, &ncampos);
         if (ncampos != 8) {
             printf("Error en %s linea %d: se esperaban 8 campos y se "
                    "encontraron %d.\n", ruta, numero_linea, ncampos);
@@ -150,10 +153,14 @@ bool pokedex_cargar(Pokedex *pd, const char *ruta)
             continue;
         }
 
-        /* Validacion de tipos (RF-PDX-03). */
+        /* Validacion de tipos (RF-PDX-03). D-F: sin cortocircuito, se
+           consultan ambos tipos y se decide con la conjunción de los
+           resultados (el cuerpo de tipos_es_valido solo escribe *salida
+           en éxito). */
         esp = &pd->especies[cargadas];
-        if (!tipos_es_valido(campos[2], &esp->tipo_primario) ||
-            !tipos_es_valido(campos[3], &esp->tipo_secundario)) {
+        tipos_es_valido(campos[2], &esp->tipo_primario, &ok1);
+        tipos_es_valido(campos[3], &esp->tipo_secundario, &ok2);
+        if (!ok1 || !ok2) {
             printf("Error en %s linea %d: tipo invalido.\n", ruta,
                    numero_linea);
             errores++;
@@ -186,18 +193,20 @@ bool pokedex_cargar(Pokedex *pd, const char *ruta)
         printf("Error: la Pokédex no se cargó (se descartaron %d línea(s) "
                "con errores); quedó vacía.\n", errores);
         pd->cantidad = 0;
-        return false;
+        *exito = false;
+        return;
     }
 
     if (cargadas != POKEDEX_MAX) {
         printf("Error: %s debe contener exactamente %d especies y tiene "
                "%d; la Pokédex quedó vacía.\n", ruta, POKEDEX_MAX, cargadas);
         pd->cantidad = 0;
-        return false;
+        *exito = false;
+        return;
     }
 
     pd->cantidad = cargadas;
-    return true;
+    *exito = true;
 }
 
 /**

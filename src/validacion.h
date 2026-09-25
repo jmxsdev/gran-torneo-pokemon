@@ -56,10 +56,11 @@ int validar_leer_entero_msg(const char *mensaje, int min, int max,
  * @param mensaje Texto que se muestra como prompt (no debe ser NULL).
  * @param buf     Buffer donde se escribe la cadena (no debe ser NULL).
  * @param n       Capacidad del buffer en bytes (debe ser > 0).
- * @return true si se leyó una línea; false ante EOF (el llamador decide el
- *         cierre ordenado).
+ * @param exito   true si se leyó una línea; false ante EOF (el llamador
+ *                decide el cierre ordenado).
  */
-bool validar_leer_cadena(const char *mensaje, char *buf, size_t n);
+void validar_leer_cadena(const char *mensaje, char *buf, size_t n,
+                         bool *exito);
 
 /**
  * @brief Separa una línea en campos por ';' SIN omitir campos vacíos.
@@ -72,10 +73,11 @@ bool validar_leer_cadena(const char *mensaje, char *buf, size_t n);
  * @param linea      Línea a separar (no debe ser NULL; se modifica).
  * @param campos     Arreglo donde se guardan los punteros a cada campo.
  * @param max_campos Capacidad del arreglo (debe ser > 0).
- * @return Cantidad real de campos contados (incluye los vacíos); puede
- *         superar max_campos cuando la línea trae más campos que la
- *         capacidad, para que el llamador detecte el exceso.
+ * @param n          Cantidad real de campos contados (incluye los vacíos);
+ *                   puede superar max_campos cuando la línea trae más campos
+ *                   que la capacidad, para que el llamador detecte el exceso.
  */
-int validar_separar_campos(char *linea, char *campos[], int max_campos);
+void validar_separar_campos(char *linea, char *campos[], int max_campos,
+                            int *n);
 
 #endif /* VALIDACION_H */

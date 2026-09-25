@@ -301,7 +301,7 @@ bool resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
            trae solo 5, los KOs valen 0. F8: se separa sin omitir campos
            vacíos (';;') para no desplazar los campos silenciosamente
            (cierre del hallazgo SUGGESTION F2). */
-        ncampos = validar_separar_campos(linea, campos, CAMPOS_MAX_LINEA);
+        validar_separar_campos(linea, campos, CAMPOS_MAX_LINEA, &ncampos);
         if (ncampos < 5 || ncampos == 6 || ncampos > 7) {
             goto linea_invalida;
         }

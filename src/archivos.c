@@ -101,7 +101,7 @@ bool archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
         /* F8: se separa sin omitir campos vacios (';;') para no desplazar
            los campos siguientes (cierre del hallazgo SUGGESTION F2). El
            formato §5.2 exige exactamente 3 + 4*CANT campos por linea. */
-        ncampos = validar_separar_campos(linea, campos, CAMPOS_MAX_LINEA);
+        validar_separar_campos(linea, campos, CAMPOS_MAX_LINEA, &ncampos);
         if (ncampos < 3 || ncampos > CAMPOS_MAX_LINEA) {
             goto linea_invalida;
         }

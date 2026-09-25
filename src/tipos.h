@@ -32,12 +32,12 @@ typedef enum {
  * Acepta el nombre exacto de los 18 tipos (p. ej. "Planta") y el guion "-"
  * como segundo tipo ausente. No modifica ningún estado del módulo.
  *
- * @param nombre Cadena con el nombre del tipo (no debe ser NULL).
- * @param salida Puntero donde se escribe el Tipo resultante (no debe ser NULL).
- * @return true si el nombre es uno de los 18 tipos o "-"; false en caso
- *         contrario, dejando *salida sin cambios.
+ * @param nombre    Cadena con el nombre del tipo (no debe ser NULL).
+ * @param salida    Puntero donde se escribe el Tipo resultante (no debe ser NULL).
+ * @param es_valido true si el nombre es uno de los 18 tipos o "-"; false en
+ *                  caso contrario, dejando *salida sin cambios.
  */
-bool tipos_es_valido(const char *nombre, Tipo *salida);
+void tipos_es_valido(const char *nombre, Tipo *salida, bool *es_valido);
 
 /**
  * @brief Devuelve el texto en español de un tipo.

@@ -124,8 +124,10 @@ static void consultar_pokedex(const Pokedex *pd)
         }
         case 3: {
             char nombre[TAM_MAX_APODO * 2];
-            if (!validar_leer_cadena("Ingrese el nombre de la especie: ",
-                                     nombre, sizeof(nombre))) {
+            bool exito;
+            validar_leer_cadena("Ingrese el nombre de la especie: ",
+                                nombre, sizeof(nombre), &exito);
+            if (!exito) {
                 printf("\n");
                 return;   /* EOF: cierre ordenado */
             }
@@ -149,6 +151,7 @@ static void registrar_entrenador(RegistroEntrenadores *reg)
 {
     int id;
     char nombre[TAM_MAX_NOMBRE];
+    bool exito;
 
     id = leer_id_entrenador("Ingrese el id del entrenador: ");
     if (id == 0 && feof(stdin)) {
@@ -158,8 +161,9 @@ static void registrar_entrenador(RegistroEntrenadores *reg)
         printf("Id inválido: debe ser un entero positivo.\n");
         return;
     }
-    if (!validar_leer_cadena("Ingrese el nombre del entrenador: ",
-                             nombre, sizeof(nombre))) {
+    validar_leer_cadena("Ingrese el nombre del entrenador: ",
+                        nombre, sizeof(nombre), &exito);
+    if (!exito) {
         return;   /* EOF: cierre ordenado */
     }
     if (nombre[0] == '\0') {
@@ -300,6 +304,7 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
         char prompt_nivel[64];
         const Especie *esp;
         Ejemplar *ej;
+        bool exito;
 
         numero = validar_leer_entero(
             "Ingrese el número de especie (0 para terminar): ",
@@ -329,9 +334,10 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
             break;   /* EOF: se omite este ejemplar */
         }
 
-        if (!validar_leer_cadena(
+        validar_leer_cadena(
                 "Nombre/apodo (Enter = nombre de la especie): ",
-                apodo, sizeof(apodo))) {
+                apodo, sizeof(apodo), &exito);
+        if (!exito) {
             return;   /* EOF: cierre ordenado */
         }
         if (apodo[0] == '\0') {
@@ -682,13 +688,15 @@ int main(void)
     Torneo torneo;
     int salir = 0;
     int i;
+    bool exito;
 
     registro.cantidad = 0;
     torneo.estado = TORNEO_SIN_INICIAR;
 
     /* Carga inicial de datos: tipos, Pokédex y entrenadores (RF-PDX-06). */
     tipos_inicializar();
-    if (!pokedex_cargar(&pokedex, RUTA_POKEDEX)) {
+    pokedex_cargar(&pokedex, RUTA_POKEDEX, &exito);
+    if (!exito) {
         printf("Aviso: la Pokédex no está disponible; las consultas de "
                "especies quedarán deshabilitadas.\n");
     }

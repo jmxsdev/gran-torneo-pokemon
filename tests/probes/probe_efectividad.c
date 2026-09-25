@@ -104,9 +104,11 @@ int main(void)
     ResultadoCombate res;
     Ejemplar rapido;
     Ejemplar lento;
+    bool exito;
 
     tipos_inicializar();
-    if (!pokedex_cargar(&pd, RUTA_POKEDEX)) {
+    pokedex_cargar(&pd, RUTA_POKEDEX, &exito);
+    if (!exito) {
         printf("FAIL: no se pudo cargar la Pokédex (%s).\n", RUTA_POKEDEX);
         return 1;
     }

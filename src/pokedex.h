@@ -44,12 +44,12 @@ typedef struct {
  * línea y 150 líneas no vacías. Ante cualquier desvío la Pokédex queda con
  * cantidad = 0 y el programa continúa (RF-PDX-06).
  *
- * @param pd   Puntero a la Pokédex que se completa (no debe ser NULL).
- * @param ruta Ruta del archivo de datos (p. ej. RUTA_POKEDEX).
- * @return true si se cargaron las 150 especies; false si el archivo no se
- *         pudo abrir, tiene formato inválido o no contiene 150 líneas.
+ * @param pd    Puntero a la Pokédex que se completa (no debe ser NULL).
+ * @param ruta  Ruta del archivo de datos (p. ej. RUTA_POKEDEX).
+ * @param exito true si se cargaron las 150 especies; false si el archivo no
+ *              se pudo abrir, tiene formato inválido o no contiene 150 líneas.
  */
-bool pokedex_cargar(Pokedex *pd, const char *ruta);
+void pokedex_cargar(Pokedex *pd, const char *ruta, bool *exito);
 
 /**
  * @brief Busca una especie por su número en la Pokédex.

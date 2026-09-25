@@ -173,7 +173,8 @@ void tipos_inicializar(void)
 
         int columna = 0;
         char *campos[CANT_TIPOS];
-        int ncampos = validar_separar_campos(linea, campos, CANT_TIPOS);
+        int ncampos;
+        validar_separar_campos(linea, campos, CANT_TIPOS, &ncampos);
 
         /* F8: se separa sin omitir campos vacios (';;'); un conteo distinto
            de CANT_TIPOS o un campo vacio invalida la matriz y se usa la
@@ -215,7 +216,7 @@ void tipos_inicializar(void)
 }
 
 /* Implementación de tipos_es_valido: documentación canónica en tipos.h. */
-bool tipos_es_valido(const char *nombre, Tipo *salida)
+void tipos_es_valido(const char *nombre, Tipo *salida, bool *es_valido)
 {
     static const char *const nombres[TIPO_NINGUNO] = {
         "Normal", "Fuego", "Agua", "Planta", "Electrico", "Hielo",
@@ -227,12 +228,14 @@ bool tipos_es_valido(const char *nombre, Tipo *salida)
     char norm_catalogo[64];
 
     if (nombre == NULL || salida == NULL) {
-        return false;
+        *es_valido = false;
+        return;
     }
 
     if (strcmp(nombre, "-") == 0) {
         *salida = TIPO_NINGUNO;
-        return true;
+        *es_valido = true;
+        return;
     }
 
     tipos_normalizar(nombre, norm_nombre);
@@ -240,11 +243,12 @@ bool tipos_es_valido(const char *nombre, Tipo *salida)
         tipos_normalizar(nombres[i], norm_catalogo);
         if (strcmp(norm_nombre, norm_catalogo) == 0) {
             *salida = (Tipo)i;
-            return true;
+            *es_valido = true;
+            return;
         }
     }
 
-    return false;
+    *es_valido = false;
 }
 
 /* Implementación de tipos_a_texto: documentación canónica en tipos.h. */

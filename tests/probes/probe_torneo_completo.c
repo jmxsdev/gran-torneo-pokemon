@@ -91,11 +91,12 @@ int main(void)
     char msg[256];
     int id1;
     int id2;
+    bool exito;
 
     /* ---------- 1. Carga de datos (RF-PRB-01: Pokédex y registro) ------- */
     tipos_inicializar();
-    verificar(pokedex_cargar(&pd, RUTA_POKEDEX),
-              "carga: Pokédex con 150 especies");
+    pokedex_cargar(&pd, RUTA_POKEDEX, &exito);
+    verificar(exito, "carga: Pokédex con 150 especies");
     reg.cantidad = 0;
     verificar(archivos_cargar_entrenadores(&reg, &pd, RUTA_ENTRENADORES),
               "carga: archivo de entrenadores");
