@@ -99,6 +99,8 @@ Detalle de la cobertura en [docs/informe-tecnico.md](docs/informe-tecnico.md) §
 - [Plan de desarrollo y control de avance](docs/planificacion.md) — qué está hecho y qué queda pendiente (14/14).
 - [Informe técnico explicativo](docs/informe-tecnico.md) — decisiones D1–D10 justificadas, fórmulas, algoritmos y diagramas finales para la defensa oral.
 - [Convenciones de documentación Doxygen](docs/convenciones-doxygen.md) — reglas de documentación del código en español.
+- [Trazabilidad de requisitos](docs/trazabilidad-requisitos.md) — los 42 requisitos (RF/DOC): dónde se implementan y dónde se verifican.
+- [Apuntes técnicos para la defensa](docs/apuntes-tecnicos.md) — respuestas a las preguntas técnicas del proyecto (Makefile, `static`, EOF, TDA…).
 - [Artefactos SDD](openspec/changes/gran-torneo-pokemon/) — propuesta, especificaciones con escenarios, diseño técnico, tareas y reportes de verificación.
 
 ## Proyecto académico
