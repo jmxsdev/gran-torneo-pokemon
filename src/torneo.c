@@ -408,15 +408,18 @@ static void mostrar_posiciones(const Torneo *t,
            cuarto);
 }
 
-bool torneo_armar_grupos(Torneo *t, const RegistroEntrenadores *reg)
+void torneo_armar_grupos(Torneo *t, const RegistroEntrenadores *reg,
+                         bool *exito)
 {
     int g, par, k;
 
     if (t == NULL || reg == NULL) {
-        return false;
+        *exito = false;
+        return;
     }
     if (reg->cantidad != MAX_ENTRENADORES) {
-        return false;   /* D10: exactamente 32 entrenadores */
+        *exito = false;   /* D10: exactamente 32 entrenadores */
+        return;
     }
 
     /* Estado inicial de los 64 combates (49..64 se resuelven en F6). */
@@ -445,11 +448,12 @@ bool torneo_armar_grupos(Torneo *t, const RegistroEntrenadores *reg)
         t->id_clasificados[k] = 0;
     }
     t->estado = TORNEO_GRUPOS;
-    return true;
+    *exito = true;
 }
 
-bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
-                              const ResultadoCargado *r, char *msg, size_t n)
+void torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
+                              const ResultadoCargado *r, char *msg, size_t n,
+                              bool *exito)
 {
     Combate *c;
     Entrenador *e1;
@@ -460,33 +464,39 @@ bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
     int es_eliminatoria;
 
     if (t == NULL || reg == NULL || r == NULL || msg == NULL || n == 0) {
-        return false;
+        *exito = false;
+        return;
     }
     if (t->estado == TORNEO_SIN_INICIAR) {
         snprintf(msg, n, "El torneo no está armado (se requieren %d "
                          "entrenadores registrados).", MAX_ENTRENADORES);
-        return false;
+        *exito = false;
+        return;
     }
     if (r->numero < 1 || r->numero > TOTAL_COMBATES) {
         snprintf(msg, n, "Número de combate inválido: %d.", r->numero);
-        return false;
+        *exito = false;
+        return;
     }
     if (t->estado == TORNEO_FINALIZADO) {
         snprintf(msg, n, "El torneo ya finalizó; no se aceptan más "
                          "resultados.");
-        return false;
+        *exito = false;
+        return;
     }
     es_eliminatoria = (r->numero > COMBATES_GRUPO);
     if (es_eliminatoria && t->estado != TORNEO_ELIMINATORIAS) {
         snprintf(msg, n, "La fase de grupos no está completa: faltan "
                          "resultados de los combates 1-48.");
-        return false;
+        *exito = false;
+        return;
     }
 
     c = &t->combates[r->numero - 1];
     if (c->estado != RES_PENDIENTE) {
         snprintf(msg, n, "El combate %d ya tiene resultado.", r->numero);
-        return false;
+        *exito = false;
+        return;
     }
 
     /* Participantes resueltos por el sistema (RF-RES-03): el calendario
@@ -499,12 +509,14 @@ bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
             snprintf(msg, n, "El combate %d no está disponible aún: sus "
                              "fuentes (clasificados o G#/P#) no están "
                              "resueltas.", r->numero);
-            return false;
+            *exito = false;
+            return;
         }
         if (r->id_entrenador1 != id1 || r->id_entrenador2 != id2) {
             snprintf(msg, n, "Los participantes no coinciden con los "
                              "resueltos por el sistema (RF-RES-03).");
-            return false;
+            *exito = false;
+            return;
         }
         /* Persiste los participantes resueltos: el perdedor de una fuente
            P# y las consultas del bracket los leen del combate. */
@@ -514,34 +526,41 @@ bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
                r->id_entrenador2 != c->id_entrenador2) {
         snprintf(msg, n, "Los participantes no coinciden con los resueltos "
                          "por el sistema (RF-RES-03).");
-        return false;
+        *exito = false;
+        return;
     }
 
     if (r->resultado != RES_V1 && r->resultado != RES_V2 &&
         r->resultado != RES_EMPATE) {
         snprintf(msg, n, "Resultado inválido para el combate %d.", r->numero);
-        return false;
+        *exito = false;
+        return;
     }
     if (es_eliminatoria && r->resultado == RES_EMPATE) {
         snprintf(msg, n, "La eliminatoria no admite empates (RF-ELM-01).");
-        return false;
+        *exito = false;
+        return;
     }
     if (r->kos1 < 0 || r->kos2 < 0) {
         snprintf(msg, n, "Los KOs del combate %d no pueden ser negativos.",
                  r->numero);
-        return false;
+        *exito = false;
+        return;
     }
     if (r->resultado == RES_V1 && r->id_ganador != c->id_entrenador1) {
         snprintf(msg, n, "El ganador no coincide con el resultado (V1).");
-        return false;
+        *exito = false;
+        return;
     }
     if (r->resultado == RES_V2 && r->id_ganador != c->id_entrenador2) {
         snprintf(msg, n, "El ganador no coincide con el resultado (V2).");
-        return false;
+        *exito = false;
+        return;
     }
     if (r->resultado == RES_EMPATE && r->id_ganador != 0) {
         snprintf(msg, n, "Un empate no declara ganador.");
-        return false;
+        *exito = false;
+        return;
     }
 
     e1 = entrenador_buscar(reg, c->id_entrenador1);
@@ -549,7 +568,8 @@ bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
     if (e1 == NULL || e2 == NULL) {
         snprintf(msg, n, "Entrenador del combate %d no encontrado.",
                  r->numero);
-        return false;
+        *exito = false;
+        return;
     }
     ganador = (r->id_ganador == c->id_entrenador1) ? e1 : e2;
 
@@ -572,7 +592,8 @@ bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
             snprintf(msg, n, "Torneo finalizado: el campeón es %s (id %d).",
                      ganador != NULL ? ganador->nombre : "?", r->id_ganador);
         }
-        return true;
+        *exito = true;
+        return;
     }
 
     /* Puntuación 3/1/0 (RF-TRN-03) y KOs (criterio 3 de RF-TRN-04). */
@@ -620,7 +641,7 @@ bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
                          "1A/2A...1H/2H definidos; comienza la eliminatoria "
                          "(combates 49-64).");
     }
-    return true;
+    *exito = true;
 }
 
 void torneo_ordenar_grupos(Torneo *t)

@@ -536,22 +536,25 @@ static void jugar_combate(const Pokedex *pd, RegistroEntrenadores *reg)
  *
  * @param t   Puntero al estado del torneo (no debe ser NULL).
  * @param reg Puntero al registro de entrenadores (no debe ser NULL).
- * @return true si el torneo quedó armado (o ya lo estaba); false si los
- *         parámetros son inválidos o el conteo no es 32.
+ * @param exito true si el torneo quedó armado (o ya lo estaba); false si
+ *              los parámetros son inválidos o el conteo no es 32.
  */
-static bool armar_torneo_si_falta(Torneo *t, const RegistroEntrenadores *reg)
+static void armar_torneo_si_falta(Torneo *t, const RegistroEntrenadores *reg,
+                                  bool *exito)
 {
     if (t->estado != TORNEO_SIN_INICIAR) {
-        return true;
+        *exito = true;
+        return;
     }
-    if (!torneo_armar_grupos(t, reg)) {
+    torneo_armar_grupos(t, reg, exito);
+    if (!*exito) {
         printf("El torneo requiere exactamente %d entrenadores para armar "
                "los grupos (actualmente %d).\n", MAX_ENTRENADORES,
                reg->cantidad);
-        return false;
+        return;
     }
     printf("Torneo armado: 8 grupos de 4 entrenadores (combates 1-48).\n");
-    return true;
+    *exito = true;
 }
 
 /**
@@ -562,12 +565,16 @@ static bool armar_torneo_si_falta(Torneo *t, const RegistroEntrenadores *reg)
  */
 static void consultar_clasificacion(Torneo *t, const RegistroEntrenadores *reg)
 {
+    bool exito;
+
     printf("\n--- Consultar clasificación ---\n");
-    if (!armar_torneo_si_falta(t, reg)) {
+    armar_torneo_si_falta(t, reg, &exito);
+    if (!exito) {
         return;
     }
     torneo_mostrar_clasificacion(t, reg);
-    if (archivos_guardar_clasificacion(t, reg, RUTA_CLASIFICACION)) {
+    archivos_guardar_clasificacion(t, reg, RUTA_CLASIFICACION, &exito);
+    if (exito) {
         printf("Clasificación guardada en %s.\n", RUTA_CLASIFICACION);
     } else {
         printf("Aviso: no se pudo guardar la clasificación en %s.\n",
@@ -588,6 +595,7 @@ static void consultar_enfrentamientos(const Pokedex *pd,
                                       Torneo *t)
 {
     int sub;
+    bool exito;
 
     printf("\n--- Consultar enfrentamientos ---\n");
     printf("1. Combate amistoso\n");
@@ -605,7 +613,8 @@ static void consultar_enfrentamientos(const Pokedex *pd,
         return;
     }
     if (sub == 2) {
-        if (!armar_torneo_si_falta(t, reg)) {
+        armar_torneo_si_falta(t, reg, &exito);
+        if (!exito) {
             return;
         }
         torneo_mostrar_enfrentamientos(t, reg);
@@ -625,6 +634,7 @@ static void consultar_enfrentamientos(const Pokedex *pd,
 static void cargar_resultados(Torneo *t, RegistroEntrenadores *reg)
 {
     int sub;
+    bool exito;
 
     printf("\n--- Cargar resultados ---\n");
     printf("1. Por teclado\n");
@@ -637,14 +647,16 @@ static void cargar_resultados(Torneo *t, RegistroEntrenadores *reg)
         printf("\n");
         return;   /* "volver" o EOF: cierre ordenado */
     }
-    if (!armar_torneo_si_falta(t, reg)) {
+    armar_torneo_si_falta(t, reg, &exito);
+    if (!exito) {
         return;
     }
     if (sub == 1) {
-        resultados_cargar_teclado(t, reg);
+        resultados_cargar_teclado(t, reg, &exito);
     } else {
-        resultados_cargar_archivo(t, reg, RUTA_RESULTADOS);
+        resultados_cargar_archivo(t, reg, RUTA_RESULTADOS, &exito);
     }
+    (void)exito;   /* el resultado de la carga se ignora (RF-RES-01) */
     resultados_mostrar_pendientes(t);
 }
 
@@ -657,8 +669,11 @@ static void cargar_resultados(Torneo *t, RegistroEntrenadores *reg)
  */
 static void guardar_al_salir(const RegistroEntrenadores *reg)
 {
+    bool exito;
+
     if (entrenadores_sucios) {
-        if (archivos_guardar_entrenadores(reg, RUTA_ENTRENADORES)) {
+        archivos_guardar_entrenadores(reg, RUTA_ENTRENADORES, &exito);
+        if (exito) {
             printf("Entrenadores guardados en %s.\n", RUTA_ENTRENADORES);
         } else {
             printf("Aviso: no se pudieron guardar los entrenadores.\n");
@@ -709,7 +724,9 @@ int main(void)
 
     /* Carga opcional de entrenadores: si el archivo no existe o queda
        vacío, el programa continúa y se registran por teclado (RF-ENT-03). */
-    if (!archivos_cargar_entrenadores(&registro, &pokedex, RUTA_ENTRENADORES)) {
+    archivos_cargar_entrenadores(&registro, &pokedex, RUTA_ENTRENADORES,
+                                 &exito);
+    if (!exito) {
         printf("Aviso: no se cargaron entrenadores desde el archivo; use la "
                "opción 2 para registrarlos.\n");
     }

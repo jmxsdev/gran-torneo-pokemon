@@ -22,10 +22,11 @@
  *
  * @param t   Puntero al estado del torneo (no debe ser NULL).
  * @param reg Puntero al registro de entrenadores (no debe ser NULL).
- * @return true si al menos un resultado se aplicó; false si no se cargó
- *         ninguno o los parámetros son inválidos.
+ * @param exito true si al menos un resultado se aplicó; false si no se
+ *              cargó ninguno o los parámetros son inválidos.
  */
-bool resultados_cargar_teclado(Torneo *t, RegistroEntrenadores *reg);
+void resultados_cargar_teclado(Torneo *t, RegistroEntrenadores *reg,
+                               bool *exito);
 
 /**
  * @brief Carga resultados desde un archivo de texto (RF-RES-01/RF-RES-04).
@@ -37,12 +38,12 @@ bool resultados_cargar_teclado(Torneo *t, RegistroEntrenadores *reg);
  * @param t    Puntero al estado del torneo (no debe ser NULL).
  * @param reg  Puntero al registro de entrenadores (no debe ser NULL).
  * @param ruta Ruta del archivo de resultados (p. ej. RUTA_RESULTADOS).
- * @return true si se aplicó al menos un resultado; false si el archivo no
- *         se pudo abrir, no contenía registros válidos o los parámetros
- *         son inválidos.
+ * @param exito true si se aplicó al menos un resultado; false si el archivo
+ *              no se pudo abrir, no contenía registros válidos o los
+ *              parámetros son inválidos.
  */
-bool resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
-                               const char *ruta);
+void resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
+                               const char *ruta, bool *exito);
 
 /**
  * @brief Valida un resultado contra el estado real del torneo (RF-RES-02).
@@ -58,10 +59,11 @@ bool resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
  * @param r   Puntero al resultado a validar (no debe ser NULL).
  * @param msg Buffer con el motivo del rechazo (no NULL).
  * @param n   Capacidad del buffer msg.
- * @return true si el resultado es válido; false en caso contrario.
+ * @param exito true si el resultado es válido; false en caso contrario.
  */
-bool resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
-                        const ResultadoCargado *r, char *msg, size_t n);
+void resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
+                        const ResultadoCargado *r, char *msg, size_t n,
+                        bool *exito);
 
 /**
  * @brief Muestra cuántos combates del torneo siguen pendientes (RF-RES-01).

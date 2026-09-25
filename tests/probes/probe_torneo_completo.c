@@ -50,13 +50,15 @@ static int aplicar_v1(Torneo *t, RegistroEntrenadores *reg, int numero,
                       char *msg, size_t n)
 {
     ResultadoCargado r;
+    bool exito;
     torneo_participantes(t, numero, &r.id_entrenador1, &r.id_entrenador2);
     r.numero = numero;
     r.resultado = RES_V1;
     r.id_ganador = r.id_entrenador1;
     r.kos1 = 1;
     r.kos2 = 0;
-    return torneo_aplicar_resultado(t, reg, &r, msg, n);
+    torneo_aplicar_resultado(t, reg, &r, msg, n, &exito);
+    return exito;
 }
 
 /* Aplica los 48 resultados de grupos (V1). */
@@ -98,14 +100,15 @@ int main(void)
     pokedex_cargar(&pd, RUTA_POKEDEX, &exito);
     verificar(exito, "carga: Pokédex con 150 especies");
     reg.cantidad = 0;
-    verificar(archivos_cargar_entrenadores(&reg, &pd, RUTA_ENTRENADORES),
-              "carga: archivo de entrenadores");
+    archivos_cargar_entrenadores(&reg, &pd, RUTA_ENTRENADORES, &exito);
+    verificar(exito, "carga: archivo de entrenadores");
     verificar(reg.cantidad == MAX_ENTRENADORES,
               "carga: exactamente 32 entrenadores (D10)");
 
     /* ---------- 2. Armado de grupos y calendario (RF-TRN-02) ------------ */
     t.estado = TORNEO_SIN_INICIAR;
-    verificar(torneo_armar_grupos(&t, &reg), "grupos: torneo armado (8x4)");
+    torneo_armar_grupos(&t, &reg, &exito);
+    verificar(exito, "grupos: torneo armado (8x4)");
     verificar(t.estado == TORNEO_GRUPOS, "grupos: estado GRUPOS");
     torneo_participantes(&t, 1, &id1, &id2);
     verificar(id1 == 1 && id2 == 2, "calendario: combate 1 = Ash(1) vs Misty(2)");
@@ -150,8 +153,8 @@ int main(void)
         r.id_ganador = 0;
         r.kos1 = 1;
         r.kos2 = 1;
-        verificar(!torneo_aplicar_resultado(&t, &reg, &r, msg, sizeof(msg)),
-                  "eliminatoria: empate en 57 rechazado (RF-ELM-01)");
+        torneo_aplicar_resultado(&t, &reg, &r, msg, sizeof(msg), &exito);
+        verificar(!exito, "eliminatoria: empate en 57 rechazado (RF-ELM-01)");
     }
     /* Participantes manuales (RF-RES-03). */
     {
@@ -163,7 +166,8 @@ int main(void)
         r.id_ganador = 1;
         r.kos1 = 1;
         r.kos2 = 0;
-        verificar(!torneo_aplicar_resultado(&t, &reg, &r, msg, sizeof(msg)),
+        torneo_aplicar_resultado(&t, &reg, &r, msg, sizeof(msg), &exito);
+        verificar(!exito,
                   "eliminatoria: participantes inventados rechazados (RF-RES-03)");
     }
 
@@ -202,7 +206,8 @@ int main(void)
         r.id_ganador = 6;
         r.kos1 = 1;
         r.kos2 = 0;
-        verificar(!torneo_aplicar_resultado(&t, &reg, &r, msg, sizeof(msg)),
+        torneo_aplicar_resultado(&t, &reg, &r, msg, sizeof(msg), &exito);
+        verificar(!exito,
                   "eliminación: perdedor de 49 no reaparece en 58 (RF-RES-02)");
     }
 
@@ -216,8 +221,8 @@ int main(void)
         r.id_ganador = 5;
         r.kos1 = 1;
         r.kos2 = 0;
-        verificar(!torneo_aplicar_resultado(&t, &reg, &r, msg, sizeof(msg)),
-                  "final: aplicar 63 tras finalizar se rechaza");
+        torneo_aplicar_resultado(&t, &reg, &r, msg, sizeof(msg), &exito);
+        verificar(!exito, "final: aplicar 63 tras finalizar se rechaza");
     }
 
     /* La eliminatoria no altera los contadores de grupos (RF-TRN-03). */

@@ -51,8 +51,8 @@ static bool entero_en_arreglo(const int *arreglo, int n, int valor)
 }
 
 /* Implementación de archivos_cargar_entrenadores: documentación canónica en archivos.h. */
-bool archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
-                                  const char *ruta)
+void archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
+                                  const char *ruta, bool *exito)
 {
     FILE *archivo;
     char linea[TAM_MAX_LINEA];
@@ -64,16 +64,17 @@ bool archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
     int n_ids_ent = 0;
     int ids_ej_vistos[MAX_ENTRENADORES * MAX_EQUIPO];
     int n_ids_ej = 0;
-    bool exito;
 
     if (reg == NULL || pd == NULL || ruta == NULL) {
-        return false;
+        *exito = false;
+        return;
     }
     archivo = fopen(ruta, "r");
     if (archivo == NULL) {
         printf("Error: no se pudo abrir el archivo de entrenadores: %s\n",
                ruta);
-        return false;
+        *exito = false;
+        return;
     }
 
     while (fgets(linea, (int)sizeof(linea), archivo) != NULL) {
@@ -151,8 +152,8 @@ bool archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
         }
 
         /* Commit: solo si la linea completa es valida. */
-        entrenador_registrar(reg, id_ent, nombre_ent, &exito);
-        if (!exito) {
+        entrenador_registrar(reg, id_ent, nombre_ent, exito);
+        if (!*exito) {
             goto linea_invalida;
         }
         ids_ent_vistos[n_ids_ent++] = id_ent;
@@ -194,24 +195,26 @@ linea_invalida:
     equipo_fijar_contador_id(max_id_ejemplar);
     printf("Entrenadores cargados: %d, líneas rechazadas: %d.\n",
            aceptados, rechazadas);
-    return aceptados > 0;
+    *exito = aceptados > 0;
 }
 
 /* Implementación de archivos_guardar_entrenadores: documentación canónica en archivos.h. */
-bool archivos_guardar_entrenadores(const RegistroEntrenadores *reg,
-                                   const char *ruta)
+void archivos_guardar_entrenadores(const RegistroEntrenadores *reg,
+                                   const char *ruta, bool *exito)
 {
     FILE *archivo;
     int i;
 
     if (reg == NULL || ruta == NULL) {
-        return false;
+        *exito = false;
+        return;
     }
     archivo = fopen(ruta, "w");
     if (archivo == NULL) {
         printf("Error: no se pudo abrir el archivo de entrenadores: %s\n",
                ruta);
-        return false;
+        *exito = false;
+        return;
     }
     for (i = 0; i < reg->cantidad; i++) {
         const Entrenador *ent = &reg->entrenadores[i];
@@ -225,14 +228,14 @@ bool archivos_guardar_entrenadores(const RegistroEntrenadores *reg,
         fprintf(archivo, "\n");
     }
     fclose(archivo);
-    return true;
+    *exito = true;
 }
 
 /* Implementación de archivos_cargar_resultados: documentación canónica en archivos.h. */
-bool archivos_cargar_resultados(Torneo *t, RegistroEntrenadores *reg,
-                                const char *ruta)
+void archivos_cargar_resultados(Torneo *t, RegistroEntrenadores *reg,
+                                const char *ruta, bool *exito)
 {
-    return resultados_cargar_archivo(t, reg, ruta);
+    resultados_cargar_archivo(t, reg, ruta, exito);
 }
 
 /**
@@ -244,21 +247,24 @@ bool archivos_cargar_resultados(Torneo *t, RegistroEntrenadores *reg,
  *
  * @param t    Puntero al estado del torneo (no debe ser NULL).
  * @param ruta Ruta del archivo de salida (p. ej. RUTA_RESULTADOS).
- * @return true si se escribió el archivo; false en caso contrario.
+ * @param exito true si se escribió el archivo; false en caso contrario.
  */
-bool archivos_guardar_resultados(const Torneo *t, const char *ruta)
+void archivos_guardar_resultados(const Torneo *t, const char *ruta,
+                                 bool *exito)
 {
     FILE *archivo;
     int k;
 
     if (t == NULL || ruta == NULL) {
-        return false;
+        *exito = false;
+        return;
     }
     archivo = fopen(ruta, "w");
     if (archivo == NULL) {
         printf("Error: no se pudo abrir el archivo de resultados: %s\n",
                ruta);
-        return false;
+        *exito = false;
+        return;
     }
     for (k = 1; k <= TOTAL_COMBATES; k++) {
         const Combate *c = &t->combates[k - 1];
@@ -279,7 +285,7 @@ bool archivos_guardar_resultados(const Torneo *t, const char *ruta)
                 c->kos1, c->kos2);
     }
     fclose(archivo);
-    return true;
+    *exito = true;
 }
 
 /**
@@ -293,26 +299,29 @@ bool archivos_guardar_resultados(const Torneo *t, const char *ruta)
  * @param t    Puntero al estado del torneo (no debe ser NULL).
  * @param reg  Puntero al registro de entrenadores (no debe ser NULL).
  * @param ruta Ruta del archivo de salida (p. ej. RUTA_CLASIFICACION).
- * @return true si se escribió el archivo; false en caso contrario.
+ * @param exito true si se escribió el archivo; false en caso contrario.
  */
-bool archivos_guardar_clasificacion(const Torneo *t,
+void archivos_guardar_clasificacion(const Torneo *t,
                                     const RegistroEntrenadores *reg,
-                                    const char *ruta)
+                                    const char *ruta, bool *exito)
 {
     FILE *archivo;
     int g;
 
     if (t == NULL || reg == NULL || ruta == NULL) {
-        return false;
+        *exito = false;
+        return;
     }
     if (t->estado == TORNEO_SIN_INICIAR) {
-        return false;   /* sin grupos no hay clasificación que guardar */
+        *exito = false;   /* sin grupos no hay clasificación que guardar */
+        return;
     }
     archivo = fopen(ruta, "w");
     if (archivo == NULL) {
         printf("Error: no se pudo abrir el archivo de clasificación: %s\n",
                ruta);
-        return false;
+        *exito = false;
+        return;
     }
     for (g = 0; g < 8; g++) {
         int filas[4][7];
@@ -328,5 +337,5 @@ bool archivos_guardar_clasificacion(const Torneo *t,
         }
     }
     fclose(archivo);
-    return true;
+    *exito = true;
 }

@@ -40,8 +40,9 @@ static const Entrenador *entrenador_por_id(const RegistroEntrenadores *reg,
     return NULL;
 }
 
-bool resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
-                        const ResultadoCargado *r, char *msg, size_t n)
+void resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
+                        const ResultadoCargado *r, char *msg, size_t n,
+                        bool *exito)
 {
     const Combate *c;
     int id1;
@@ -49,21 +50,25 @@ bool resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
     int es_eliminatoria;
 
     if (t == NULL || reg == NULL || r == NULL || msg == NULL || n == 0) {
-        return false;
+        *exito = false;
+        return;
     }
     if (t->estado == TORNEO_SIN_INICIAR) {
         snprintf(msg, n, "El torneo no está armado (se requieren %d "
                          "entrenadores registrados).", MAX_ENTRENADORES);
-        return false;
+        *exito = false;
+        return;
     }
     if (t->estado == TORNEO_FINALIZADO) {
         snprintf(msg, n, "El torneo ya finalizó; no se aceptan más "
                          "resultados.");
-        return false;
+        *exito = false;
+        return;
     }
     if (r->numero < 1 || r->numero > TOTAL_COMBATES) {
         snprintf(msg, n, "Número de combate inválido: %d.", r->numero);
-        return false;
+        *exito = false;
+        return;
     }
 
     /* Ronda correcta: la eliminatoria solo admite registros en ese estado. */
@@ -71,25 +76,29 @@ bool resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
     if (es_eliminatoria && t->estado != TORNEO_ELIMINATORIAS) {
         snprintf(msg, n, "La fase de grupos no está completa: faltan "
                          "resultados de los combates 1-48.");
-        return false;
+        *exito = false;
+        return;
     }
 
     c = &t->combates[r->numero - 1];
     if (c->estado != RES_PENDIENTE) {
         snprintf(msg, n, "El combate %d ya tiene resultado.", r->numero);
-        return false;
+        *exito = false;
+        return;
     }
 
     /* Entrenadores existentes (catálogo §8.1: RF-RES-02). */
     if (entrenador_por_id(reg, r->id_entrenador1) == NULL) {
         snprintf(msg, n, "El entrenador %d del combate %d no está "
                          "registrado.", r->id_entrenador1, r->numero);
-        return false;
+        *exito = false;
+        return;
     }
     if (entrenador_por_id(reg, r->id_entrenador2) == NULL) {
         snprintf(msg, n, "El entrenador %d del combate %d no está "
                          "registrado.", r->id_entrenador2, r->numero);
-        return false;
+        *exito = false;
+        return;
     }
 
     /* Participantes resueltos por el sistema (RF-RES-03): el usuario nunca
@@ -100,7 +109,8 @@ bool resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
         snprintf(msg, n, "El combate %d no está disponible aún: sus "
                          "fuentes (clasificados o G#/P#) no están "
                          "resueltas.", r->numero);
-        return false;
+        *exito = false;
+        return;
     }
     if (r->id_entrenador1 != id1 || r->id_entrenador2 != id2) {
         const Entrenador *e1 = entrenador_por_id(reg, id1);
@@ -110,41 +120,48 @@ bool resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
                          "enfrenta a %s (id %d) contra %s (id %d).",
                  r->numero, e1 != NULL ? e1->nombre : "?", id1,
                  e2 != NULL ? e2->nombre : "?", id2);
-        return false;
+        *exito = false;
+        return;
     }
 
     if (r->resultado != RES_V1 && r->resultado != RES_V2 &&
         r->resultado != RES_EMPATE) {
         snprintf(msg, n, "Resultado inválido para el combate %d.",
                  r->numero);
-        return false;
+        *exito = false;
+        return;
     }
     if (es_eliminatoria && r->resultado == RES_EMPATE) {
         snprintf(msg, n, "La eliminatoria no admite empates (RF-ELM-01).");
-        return false;
+        *exito = false;
+        return;
     }
     if (r->kos1 < 0 || r->kos2 < 0) {
         snprintf(msg, n, "Los KOs del combate %d no pueden ser negativos.",
                  r->numero);
-        return false;
+        *exito = false;
+        return;
     }
 
     /* Ganador perteneciente al combate y coherente con el resultado. */
     if (r->resultado == RES_V1 && r->id_ganador != id1) {
         snprintf(msg, n, "El ganador no coincide con el resultado (V1): "
                          "debe ser el entrenador %d.", id1);
-        return false;
+        *exito = false;
+        return;
     }
     if (r->resultado == RES_V2 && r->id_ganador != id2) {
         snprintf(msg, n, "El ganador no coincide con el resultado (V2): "
                          "debe ser el entrenador %d.", id2);
-        return false;
+        *exito = false;
+        return;
     }
     if (r->resultado == RES_EMPATE && r->id_ganador != 0) {
         snprintf(msg, n, "Un empate no declara ganador.");
-        return false;
+        *exito = false;
+        return;
     }
-    return true;
+    *exito = true;
 }
 
 /**
@@ -155,32 +172,35 @@ bool resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
  * @param t   Puntero al estado del torneo (no debe ser NULL).
  * @param reg Puntero al registro de entrenadores (no debe ser NULL).
  * @param r   Puntero al resultado ya parseado (no debe ser NULL).
- * @return true si el resultado se aplicó; false si fue rechazado.
+ * @param exito true si el resultado se aplicó; false si fue rechazado.
  */
-static bool aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
-                              const ResultadoCargado *r)
+static void aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
+                              const ResultadoCargado *r, bool *exito)
 {
     char msg[256];
 
-    if (!resultados_validar(t, reg, r, msg, sizeof(msg))) {
+    resultados_validar(t, reg, r, msg, sizeof(msg), exito);
+    if (!*exito) {
         printf("%s\n", msg);
-        return false;
+        return;
     }
-    if (!torneo_aplicar_resultado(t, reg, r, msg, sizeof(msg))) {
+    torneo_aplicar_resultado(t, reg, r, msg, sizeof(msg), exito);
+    if (!*exito) {
         printf("Error al aplicar: %s\n", msg);
-        return false;
+        return;
     }
     printf("%s\n", msg);
-    return true;
 }
 
-bool resultados_cargar_teclado(Torneo *t, RegistroEntrenadores *reg)
+void resultados_cargar_teclado(Torneo *t, RegistroEntrenadores *reg,
+                               bool *exito)
 {
     int numero;
     int aplicados = 0;
 
     if (t == NULL || reg == NULL) {
-        return false;
+        *exito = false;
+        return;
     }
     printf("--- Cargar resultados por teclado ---\n");
     for (;;) {
@@ -192,6 +212,7 @@ bool resultados_cargar_teclado(Torneo *t, RegistroEntrenadores *reg)
         const Entrenador *e2;
         char prompt[64];
         char msg_combate[64];
+        bool exito;
 
         snprintf(msg_combate, sizeof(msg_combate),
                  "Número de combate inválido (1-%d).", TOTAL_COMBATES);
@@ -252,16 +273,17 @@ bool resultados_cargar_teclado(Torneo *t, RegistroEntrenadores *reg)
                       : (res_opcion == 2) ? RES_V2 : RES_EMPATE;
         r.id_ganador = (r.resultado == RES_EMPATE) ? 0
                        : (r.resultado == RES_V1) ? id1 : id2;
-        if (aplicar_resultado(t, reg, &r)) {
+        aplicar_resultado(t, reg, &r, &exito);
+        if (exito) {
             aplicados++;
         }
     }
     printf("Resultados cargados por teclado: %d aplicados.\n", aplicados);
-    return aplicados > 0;
+    *exito = aplicados > 0;
 }
 
-bool resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
-                               const char *ruta)
+void resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
+                               const char *ruta, bool *exito)
 {
     FILE *archivo;
     char linea[TAM_MAX_LINEA];
@@ -270,13 +292,15 @@ bool resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
     int rechazadas = 0;
 
     if (t == NULL || reg == NULL || ruta == NULL) {
-        return false;
+        *exito = false;
+        return;
     }
     archivo = fopen(ruta, "r");
     if (archivo == NULL) {
         printf("Error: no se pudo abrir el archivo de resultados: %s\n",
                ruta);
-        return false;
+        *exito = false;
+        return;
     }
 
     while (fgets(linea, (int)sizeof(linea), archivo) != NULL) {
@@ -285,6 +309,7 @@ bool resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
         int ncampos;
         int i;
         size_t largo;
+        bool exito;
 
         numero_linea++;
         largo = strlen(linea);
@@ -332,7 +357,8 @@ bool resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
             r.kos2 = atoi(campos[6]);
         }
 
-        if (aplicar_resultado(t, reg, &r)) {
+        aplicar_resultado(t, reg, &r, &exito);
+        if (exito) {
             aplicados++;
         } else {
             rechazadas++;
@@ -347,7 +373,7 @@ linea_invalida:
     fclose(archivo);
     printf("Resultados cargados: %d aplicados, %d rechazadas.\n",
            aplicados, rechazadas);
-    return aplicados > 0;
+    *exito = aplicados > 0;
 }
 
 void resultados_mostrar_pendientes(const Torneo *t)

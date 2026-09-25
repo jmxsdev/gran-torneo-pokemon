@@ -23,11 +23,11 @@
  *
  * @param reg  Puntero al registro (no debe ser NULL).
  * @param ruta Ruta del archivo de salida (p. ej. RUTA_ENTRENADORES).
- * @return true si se escribió el archivo; false si no se pudo abrir o los
- *         parámetros son inválidos.
+ * @param exito true si se escribió el archivo; false si no se pudo abrir o
+ *              los parámetros son inválidos.
  */
-bool archivos_guardar_entrenadores(const RegistroEntrenadores *reg,
-                                   const char *ruta);
+void archivos_guardar_entrenadores(const RegistroEntrenadores *reg,
+                                   const char *ruta, bool *exito);
 
 /**
  * @brief Carga entrenadores desde un archivo (RF-ENT-03).
@@ -39,11 +39,11 @@ bool archivos_guardar_entrenadores(const RegistroEntrenadores *reg,
  * @param reg  Puntero al registro que se completa (no debe ser NULL).
  * @param pd   Puntero a la Pokédex cargada (no debe ser NULL).
  * @param ruta Ruta del archivo de entrada (p. ej. RUTA_ENTRENADORES).
- * @return true si se cargó al menos un entrenador; false si el archivo no
- *         se pudo abrir o los parámetros son inválidos.
+ * @param exito true si se cargó al menos un entrenador; false si el archivo
+ *              no se pudo abrir o los parámetros son inválidos.
  */
-bool archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
-                                  const char *ruta);
+void archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
+                                  const char *ruta, bool *exito);
 
 /**
  * @brief Carga resultados desde un archivo (RF-RES-01).
@@ -53,10 +53,11 @@ bool archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
  * @param t    Puntero al estado del torneo (no debe ser NULL).
  * @param reg  Puntero al registro de entrenadores (no debe ser NULL).
  * @param ruta Ruta del archivo de resultados (p. ej. RUTA_RESULTADOS).
- * @return true si se aplicó al menos un resultado; false en caso contrario.
+ * @param exito true si se aplicó al menos un resultado; false en caso
+ *              contrario.
  */
-bool archivos_cargar_resultados(Torneo *t, RegistroEntrenadores *reg,
-                                const char *ruta);
+void archivos_cargar_resultados(Torneo *t, RegistroEntrenadores *reg,
+                                const char *ruta, bool *exito);
 
 /**
  * @brief Guarda los resultados aplicados del torneo en un archivo (§5.3).
@@ -67,9 +68,10 @@ bool archivos_cargar_resultados(Torneo *t, RegistroEntrenadores *reg,
  *
  * @param t    Puntero al estado del torneo (no debe ser NULL).
  * @param ruta Ruta del archivo de salida (p. ej. RUTA_RESULTADOS).
- * @return true si se escribió el archivo; false en caso contrario.
+ * @param exito true si se escribió el archivo; false en caso contrario.
  */
-bool archivos_guardar_resultados(const Torneo *t, const char *ruta);
+void archivos_guardar_resultados(const Torneo *t, const char *ruta,
+                                 bool *exito);
 
 /**
  * @brief Guarda la clasificación de los 8 grupos en un archivo (RF-CLS-01).
@@ -82,10 +84,10 @@ bool archivos_guardar_resultados(const Torneo *t, const char *ruta);
  * @param t    Puntero al estado del torneo (no debe ser NULL).
  * @param reg  Puntero al registro de entrenadores (no debe ser NULL).
  * @param ruta Ruta del archivo de salida (p. ej. RUTA_CLASIFICACION).
- * @return true si se escribió el archivo; false en caso contrario.
+ * @param exito true si se escribió el archivo; false en caso contrario.
  */
-bool archivos_guardar_clasificacion(const Torneo *t,
+void archivos_guardar_clasificacion(const Torneo *t,
                                     const RegistroEntrenadores *reg,
-                                    const char *ruta);
+                                    const char *ruta, bool *exito);
 
 #endif /* ARCHIVOS_H */

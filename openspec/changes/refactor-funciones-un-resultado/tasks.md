@@ -80,14 +80,14 @@ Chain strategy: pending
 
 ## R4 — torneo + resultados + archivos + main (12 conversiones)
 
-- [ ] **R4.1** Firmas `torneo.h`, `resultados.h`, `archivos.h` (10 públicas → `void(…,bool *exito)`). Ref §3 #12–22.
-- [ ] **R4.2** Cuerpos `torneo.c` (`torneo_armar_grupos`, `torneo_aplicar_resultado`). Ref §3 #12–13.
-- [ ] **R4.3** Cuerpos `resultados.c`: `aplicar_resultado` (static), `resultados_cargar_teclado`, `resultados_cargar_archivo`, `resultados_validar` (16 `return false`+`return true`→`*exito`; `msg` se llena igual). Ref §3 #14–17.
-- [ ] **R4.4** Cuerpos `archivos.c`: `cargar_entrenadores`, `cargar_resultados` (delegación pura→`resultados_cargar_archivo`, #19), `guardar_entrenadores`, `guardar_resultados`, `guardar_clasificacion`. Ref §3 #18–22, D-D.
-- [ ] **R4.5** `main.c`: `armar_torneo_si_falta` (static, #23) + cuerpos llamadores `guardar_al_salir`, `cargar_resultados`. Ref §3 #23.
-- [ ] **R4.6** Llamadores `main.c`: ~535, ~554/~596/~628, ~558, ~632/~634 (`(void)exito`), ~649, ~698 (carga inicial, mismo aviso). Ref §5 L4.
-- [ ] **R4.7** Llamadores `resultados.c`: ~165 (`resultados_validar`), ~169 (`torneo_aplicar_resultado`), ~255/~335 (`aplicar_resultado`, `aplicados++`/`rechazadas++`). Ref §5 L4.
-- [ ] **R4.8** Probes `probe_torneo_completo.c`: ~59 (`aplicar_v1` wrapper conserva `return`), ~100, ~107, ~152/~165/~204/~218. Ref §6.
+- [x] **R4.1** Firmas `torneo.h`, `resultados.h`, `archivos.h` (10 públicas → `void(…,bool *exito)`). Ref §3 #12–22.
+- [x] **R4.2** Cuerpos `torneo.c` (`torneo_armar_grupos`, `torneo_aplicar_resultado`). Ref §3 #12–13.
+- [x] **R4.3** Cuerpos `resultados.c`: `aplicar_resultado` (static), `resultados_cargar_teclado`, `resultados_cargar_archivo`, `resultados_validar` (16 `return false`+`return true`→`*exito`; `msg` se llena igual). Ref §3 #14–17.
+- [x] **R4.4** Cuerpos `archivos.c`: `cargar_entrenadores`, `cargar_resultados` (delegación pura→`resultados_cargar_archivo`, #19), `guardar_entrenadores`, `guardar_resultados`, `guardar_clasificacion`. Ref §3 #18–22, D-D.
+- [x] **R4.5** `main.c`: `armar_torneo_si_falta` (static, #23) + cuerpos llamadores `guardar_al_salir`, `cargar_resultados`. Ref §3 #23.
+- [x] **R4.6** Llamadores `main.c`: ~535, ~554/~596/~628, ~558, ~632/~634 (`(void)exito`), ~649, ~698 (carga inicial, mismo aviso). Ref §5 L4.
+- [x] **R4.7** Llamadores `resultados.c`: ~165 (`resultados_validar`), ~169 (`torneo_aplicar_resultado`), ~255/~335 (`aplicar_resultado`, `aplicados++`/`rechazadas++`). Ref §5 L4.
+- [x] **R4.8** Probes `probe_torneo_completo.c`: ~59 (`aplicar_v1` wrapper conserva `return`), ~100, ~107, ~152/~165/~204/~218. Ref §6.
 
 **GATE R4**: `make` + `run_tests.sh` 23 PASS + goldens idénticos (casos 016–020).
 

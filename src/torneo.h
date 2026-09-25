@@ -76,12 +76,13 @@ typedef struct {
  * la distribución es determinista por orden de registro (posición k =>
  * grupo k/4, puesto k%4).
  *
- * @param t   Puntero al estado del torneo (no debe ser NULL).
- * @param reg Puntero al registro (no debe ser NULL).
- * @return true si se armaron los grupos; false si el conteo no es 32 o
- *         los parámetros son inválidos.
+ * @param t     Puntero al estado del torneo (no debe ser NULL).
+ * @param reg   Puntero al registro (no debe ser NULL).
+ * @param exito true si se armaron los grupos; false si el conteo no es 32
+ *              o los parámetros son inválidos.
  */
-bool torneo_armar_grupos(Torneo *t, const RegistroEntrenadores *reg);
+void torneo_armar_grupos(Torneo *t, const RegistroEntrenadores *reg,
+                         bool *exito);
 
 /**
  * @brief Resuelve los participantes del combate indicado (RF-RES-03).
@@ -112,11 +113,12 @@ void torneo_participantes(const Torneo *t, int numero, int *id1, int *id2);
  * @param r   Puntero al resultado ya validado (no debe ser NULL).
  * @param msg Buffer donde se escribe un mensaje de resultado (no NULL).
  * @param n   Capacidad del buffer msg.
- * @return true si el resultado se aplicó; false si es inconsistente con
- *         el estado (p. ej. duplicado o ronda incorrecta).
+ * @param exito true si el resultado se aplicó; false si es inconsistente
+ *              con el estado (p. ej. duplicado o ronda incorrecta).
  */
-bool torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
-                              const ResultadoCargado *r, char *msg, size_t n);
+void torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
+                              const ResultadoCargado *r, char *msg, size_t n,
+                              bool *exito);
 
 /**
  * @brief Ordena los grupos por la cadena completa de desempate (RF-TRN-04).
