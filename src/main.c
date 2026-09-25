@@ -175,7 +175,8 @@ static void registrar_entrenador(RegistroEntrenadores *reg)
                id);
         return;
     }
-    if (!entrenador_registrar(reg, id, nombre)) {
+    entrenador_registrar(reg, id, nombre, &exito);
+    if (!exito) {
         printf("No se pudo registrar: registro lleno (máximo %d).\n",
                MAX_ENTRENADORES);
         return;
@@ -200,6 +201,7 @@ static void formar_equipo_automatico(const Pokedex *pd, Entrenador *ent)
     int cantidad = 0;
     char msg_cantidad[64];
     char msg_tipos[64];
+    bool exito;
 
     if (pd->cantidad == 0) {
         printf("La Pokédex no está cargada; no se puede formar un equipo.\n");
@@ -235,7 +237,8 @@ static void formar_equipo_automatico(const Pokedex *pd, Entrenador *ent)
     restricciones.cantidad_permitidas = 0;
 
     printf("Formando equipo con backtracking...\n");
-    if (!equipo_formar_backtracking(pd, &restricciones, &equipo, &cantidad)) {
+    equipo_formar_backtracking(pd, &restricciones, &equipo, &cantidad, &exito);
+    if (!exito) {
         printf("No existe un equipo que cumpla las restricciones indicadas.\n");
         return;
     }
@@ -344,13 +347,14 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
             snprintf(apodo, sizeof(apodo), "%s", esp->nombre);
         }
 
-        id_ejemplar = equipo_siguiente_id();
+        equipo_siguiente_id(&id_ejemplar);
         ej = equipo_crear_ejemplar(pd, numero, apodo, nivel, id_ejemplar);
         if (ej == NULL) {
             printf("No se pudo crear el ejemplar (especie, nivel o memoria).\n");
             continue;
         }
-        if (!equipo_agregar_ejemplar(ent, ej)) {
+        equipo_agregar_ejemplar(ent, ej, &exito);
+        if (!exito) {
             printf("El equipo está lleno; el ejemplar no se agregó.\n");
             free(ej);
             break;

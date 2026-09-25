@@ -56,14 +56,14 @@ typedef struct {
 } RestriccionesEquipo;
 
 /**
- * @brief Devuelve el siguiente id de ejemplar (único global y monótono).
+ * @brief Escribe el siguiente id de ejemplar (único global y monótono).
  *
  * El contador vive en equipo.c; al recargar datos desde archivo se fija al
  * máximo id visto con equipo_fijar_contador_id (diseño §5.2).
  *
- * @return Un id de ejemplar no usado antes en la sesión.
+ * @param id Puntero donde se escribe el id (no debe ser NULL).
  */
-int equipo_siguiente_id(void);
+void equipo_siguiente_id(int *id);
 
 /**
  * @brief Fija el contador global de ids de ejemplar al valor indicado.
@@ -113,10 +113,10 @@ int equipo_contar(const Entrenador *ent);
  *
  * @param ent   Puntero al entrenador (no debe ser NULL).
  * @param nuevo Ejemplar ya creado que pasa a ser propiedad del equipo.
- * @return true si se agregó; false si el equipo ya tiene MAX_EQUIPO
- *         ejemplares o los parámetros son inválidos.
+ * @param exito true si se agregó; false si el equipo ya tiene MAX_EQUIPO
+ *              ejemplares o los parámetros son inválidos.
  */
-bool equipo_agregar_ejemplar(Entrenador *ent, Ejemplar *nuevo);
+void equipo_agregar_ejemplar(Entrenador *ent, Ejemplar *nuevo, bool *exito);
 
 /**
  * @brief Valida que el equipo del entrenador cumpla las reglas (RF-EQP-05).
@@ -186,10 +186,11 @@ void equipo_mostrar(const Pokedex *pd, const Entrenador *ent);
  * @param salida   Puntero donde se escribe la cabeza de la lista creada
  *                 (no debe ser NULL).
  * @param cantidad Puntero donde se escribe cuántos ejemplares se crearon.
- * @return true si existe un equipo que cumple todas las restricciones;
- *         false si no existe solución o los parámetros son inválidos.
+ * @param exito    true si existe un equipo que cumple todas las
+ *                 restricciones; false si no existe solución o los
+ *                 parámetros son inválidos.
  */
-bool equipo_formar_backtracking(const Pokedex *pd, const RestriccionesEquipo *r,
-                                Ejemplar **salida, int *cantidad);
+void equipo_formar_backtracking(const Pokedex *pd, const RestriccionesEquipo *r,
+                                Ejemplar **salida, int *cantidad, bool *exito);
 
 #endif /* EQUIPO_H */

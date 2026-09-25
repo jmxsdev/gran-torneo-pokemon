@@ -64,6 +64,7 @@ bool archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
     int n_ids_ent = 0;
     int ids_ej_vistos[MAX_ENTRENADORES * MAX_EQUIPO];
     int n_ids_ej = 0;
+    bool exito;
 
     if (reg == NULL || pd == NULL || ruta == NULL) {
         return false;
@@ -150,18 +151,24 @@ bool archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
         }
 
         /* Commit: solo si la linea completa es valida. */
-        if (!entrenador_registrar(reg, id_ent, nombre_ent)) {
+        entrenador_registrar(reg, id_ent, nombre_ent, &exito);
+        if (!exito) {
             goto linea_invalida;
         }
         ids_ent_vistos[n_ids_ent++] = id_ent;
         {
             Entrenador *ent = entrenador_buscar(reg, id_ent);
+            bool agregado;
             for (i = 0; i < cant; i++) {
                 Ejemplar *ej = equipo_crear_ejemplar(pd, nums_ej[i],
                                                      apodos_ej[i],
                                                      niveles_ej[i],
                                                      ids_ej[i]);
-                if (ej == NULL || !equipo_agregar_ejemplar(ent, ej)) {
+                agregado = false;
+                if (ej != NULL) {
+                    equipo_agregar_ejemplar(ent, ej, &agregado);
+                }
+                if (!agregado) {
                     /* Rollback: sin equipo ni entrenador a medio cargar.
                        free(NULL) es seguro en C. */
                     free(ej);

@@ -58,13 +58,13 @@ Chain strategy: pending
 
 ## R2 — entrenador + equipo (5 conversiones)
 
-- [ ] **R2.1** Firmas en `entrenador.h` y `equipo.h`: `entrenador_registrar`, `equipo_agregar_ejemplar`, `equipo_formar_backtracking`→`void(…,bool *exito)`; `equipo_siguiente_id`→`void(int *id)`. Ref §3 #5–8.
-- [ ] **R2.2** Cuerpo `entrenador.c` (`entrenador_registrar`). Ref §3 #5.
-- [ ] **R2.3** Cuerpos `equipo.c`: `equipo_agregar_ejemplar`, `equipo_formar_backtracking`, `equipo_siguiente_id`, `bt_rec` (static, D-C). *Aceptación*: `bt_rec` escribe `*exito` antes de CADA `return` (éxito/i>=cantidad/4 podas/no admitida/bucle/exclusión); `equipo_formar_backtracking` usa `bool exito=false;` defensivo.
-- [ ] **R2.4** Llamadores `main.c` ~174, ~234, ~341, ~347. Ref §5 L2.
-- [ ] **R2.5** Llamadores `archivos.c` ~153 (`goto linea_invalida`), ~164 (cortocircuito conservado con `bool agregado`). Ref §5 L2.
-- [ ] **R2.6** Llamador interno `equipo.c` ~364 (`equipo_siguiente_id(&id)`). Ref §5 L2.
-- [ ] **R2.7** Probes: `probe_efectividad.c` ~74 (`&ej->id`), ~86 (`(void)exito;`). Ref §6.
+- [x] **R2.1** Firmas en `entrenador.h` y `equipo.h`: `entrenador_registrar`, `equipo_agregar_ejemplar`, `equipo_formar_backtracking`→`void(…,bool *exito)`; `equipo_siguiente_id`→`void(int *id)`. Ref §3 #5–8.
+- [x] **R2.2** Cuerpo `entrenador.c` (`entrenador_registrar`). Ref §3 #5.
+- [x] **R2.3** Cuerpos `equipo.c`: `equipo_agregar_ejemplar`, `equipo_formar_backtracking`, `equipo_siguiente_id`, `bt_rec` (static, D-C). *Aceptación*: `bt_rec` escribe `*exito` antes de CADA `return` (éxito/i>=cantidad/4 podas/no admitida/bucle/exclusión); `equipo_formar_backtracking` usa `bool exito=false;` defensivo.
+- [x] **R2.4** Llamadores `main.c` ~174, ~234, ~341, ~347. Ref §5 L2.
+- [x] **R2.5** Llamadores `archivos.c` ~153 (`goto linea_invalida`), ~164 (cortocircuito conservado con `bool agregado`). Ref §5 L2.
+- [x] **R2.6** Llamador interno `equipo.c` ~364 (`equipo_siguiente_id(&id)`). Ref §5 L2.
+- [x] **R2.7** Probes: `probe_efectividad.c` ~74 (`&ej->id`), ~86 (`(void)exito;`). Ref §6.
 
 **GATE R2**: `make` + `run_tests.sh` 23 PASS + goldens idénticos (casos 010/011 + probe cubren bt_rec).
 

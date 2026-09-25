@@ -27,19 +27,23 @@ Entrenador *entrenador_buscar(RegistroEntrenadores *reg, int id)
 }
 
 /* Implementación de entrenador_registrar: documentación canónica en entrenador.h. */
-bool entrenador_registrar(RegistroEntrenadores *reg, int id, const char *nombre)
+void entrenador_registrar(RegistroEntrenadores *reg, int id, const char *nombre,
+                          bool *exito)
 {
     Entrenador *ent;
 
     if (reg == NULL || nombre == NULL) {
-        return false;
+        *exito = false;
+        return;
     }
     if (id <= 0 || nombre[0] == '\0' ||
         reg->cantidad >= MAX_ENTRENADORES) {
-        return false;
+        *exito = false;
+        return;
     }
     if (entrenador_buscar(reg, id) != NULL) {
-        return false;   /* id duplicado: MUST NOT existir dos iguales */
+        *exito = false;   /* id duplicado: MUST NOT existir dos iguales */
+        return;
     }
     ent = &reg->entrenadores[reg->cantidad];
     ent->id = id;
@@ -51,7 +55,7 @@ bool entrenador_registrar(RegistroEntrenadores *reg, int id, const char *nombre)
     ent->pokemon_derrotados = 0;
     ent->equipo = NULL;
     reg->cantidad++;
-    return true;
+    *exito = true;
 }
 
 /* Implementación de entrenador_mostrar_todos: documentación canónica en entrenador.h. */

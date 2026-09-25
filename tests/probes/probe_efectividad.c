@@ -71,7 +71,8 @@ static void crear_ejemplar(Entrenador *ent, Tipo t1, Tipo t2, int hp,
                            const char *nombre)
 {
     Ejemplar *ej = (Ejemplar *)malloc(sizeof(Ejemplar));
-    ej->id = equipo_siguiente_id();
+    bool exito;
+    equipo_siguiente_id(&ej->id);
     ej->numero_especie = 0;
     snprintf(ej->nombre, sizeof(ej->nombre), "%s", nombre);
     ej->nivel = nivel;
@@ -83,7 +84,8 @@ static void crear_ejemplar(Entrenador *ent, Tipo t1, Tipo t2, int hp,
     ej->tipo_primario = t1;
     ej->tipo_secundario = t2;
     ej->siguiente = NULL;
-    (void)equipo_agregar_ejemplar(ent, ej);
+    equipo_agregar_ejemplar(ent, ej, &exito);
+    (void)exito;
 }
 
 /* Libera el equipo y el entrenador. */

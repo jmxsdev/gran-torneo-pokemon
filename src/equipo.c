@@ -20,11 +20,11 @@
 static int contador_id_ejemplar = 0;
 
 /**
- * Devuelve el siguiente id de ejemplar (único global, monótono).
+ * Escribe en *id el siguiente id de ejemplar (único global, monótono).
  */
-int equipo_siguiente_id(void)
+void equipo_siguiente_id(int *id)
 {
-    return ++contador_id_ejemplar;
+    *id = ++contador_id_ejemplar;
 }
 
 /**
@@ -93,17 +93,19 @@ int equipo_contar(const Entrenador *ent)
 }
 
 /* Implementación de equipo_agregar_ejemplar: documentación canónica en equipo.h. */
-bool equipo_agregar_ejemplar(Entrenador *ent, Ejemplar *nuevo)
+void equipo_agregar_ejemplar(Entrenador *ent, Ejemplar *nuevo, bool *exito)
 {
     if (ent == NULL || nuevo == NULL) {
-        return false;
+        *exito = false;
+        return;
     }
     if (equipo_contar(ent) >= MAX_EQUIPO) {
-        return false;   /* RF-EQP-05: tamaño máximo 6 */
+        *exito = false;   /* RF-EQP-05: tamaño máximo 6 */
+        return;
     }
     nuevo->siguiente = ent->equipo;
     ent->equipo = nuevo;
-    return true;
+    *exito = true;
 }
 
 /* Implementación de equipo_validar: documentación canónica en equipo.h. */
@@ -276,13 +278,14 @@ static void bt_invertir_lista(Ejemplar **lista)
  *                     arreglo bool del diseño §4.1; §4.2 habla de máscara).
  * @param parcial      Puntero a la cabeza de la lista parcial.
  * @param creados      Contador de ejemplares vivos del parcial.
- * @return true si el parcial se completó cumpliendo todas las restricciones.
+ * @param exito        true si el parcial se completó cumpliendo todas las
+ *                     restricciones; false en caso contrario.
  */
-static bool bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
+static void bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
                    const uint32_t *tipos_sufijo, int i,
                    int restantes, int nivel_acum, int tipos_dist,
                    int ataque_acum, uint32_t mascara,
-                   Ejemplar **parcial, int *creados)
+                   Ejemplar **parcial, int *creados, bool *exito)
 {
     const Especie *esp;
     int k_max;
@@ -290,35 +293,41 @@ static bool bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
 
     /* Caso base de éxito: equipo completo que cumple TODAS las restricciones. */
     if (restantes == 0) {
-        return tipos_dist >= r->min_tipos &&
-               ataque_acum >= r->ataque_total_min;
+        *exito = tipos_dist >= r->min_tipos &&
+                 ataque_acum >= r->ataque_total_min;
+        return;
     }
     /* Caso base de fracaso: se agotaron las especies candidatas. */
     if (i >= pd->cantidad) {
-        return false;
+        *exito = false;
+        return;
     }
 
     /* Poda 1 (cantidad, §4.3.1): no quedan especies suficientes para el
        equipo (se usa pd->cantidad como límite real de candidatas). */
     if (restantes > pd->cantidad - i) {
-        return false;
+        *exito = false;
+        return;
     }
     /* Poda 2 (cota inferior de nivel, §4.3.2): cada ejemplar cuesta al
        menos NIVEL_MIN; si el presupuesto ya no alcanza, retroceder. Hace
        que "6 Pokémon con nivel total máximo 5" falle en profundidad 1. */
     if (nivel_acum + restantes * NIVEL_MIN > r->nivel_total_max) {
-        return false;
+        *exito = false;
+        return;
     }
     /* Poda 3 (cota de tipos, §4.3.3): los tipos aún alcanzables desde i
        (sufijo menos la máscara actual) no bastan para min_tipos. */
     if (tipos_dist + bt_contar_bits(tipos_sufijo[i] & ~mascara)
         < r->min_tipos) {
-        return false;
+        *exito = false;
+        return;
     }
     /* Poda 3b (cota extra): un ejemplar aporta a lo sumo 2 tipos nuevos;
        evita que min_tipos inalcanzable explote el árbol (§4.5 peor caso). */
     if (tipos_dist + 2 * restantes < r->min_tipos) {
-        return false;
+        *exito = false;
+        return;
     }
 
     esp = &pd->especies[i];
@@ -326,8 +335,9 @@ static bool bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
     /* Restricción de integrantes (§4.3.4, aplicada al generar el candidato):
        si la especie no está admitida por la lista, solo queda excluirla. */
     if (!bt_especie_admitida(r, esp->numero)) {
-        return bt_rec(pd, r, tipos_sufijo, i + 1, restantes, nivel_acum,
-                      tipos_dist, ataque_acum, mascara, parcial, creados);
+        bt_rec(pd, r, tipos_sufijo, i + 1, restantes, nivel_acum,
+               tipos_dist, ataque_acum, mascara, parcial, creados, exito);
+        return;
     }
 
     /* Ramificar sobre el número k de copias de la especie i (integrante
@@ -343,6 +353,7 @@ static bool bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
         for (j = 0; j < k; j++) {
             int nivel_max_ej;
             int nivel;
+            int id;
             uint32_t bits;
             Ejemplar *ej;
 
@@ -360,8 +371,9 @@ static bool bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
             }
             nivel = (r->ataque_total_min > 0) ? nivel_max_ej : NIVEL_MIN;
 
+            equipo_siguiente_id(&id);
             ej = equipo_crear_ejemplar(pd, esp->numero, esp->nombre, nivel,
-                                       equipo_siguiente_id());
+                                       id);
             if (ej == NULL) {
                 break;   /* sin memoria: no se forma esta rama */
             }
@@ -378,10 +390,12 @@ static bool bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
             (*creados)++;
         }
 
-        if (j == k &&
+        if (j == k) {
             bt_rec(pd, r, tipos_sufijo, i + 1, restantes - k,
-                   niv, tips, atq, masc, parcial, creados)) {
-            return true;   /* salida temprana: primera solución hallada */
+                   niv, tips, atq, masc, parcial, creados, exito);
+            if (*exito) {
+                return;   /* salida temprana: primera solución hallada */
+            }
         }
 
         /* Retroceder (§4.4): liberar las j copias descartadas de esta rama
@@ -396,13 +410,13 @@ static bool bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
     }
 
     /* Excluir la especie i y probar con la siguiente. */
-    return bt_rec(pd, r, tipos_sufijo, i + 1, restantes, nivel_acum,
-                  tipos_dist, ataque_acum, mascara, parcial, creados);
+    bt_rec(pd, r, tipos_sufijo, i + 1, restantes, nivel_acum,
+           tipos_dist, ataque_acum, mascara, parcial, creados, exito);
 }
 
 /* Implementación de equipo_formar_backtracking: documentación canónica en equipo.h. */
-bool equipo_formar_backtracking(const Pokedex *pd, const RestriccionesEquipo *r,
-                                Ejemplar **salida, int *cantidad)
+void equipo_formar_backtracking(const Pokedex *pd, const RestriccionesEquipo *r,
+                                Ejemplar **salida, int *cantidad, bool *exito)
 {
     uint32_t tipos_sufijo[POKEDEX_MAX + 1];
     Ejemplar *parcial = NULL;
@@ -416,12 +430,14 @@ bool equipo_formar_backtracking(const Pokedex *pd, const RestriccionesEquipo *r,
         *cantidad = 0;
     }
     if (pd == NULL || r == NULL || salida == NULL || cantidad == NULL) {
-        return false;
+        *exito = false;
+        return;
     }
     if (r->cantidad < 1 || r->cantidad > MAX_EQUIPO ||
         r->nivel_total_max < 1 || r->min_tipos < 1 ||
         r->min_tipos > CANT_TIPOS || pd->cantidad == 0) {
-        return false;
+        *exito = false;
+        return;
     }
 
     /* Tabla sufijo de tipos: en tipos_sufijo[i] están los tipos de todas
@@ -438,14 +454,15 @@ bool equipo_formar_backtracking(const Pokedex *pd, const RestriccionesEquipo *r,
         tipos_sufijo[i] = tipos_sufijo[i + 1] | bits;
     }
 
-    if (!bt_rec(pd, r, tipos_sufijo, 0, r->cantidad, 0, 0, 0, 0u,
-                &parcial, &creados)) {
-        return false;   /* *salida ya quedó en NULL: sin equipo inválido */
+    bt_rec(pd, r, tipos_sufijo, 0, r->cantidad, 0, 0, 0, 0u,
+           &parcial, &creados, exito);
+    if (!*exito) {
+        return;   /* *salida ya quedó en NULL: sin equipo inválido */
     }
 
     /* La búsqueda inserta al frente: invertir para el orden de inclusión. */
     bt_invertir_lista(&parcial);
     *salida = parcial;
     *cantidad = creados;
-    return true;
+    *exito = true;
 }

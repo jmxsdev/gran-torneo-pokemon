@@ -51,10 +51,11 @@ typedef struct {
  * @param reg    Puntero al registro (no debe ser NULL).
  * @param id     Identificador único propuesto (entero > 0).
  * @param nombre Nombre del entrenador (no debe ser NULL).
- * @return true si se registró; false si el id ya existe, los parámetros
- *         son inválidos o el registro está lleno.
+ * @param exito  true si se registró; false si el id ya existe, los
+ *               parámetros son inválidos o el registro está lleno.
  */
-bool entrenador_registrar(RegistroEntrenadores *reg, int id, const char *nombre);
+void entrenador_registrar(RegistroEntrenadores *reg, int id, const char *nombre,
+                          bool *exito);
 
 /**
  * @brief Busca un entrenador por su id en el registro.
