@@ -22,3 +22,12 @@ data/clasificacion.txt
 docs/doxygen/
 doxygen_warnings.log
 tools/
+
+# LaTeX aux files (docs/defensa-proyecto.*)
+*.aux
+*.log
+*.toc
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk

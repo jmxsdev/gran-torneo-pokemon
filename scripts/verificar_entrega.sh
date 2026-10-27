@@ -51,7 +51,10 @@ echo "=== 1. Estructura del paquete ==="
 ESTRUCTURA_OK=1
 for ruta in src/main.c data/pokedex.txt data/efectividad.txt data/entrenadores.txt \
             tests/run_tests.sh docs/planificacion.md docs/informe-tecnico.md \
-            Makefile Doxyfile README.md openspec/changes/gran-torneo-pokemon/tasks.md; do
+            Makefile Doxyfile README.md \
+            openspec/changes/archive/2026-09-21-gran-torneo-pokemon/tasks.md \
+            openspec/changes/archive/2026-09-25-refactor-funciones-un-resultado/tasks.md \
+            openspec/specs/pokedex/spec.md; do
     if [ -f "$PAQUETE/$ruta" ]; then
         echo "  OK   $ruta"
     else
