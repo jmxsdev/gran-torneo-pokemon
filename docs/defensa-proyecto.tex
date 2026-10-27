@@ -1,0 +1,428 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{geometry}
+\geometry{margin=2.2cm}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue!60!black,urlcolor=blue!60!black,pdftitle={Defensa — El Gran Torneo Pokemon}}
+\usepackage{xcolor}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{underscore}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\footnotesize,frame=single,language=C,breaklines=true}
+
+\setlength{\parskip}{4pt}
+
+\title{\textbf{El Gran Torneo Pok\'emon}\\[4pt]
+\large Gu\'ia de lectura, arquitectura, estructuras de datos,\\ diagramas y verificaci\'on de requisitos para la defensa oral}
+\author{Programaci\'on I / Algoritmos I — Universidad de Carabobo\\ C (ISO C99), gcc -std=c99 -Wall -Wextra}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+%=====================================================================
+\section{C\'omo leer el proyecto: gu\'ia ordenada}
+%=====================================================================
+El proyecto son 10 m\'odulos (par \texttt{.c}/\texttt{.h}), una cabecera de
+constantes y la bater\'ia de pruebas (5\,011 l\'ineas en \texttt{src/}). El orden
+recomendado de lectura va de los datos a la l\'ogica, y de lo simple a lo
+compuesto; cada paso indica qu\'e buscar.
+
+\begin{enumerate}[leftmargin=1.6em]
+\item \textbf{\texttt{src/constantes.h}} (51 l\'ineas) — el ``vocabulario'' del
+  dominio: 150 especies, 32 entrenadores, 18 tipos, equipo de 6, niveles 1--100,
+  64 combates, buffers y rutas. Sin c\'odigo: solo decisiones en un lugar.
+\item \textbf{\texttt{src/pokedex.h/.c}} — la fuente de datos. El struct
+  \texttt{Especie}, la carga estricta desde archivo (\texttt{pokedex\_cargar})
+  y la inmutabilidad (todo es \texttt{const}).
+\item \textbf{\texttt{src/tipos.h/.c}} — el cat\'alogo de 18 tipos y la matriz
+  de efectividad $18\times18$ (\texttt{static} en el \texttt{.c}).
+\item \textbf{\texttt{src/entrenador.h/.c}} — el struct \texttt{Entrenador}, el
+  registro de 32 y el id \'unico.
+\item \textbf{\texttt{src/equipo.h/.c}} — el m\'odulo m\'as denso: el
+  \texttt{Ejemplar} como nodo de lista enlazada, la f\'ormula de estad\'isticas
+  (D2), la separaci\'on especie/ejemplar y el backtracking (\texttt{bt\_rec}).
+\item \textbf{\texttt{src/combate.h/.c}} — el motor: f\'ormula de da\~no (D1),
+  orden por velocidad, KO, empates y anti-empate; el patr\'on de callback
+  (\texttt{CombateSeleccionar}).
+\item \textbf{\texttt{src/torneo.h/.c}} — la m\'aquina de estados: grupos A--H,
+  calendario 1--48, clasificaci\'on con desempates y bracket 49--64.
+\item \textbf{\texttt{src/resultados.h/.c}} — carga por teclado/archivo y el
+  cat\'alogo completo de validaci\'on de resultados.
+\item \textbf{\texttt{src/archivos.h/.c}} — persistencia: guardar/cargar
+  entrenadores, resultados y clasificaci\'on.
+\item \textbf{\texttt{src/validacion.h/.c}} — lectura segura con reintentos y
+  manejo de EOF (ninguna funci\'on llama \texttt{exit}).
+\item \textbf{\texttt{src/main.c}} (794 l\'ineas) — solo flujo y men\'u: 17
+  funciones \texttt{static} privadas que orquestan los m\'odulos. Sin l\'ogica
+  de negocio.
+\item \textbf{\texttt{tests/}} — la evidencia: \texttt{run\_tests.sh}, 20 casos
+  de men\'u y 2 probes C (efectividad e integraci\'on completa del torneo).
+\end{enumerate}
+
+\emph{Regla de oro del proyecto}: la Pok\'edex jam\'as se escribe; los datos de
+las especies son inmutables y los ejemplares copian lo que necesitan.
+
+%=====================================================================
+\section{Arquitectura: los m\'odulos}
+%=====================================================================
+Cada m\'odulo es un TDA: un tipo de dato + sus operaciones, con la cabecera
+como contrato p\'ublico y la implementaci\'on encapsulada en el \texttt{.c}.
+Los identificadores siguen la convenci\'on \emph{modulo\_accion}.
+
+\begin{longtable}{p{3.2cm} p{4.6cm} p{7.4cm}}
+\toprule
+\textbf{M\'odulo (.c/.h)} & \textbf{L\'ineas} & \textbf{Responsabilidad y funciones p\'ublicas clave} \\
+\midrule
+\texttt{constantes.h} & 51 & Dominio en un lugar: \texttt{POKEDEX\_MAX}, \texttt{MAX\_ENTRENADORES}, \texttt{CANT\_TIPOS}, \texttt{MAX\_EQUIPO}, \texttt{NIVEL\_MIN/MAX}, \texttt{TOTAL\_COMBATES}, rutas. \\
+\texttt{pokedex} & 308+91 & \texttt{pokedex\_cargar} (void, $+$ok), \texttt{pokedex\_buscar\_numero/nombre} (puras), \texttt{pokedex\_mostrar\_todas/especie}. Posee \texttt{Especie} y \texttt{Pokedex[150]}. \\
+\texttt{tipos} & 285+71 & \texttt{tipos\_inicializar}, \texttt{tipos\_es\_valido}, \texttt{tipos\_a\_texto}, \texttt{tipos\_multiplicador} (pura). Posee el enum \texttt{Tipo} y la matriz $18\times18$. \\
+\texttt{entrenador} & 80+76 & \texttt{entrenador\_registrar} (void, $+$ok), \texttt{entrenador\_buscar}, \texttt{entrenador\_mostrar\_todos}. Posee \texttt{Entrenador} y \texttt{RegistroEntrenadores[32]}. \\
+\texttt{equipo} & 467+195 & \texttt{equipo\_crear\_ejemplar}, \texttt{equipo\_agregar\_ejemplar}, \texttt{equipo\_validar}, \texttt{equipo\_liberar}, \texttt{equipo\_asignar}, \texttt{equipo\_mostrar}, \texttt{equipo\_siguiente\_id}, \texttt{equipo\_formar\_backtracking} (void, $+$ok). Posee \texttt{Ejemplar} (lista enlazada), \texttt{RestriccionesEquipo} y el backtracking. \\
+\texttt{combate} & 337+96 & \texttt{combate\_calcular\_danio} (pura), \texttt{combate\_ataca\_primero} (pura), \texttt{combate\_ejecutar} (void, $+$ok). Posee \texttt{ResultadoCombate} y el callback \texttt{CombateSeleccionar}. \\
+\texttt{torneo} & 818+219 & \texttt{torneo\_armar\_grupos}, \texttt{torneo\_participantes}, \texttt{torneo\_aplicar\_resultado}, \texttt{torneo\_ordenar\_grupos}, \texttt{torneo\_clasificados}, \texttt{torneo\_clasificacion\_grupo} y 5 \texttt{torneo\_mostrar\_*}. Posee \texttt{Combate[64]} y \texttt{Torneo}. \\
+\texttt{resultados} & 398+77 & \texttt{resultados\_cargar\_teclado/archivo} (void, $+$ok), \texttt{resultados\_validar} (void, $+$ok), \texttt{resultados\_mostrar\_pendientes}. \\
+\texttt{archivos} & 340+92 & Persistencia: 5 funciones \texttt{archivos\_cargar/guardar\_*} (void, $+$ok). Formatos D8. \\
+\texttt{validacion} & 134+82 & \texttt{validar\_leer\_entero/\_msg}, \texttt{validar\_leer\_cadena} (void, $+$ok), \texttt{validar\_separar\_campos} (void, $+$n). Ninguna llama \texttt{exit}. \\
+\texttt{main} & 794 & Men\'u de 12 opciones y despacho; 17 ayudantes \texttt{static}; \texttt{main} solo orquesta y libera memoria. \\
+\bottomrule
+\end{longtable}
+
+\textbf{Convenci\'on de funciones} (especificada en
+\texttt{openspec/specs/convencion-funciones/spec.md}, RF-CNV-01..03): toda
+funci\'on no-\texttt{void} devuelve \emph{un solo} resultado y no modifica
+par\'ametros; las operaciones con m\'ultiples salidas son procedimientos
+\texttt{void} con par\'ametros por referencia (patr\'on
+\texttt{void f(\dots, bool *exito)}).
+
+%=====================================================================
+\section{Estructuras de datos utilizadas}
+%=====================================================================
+
+\subsection{Respuesta directa: \textquestiondown pilas? \textquestiondown listas? \textquestiondown colas?}
+
+\begin{itemize}
+\item \textbf{Listas: S\'I} — lista enlazada simple de \texttt{Ejemplar} (campo
+  \texttt{struct Ejemplar *siguiente}), con inserci\'on al frente y
+  \texttt{malloc}/\texttt{free} gestionados por el m\'odulo \texttt{equipo}.
+  Es la estructura din\'amica que exige el enunciado.
+\item \textbf{Pilas: NO expl\'icitamente} — se usa \emph{la pila del sistema}
+  (stack de llamadas) como pila impl\'icita de la recursi\'on del backtracking:
+  cada llamada recursiva guarda su estado y el retroceso (backtracking) ``desapila''
+  al retornar.
+\item \textbf{Colas: NO} — ninguna operaci\'on del torneo requiere orden FIFO.
+\end{itemize}
+
+\subsection{Inventario y justificaci\'on}
+
+\begin{longtable}{p{5.4cm} p{3.2cm} p{6.6cm}}
+\toprule
+\textbf{Estructura} & \textbf{D\'onde} & \textbf{Por qu\'e} \\
+\midrule
+Arreglo est\'atico \texttt{Pokedex[150]} & pokedex & Tama\~no fijo conocido (150 especies); acceso directo por n\'umero. \\
+Matriz \texttt{float[18][18]} de efectividad & tipos (\texttt{static} en el \texttt{.c}) & Acceso $O(1)$ a cada par de tipos; encapsulada tras \texttt{tipos\_multiplicador}. \\
+Arreglo \texttt{RegistroEntrenadores[32]} & entrenador & M\'aximo del torneo fijo (D10: exactamente 32). \\
+Lista enlazada de \texttt{Ejemplar} & equipo & Tama\~no variable (1..6), se crean/destruyen ejemplares din\'amicamente; demuestra el TDA pedido. \\
+\texttt{Combate[64]} & torneo & El torneo tiene exactamente 64 combates numerados (48 grupos + 16 eliminatoria). \\
+\texttt{id\_clasificados[16]} & torneo & Los 2 clasificados de cada uno de los 8 grupos (1A, 2A, \dots, 1H, 2H). \\
+\texttt{filas[4][7]} (salida) & torneo & Tabla de clasificaci\'on de un grupo para pantalla/archivo. \\
+\texttt{especies\_permitidas[150]} & equipo & Restricci\'on de integrantes del backtracking. \\
+Pila impl\'icita (recursi\'on) & equipo (\texttt{bt\_rec}) & El backtracking es naturalmente recursivo: el estado parcial vive en el stack de llamadas. \\
+\bottomrule
+\end{longtable}
+
+%=====================================================================
+\section{Diagramas de flujo}
+%=====================================================================
+Se presentan los cuatro flujos centrales como diagramas y, adem\'as, el flujo
+resumido de cada m\'odulo.
+
+\subsection{Carga de la Pok\'edex (\texttt{pokedex\_cargar})}
+\begin{center}
+\begin{tikzpicture}[node distance=6mm and 4mm,
+  box/.style={draw,rounded corners=2pt,align=center,font=\footnotesize,inner sep=4pt},
+  dec/.style={draw,diamond,aspect=2,align=center,font=\footnotesize,inner sep=2pt}]
+\node[box] (a) {Abrir archivo};
+\node[dec,below=of a] (b) {abre?};
+\node[box,right=of b,xshift=8mm] (c) {*exito = false; retornar};
+\node[box,below=of b] (d) {Leer l\'inea};
+\node[dec,below=of d] (e) {\textquestiondown fin de archivo?};
+\node[dec,right=of e,xshift=14mm] (f) {\textquestiondown 150 v\'alidas?};
+\node[box,right=of f,xshift=10mm] (g) {*exito = true; retornar};
+\node[box,below=of g] (k) {cantidad queda 0;\\ *exito=false; retornar};
+\node[dec,below=of e] (h) {\textquestiondown 8 campos con `;' y rango v\'alido?};
+\node[box,right=of h,xshift=16mm] (i) {Rechazar l\'inea (mensaje con n.\textdegree)};
+\node[box,below=of h] (j) {Guardar especie en la tabla};
+\draw[-Stealth] (a)--(b);
+\draw[-Stealth] (b)--node[above,font=\footnotesize]{no} (c);
+\draw[-Stealth] (b)--node[right,font=\footnotesize]{s\'i} (d);
+\draw[-Stealth] (d)--(e);
+\draw[-Stealth] (e)--node[above,font=\footnotesize]{s\'i} (f);
+\draw[-Stealth] (f)--node[above,font=\footnotesize]{s\'i} (g);
+\draw[-Stealth] (f.south)|-(k.west);
+\draw[-Stealth] (e)--node[right,font=\footnotesize]{no} (h);
+\draw[-Stealth] (h)--node[above,font=\footnotesize]{no} (i);
+\draw[-Stealth] (i.south)|-(d.east);
+\draw[-Stealth] (h)--node[right,font=\footnotesize]{s\'i} (j);
+\draw[-Stealth] (j.west)-|(d.west);
+\end{tikzpicture}
+\end{center}
+El archivo mal formado deja la Pok\'edex vac\'ia y el programa contin\'ua
+(RF-PDX-06); un combate jam\'as modifica estos datos (RF-PDX-04).
+
+\subsection{Combate (\texttt{combate\_ejecutar})}
+\begin{center}
+\begin{tikzpicture}[node distance=5mm and 4mm,
+  box/.style={draw,rounded corners=2pt,align=center,font=\footnotesize,inner sep=4pt},
+  dec/.style={draw,diamond,aspect=2.4,align=center,font=\footnotesize,inner sep=2pt}]
+\node[box] (a) {Restaurar hp de ambos equipos};
+\node[box,below=of a] (b) {Seleccionar activo de cada uno\\(callback: ``local'' / ``visita'')};
+\node[dec,below=of b] (c) {EOF o sin equipo?};
+\node[box,right=of c,xshift=12mm] (d) {*exito=false (cancelado)};
+\node[dec,below=of c] (e) {\textquestiondown turno 20 alcanzado?};
+\node[dec,below=of e,yshift=-2mm] (f) {Ataca el m\'as veloz (D3);\textquestiondown cae a 0?};
+\node[box,right=of f,xshift=14mm] (g) {Sumar KO; pedir reemplazo\\(``reemplazo'')};
+\node[dec,below=of f,yshift=-2mm] (h) {\textquestiondown alguien sin disponibles?};
+\node[box,below=of h] (i) {Ganador o empate (D4)\\o anti-empate (D5): HP total $\to$ nivel $\to$ local};
+\node[box,right=of i,xshift=8mm] (j) {Escribir *res y *exito=true};
+\draw[-Stealth] (a)--(b);
+\draw[-Stealth] (b)--(c);
+\draw[-Stealth] (c)--node[above,font=\footnotesize]{s\'i}(d);
+\draw[-Stealth] (c)--node[right,font=\footnotesize]{no}(e);
+\draw[-Stealth] (e)--node[right,font=\footnotesize]{no}(f);
+\draw[-Stealth] (f)--node[above,font=\footnotesize]{s\'i}(g);
+\draw[-Stealth] (g.south)|-(f.east);
+\draw[-Stealth] (f)--node[right,font=\footnotesize]{no}(h);
+\draw[-Stealth] (h)--node[right,font=\footnotesize]{s\'i}(i);
+\draw[-Stealth] (h.west)-|node[left,font=\footnotesize]{no}(e.west);
+\draw[-Stealth] (i)--(j);
+\end{tikzpicture}
+\end{center}
+El da\~no usa la f\'ormula D1 y el multiplicador de tipos
+($\times2/\times1/\times0.5/\times0$, producto si el defensor tiene dos tipos).
+
+\subsection{Backtracking de formaci\'on de equipos (\texttt{bt\_rec})}
+\begin{center}
+\begin{tikzpicture}[node distance=5mm and 4mm,
+  box/.style={draw,rounded corners=2pt,align=center,font=\footnotesize,inner sep=4pt},
+  dec/.style={draw,diamond,aspect=2.6,align=center,font=\footnotesize,inner sep=2pt}]
+\node[box] (a) {bt\_rec(i, restantes, acumuladores, parcial)};
+\node[dec,below=of a] (b) {restantes = 0?};
+\node[dec,below=of b] (c) {\textquestiondown cumple tipos y stats?};
+\node[box,right=of c,xshift=14mm] (d) {*exito=true (primera soluci\'on)};
+\node[box,left=of c,xshift=-14mm] (e) {retroceder: *exito=false};
+\node[dec,below=of c] (f) {\textquestiondown alguna poda corta?\\(cantidad, nivel, tipos, integrantes)};
+\node[box,right=of f,xshift=16mm] (g) {retroceder sin explorar};
+\node[box,below=of f] (h) {Incluir k copias de la especie i\\(crear ejemplares con nivel factible)};
+\node[box,below=of h] (i) {bt\_rec(i+1, restantes-k, \dots)};
+\node[dec,below=of i] (j) {*exito?};
+\node[box,left=of j,xshift=-16mm] (k) {Liberar las k copias (sin fugas);\\excluir especie i: bt\_rec(i+1, \dots)};
+\draw[-Stealth] (a)--(b);
+\draw[-Stealth] (b)--node[right,font=\footnotesize]{s\'i}(c);
+\draw[-Stealth] (c)--node[above,font=\footnotesize]{s\'i}(d);
+\draw[-Stealth] (c)--node[above,font=\footnotesize]{no}(e);
+\draw[-Stealth] (b)--node[right,font=\footnotesize]{no}(f);
+\draw[-Stealth] (f)--node[above,font=\footnotesize]{s\'i}(g);
+\draw[-Stealth] (f)--node[right,font=\footnotesize]{no}(h);
+\draw[-Stealth] (h)--(i);
+\draw[-Stealth] (i)--(j);
+\draw[-Stealth] (j)--node[above,font=\footnotesize]{no}(k);
+\draw[-Stealth] (k.north)|-(f.east);
+\end{tikzpicture}
+\end{center}
+Las cinco podas (cantidad, cota inferior de nivel, cota de tipos con sufijo,
+tipos por ejemplar restante y restricci\'on de integrantes) hacen que el caso
+imposible (6 ejemplares, nivel total m\'aximo 5) se descarte en microsegundos.
+Sin soluci\'on, se informa y \emph{no} se devuelve equipo inv\'alido (RF-EQP-04).
+
+\subsection{M\'aquina de estados del torneo}
+\begin{center}
+\begin{tikzpicture}[node distance=8mm and 6mm,
+  box/.style={draw,rounded corners=2pt,align=center,font=\footnotesize,inner sep=4pt}]
+\node[box] (a) {SIN\_INICIAR};
+\node[box,right=of a,xshift=6mm] (b) {GRUPOS\\(calendario 1--48)};
+\node[box,right=of b,xshift=6mm] (c) {ELIMINATORIAS\\(bracket 49--64)};
+\node[box,right=of c,xshift=6mm] (d) {FINALIZADO\\(campe\'on G64)};
+\draw[-Stealth] (a)--node[above,font=\footnotesize]{armar\_grupos (32 exactos)} (b);
+\draw[-Stealth] (b)--node[above,font=\footnotesize]{48/48 aplicados $\to$ clasificados} (c);
+\draw[-Stealth] (c)--node[above,font=\footnotesize]{64 aplicado $\to$ posiciones finales} (d);
+\end{tikzpicture}
+\end{center}
+Los participantes de cada combate los resuelve el sistema (RF-RES-03); el
+usuario nunca los inventa: 49 = 1A-2B, \dots, 57 = G49-G50, \dots,
+63 = P61-P62, 64 = G61-G62.
+
+\subsection{Flujo resumido de cada m\'odulo}
+\begin{longtable}{p{3.0cm} p{12.2cm}}
+\toprule
+\textbf{M\'odulo} & \textbf{Flujo principal} \\
+\midrule
+\texttt{pokedex} & cargar (archivo $\to$ parseo estricto $\to$ tabla) $\to$ consultas de solo lectura (mostrar, buscar por n\'umero/nombre, ficha). \\
+\texttt{tipos} & inicializar (cargar matriz o respaldo embebido) $\to$ validar nombres $\to$ consultar multiplicador. \\
+\texttt{entrenador} & registrar (validar id $\to$ rechazar duplicado $\to$ insertar) / buscar / listar. \\
+\texttt{equipo} & crear ejemplar (especie $\to$ f\'ormula D2) $\to$ agregar (lista) $\to$ validar; o formar autom\'aticamente (restricciones $\to$ backtracking $\to$ asignar). \\
+\texttt{combate} & restaurar $\to$ seleccionar $\to$ turnos (da\~no D1, KO, reemplazo) $\to$ fin (empate/anti-empate) $\to$ escribir resultado. \\
+\texttt{torneo} & armar grupos $\to$ calendario $\to$ aplicar resultados $\to$ ordenar/desempates $\to$ clasificados $\to$ bracket $\to$ campe\'on. \\
+\texttt{resultados} & leer (teclado/archivo) $\to$ validar contra el estado real $\to$ aplicar o rechazar con motivo. \\
+\texttt{archivos} & guardar/cargar entrenadores, resultados y clasificaci\'on con los formatos D8 (separador `;'). \\
+\texttt{validacion} & leer $\to$ reintentar ante entrada inv\'alida $\to$ devolver valor o EOF (cierre ordenado). \\
+\texttt{main} & cargar datos $\to$ men\'u $\to$ despachar a m\'odulos $\to$ guardar si hubo cambios $\to$ liberar memoria $\to$ salir. \\
+\bottomrule
+\end{longtable}
+
+%=====================================================================
+\section{Modelo entidad-relaci\'on}
+%=====================================================================
+
+\begin{center}
+\begin{tikzpicture}[node distance=12mm and 8mm,
+  ent/.style={draw,rectangle,rounded corners=2pt,align=center,font=\footnotesize,inner sep=4pt},
+  rel/.style={draw,diamond,aspect=2,align=center,font=\footnotesize,inner sep=2pt,fill=blue!5}]
+\node[ent] (esp) {ESPECIE\\ \footnotesize numero (PK), nombre,\\ tipo1, tipo2, stats base};
+\node[ent,below=of esp,yshift=-4mm] (ej) {EJEMPLAR\\ \footnotesize id (PK), apodo, nivel,\\ stats D2, hp\_actual,\\ tipo1, tipo2, *siguiente};
+\node[ent,right=of ej,xshift=10mm] (entr) {ENTRENADOR\\ \footnotesize id (PK), nombre,\\ V/E/D, puntos,\\ pokemon\_derrotados,\\ *equipo};
+\node[ent,right=of entr,xshift=10mm] (torn) {TORNEO\\ \footnotesize estado,\\ combates[64],\\ id\_clasificados[16]};
+\node[ent,right=of torn,xshift=10mm] (comb) {COMBATE\\ \footnotesize numero (PK 1..64),\\ ent1, ent2, ganador,\\ empate, kos1, kos2};
+\node[rel,below=of ej,yshift=-4mm] (r1) {DERIVA\\ 1:N};
+\node[rel,below=of entr,yshift=-4mm] (r2) {POSEE\\ 1:N};
+\node[rel,below=of torn,yshift=-4mm] (r3) {CONTIENE\\ 1:64};
+\node[rel,below=of comb,yshift=-4mm] (r4) {PARTICIPA\\ 2:N};
+\draw[-Stealth] (esp)--node[right,font=\footnotesize]{origen de} (ej);
+\draw[-Stealth] (entr)--node[left,font=\footnotesize]{due\~no de} (ej);
+\draw[-Stealth] (torn)--node[left,font=\footnotesize]{compone} (comb);
+\draw[-Stealth] (entr)--node[above,font=\footnotesize]{juega} (comb);
+\end{tikzpicture}
+\end{center}
+
+\begin{longtable}{p{3.6cm} p{5.6cm} p{6.0cm}}
+\toprule
+\textbf{Relaci\'on} & \textbf{Cardinalidad} & \textbf{Implementaci\'on en C} \\
+\midrule
+ESPECIE--EJEMPLAR & 1:N (derivaci\'on) & El ejemplar referencia la especie por \texttt{numero\_especie} y \emph{copia} nombre, tipos y stats (f\'ormula D2) — la especie jam\'as se modifica. \\
+ENTRENADOR--EJEMPLAR & 1:N (composici\'on) & Lista enlazada: \texttt{Entrenador.equipo} apunta a la cabeza; cada \texttt{Ejemplar.siguiente} al pr\'oximo. \\
+TORNEO--COMBATE & 1:64 (composici\'on) & Arreglo \texttt{Combate[64]} dentro de \texttt{Torneo}; numeraci\'on fija 1--48 grupos, 49--64 eliminatoria. \\
+COMBATE--ENTRENADOR & 2:N (participaci\'on) & Cada combate guarda \texttt{id\_entrenador1/2} resueltos por el sistema, ganador y KOs. \\
+RESULTADO--COMBATE & 1:1 (aplicaci\'on) & \texttt{ResultadoCargado} valida y aplica sobre el combate correspondiente; parciales permitidos. \\
+ARCHIVOS & persistencia externa & \texttt{data/*.txt}: pok\'edex (solo lectura), entrenadores, resultados y clasificaci\'on (salida). \\
+\bottomrule
+\end{longtable}
+
+%=====================================================================
+\section{Cumplimiento del documento de requerimientos}
+%=====================================================================
+Verificaci\'on contra \emph{Proyecto- 2026.pdf}, secci\'on por secci\'on.
+Evidencia ejecutable: \texttt{bash tests/run\_tests.sh} (23 PASS / 0 FALLA),
+\texttt{bash scripts/verificar\_entrega.sh} (7 PASS) y build con
+\texttt{gcc -std=c99 -Wall -Wextra} con cero warnings.
+
+\begin{longtable}{p{5.2cm} p{2.0cm} p{8.0cm}}
+\toprule
+\textbf{Requisito (secci\'on)} & \textbf{Estado} & \textbf{Evidencia} \\
+\midrule
+1.1 Pok\'edex 150 especies, 18 tipos, inmutable & $\checkmark$ & \texttt{data/pokedex.txt} (150 l\'ineas, 0 duplicados); API \texttt{const}; sha256 intacto tras consultas y combates. \\
+1.2 Consulta de la Pok\'edex & $\checkmark$ & Opci\'on 1: mostrar todas, buscar por n\'umero y por nombre (insensible a may\'usculas/acentos), ficha completa. \\
+1.3 Entrenadores (id \'unico, V/E/D, puntos) & $\checkmark$ & Opci\'on 2 con rechazo de duplicados; struct completo. \\
+1.4 Equipos y ejemplares (separaci\'on especie/ejemplar) & $\checkmark$ & \texttt{equipo\_crear\_ejemplar} (f\'ormula D2 con variaci\'on por id); la especie no se muta. \\
+1.5 Backtracking & $\checkmark$ & Opci\'on 3 autom\'atica; 5 podas; caso sin soluci\'on informa sin equipo inv\'alido. \\
+1.6 Combates & $\checkmark$ & Motor completo: velocidad, da\~no, KO, reemplazo, agotamiento. \\
+1.7 Efectividad de tipos & $\checkmark$ & Matriz 18$\times$18; valores $\times2/\times1/\times0.5/\times0$ y producto para dos tipos. \\
+1.8 Fase de grupos & $\checkmark$ & 8 grupos de 4 (32 exactos), round-robin 1--48 sin repetidos. \\
+1.9 Puntuaci\'on y desempates & $\checkmark$ & 3/1/0; cadena puntos $\to$ victorias $\to$ KOs $\to$ directo (D9) $\to$ id. \\
+1.10 Clasificaci\'on autom\'atica & $\checkmark$ & 1A/2A\dots1H/2H resueltos por el sistema al completar 48/48. \\
+1.11 Eliminatorias 49--64 & $\checkmark$ & Bracket fijo; G\#/P\# encadenados; sin empates (anti-empate D5); campe\'on G64; top 4. \\
+1.12/1.16 Resultados (teclado/archivo, parciales) & $\checkmark$ & Opci\'on 6; \texttt{data/resultados.txt} parcial recargable. \\
+1.13 Validaci\'on de resultados & $\checkmark$ & Cat\'alogo completo: existan, pertenezcan, ronda correcta, clasificados, eliminados no reaparecen, ganador v\'alido, sin empates, coherencia entre rondas. \\
+1.14 Archivo de la Pok\'edex & $\checkmark$ & 150 especies le\'idas del archivo; cero datos de especies en el c\'odigo. \\
+1.15/1.17 Archivos de entrenadores/clasificaci\'on & $\checkmark$ & Guardar/cargar con equipos reconstruibles; \texttt{clasificacion.txt} con formato exacto. \\
+2. Men\'u principal & $\checkmark$* & Las 12 opciones visibles; \emph{ver observaci\'on}. \\
+3. Implementaci\'on (funciones, structs, arreglos/din\'amicas, archivos, cadenas, TDA, recursividad, backtracking, m\'odulos, main flujo) & $\checkmark$ & 10 m\'odulos; lista enlazada; \texttt{bt\_rec} recursivo; main sin l\'ogica de negocio. \\
+4. Validaci\'on de entradas & $\checkmark$ & \texttt{validacion.c}; ninguna entrada termina el programa inesperadamente (bater\'ia E2E). \\
+6. Pruebas del sistema (16 puntos) & $\checkmark$ & Cobertura 16/16 en \texttt{tests/} (ver trazabilidad). \\
+7. Entrega (un comprimido, compila/ejecuta sin externos) & $\checkmark$ & \texttt{make entrega} $\to$ zip de 93 archivos; \texttt{verificar\_entrega.sh}: 7 PASS en directorio limpio. \\
+8. Evaluaci\'on (13 criterios + defensa) & $\checkmark$ & Cada criterio mapeado en \texttt{docs/trazabilidad-requisitos.md}; este documento prepara la defensa. \\
+\bottomrule
+\end{longtable}
+
+\textbf{Observaci\'on honesta (la \'unica)}: la opci\'on 9 del men\'u
+(``Consultar historial de combates'') se muestra pero responde
+``en construcci\'on''. El enunciado (secci\'on 2) permite modificar el men\'u;
+se recomienda, antes de la entrega, implementarla (registro de combates de la
+sesi\'on) o retirarla del men\'u para no dejar funciones sin terminar.
+
+%=====================================================================
+\section{Guion de defensa: preguntas probables}
+%=====================================================================
+\begin{enumerate}[leftmargin=1.6em]
+\item \textbf{\textquestiondown Por qu\'e tantas funciones \texttt{static} en \texttt{main.c}?}
+  Enlace interno: privadas del archivo, evitan colisiones de nombres y
+  encapsulan (es el \texttt{private} de C). Se demuestra con \texttt{nm}: los
+  \texttt{static} son s\'imbolos locales \texttt{t} y los p\'ublicos \texttt{T}.
+\item \textbf{\textquestiondown Por qu\'e la Pok\'edex nunca se modifica?}
+  Separaci\'on especie/ejemplar (criterio central): el ejemplar copia lo que
+  necesita y solo muta \texttt{hp\_actual}; las funciones de consulta son
+  \texttt{const}-correctas y el sha256 del archivo queda intacto.
+\item \textbf{\textquestiondown De d\'onde salen las estad\'isticas de un ejemplar?}
+  F\'ormula propia documentada (D2): \texttt{(base*nivel/50)+nivel+5/10}
+  m\'as variaci\'on determinista \texttt{(id*7)\%16} en [0,15]: variabilidad
+  entre ejemplares y pruebas 100\% reproducibles (libertad otorgada por el
+  docente).
+\item \textbf{\textquestiondown Por qu\'e no usaste la f\'ormula oficial de da\~no?}
+  La oficial incluye IVs/EVs y el t\'ermino del poder del movimiento (fuera de
+  alcance); sin \'el, los combates ser\'ian interminables. La f\'ormula D1 usa
+  el m\'inimo exigido (nivel, ataque, defensa, tipos) y est\'a justificada en
+  el informe.
+\item \textbf{\textquestiondown C\'omo evita el backtracking explotar con 150 especies?}
+  Cinco podas (cantidad, cota inferior de nivel, cota de tipos, tipos por
+  ejemplar restante e integrantes permitidos); el caso imposible se descarta en
+  microsegundos y no devuelve equipo inv\'alido.
+\item \textbf{\textquestiondown Qu\'e estructuras de datos usaste y por qu\'e?}
+  Arreglos est\'aticos donde el tama\~no es fijo (Pok\'edex 150, 32
+  entrenadores, 64 combates), matriz 18$\times$18 para efectividad y lista
+  enlazada para los equipos (tama\~no variable). No hay pila ni cola
+  expl\'icitas: la recursi\'on del backtracking usa la pila del sistema.
+\item \textbf{\textquestiondown C\'omo validas que un resultado del torneo es correcto?}
+  Ocho chequeos (existen, pertenecen al combate, ronda correcta, clasificados,
+  eliminados, ganador v\'alido, sin empates en eliminatoria, coherencia entre
+  rondas) y los participantes siempre los resuelve el sistema.
+\item \textbf{\textquestiondown Por qu\'e \texttt{main} no tiene l\'ogica de negocio?}
+  Cada m\'odulo es un TDA; \texttt{main} solo despacha. El combate ni siquiera
+  lee la consola: recibe un callback (\texttt{CombateSeleccionar}) que
+  \texttt{main} provee — por eso los probes pueden probar combates sin teclado.
+\item \textbf{\textquestiondown Qu\'e convenci\'on siguen tus funciones?}
+  RF-CNV-01..03: cada funci\'on devuelve un solo resultado; las operaciones con
+  varias salidas son procedimientos \texttt{void} con par\'ametros por
+  referencia (p. ej. \texttt{void pokedex\_cargar(\dots, bool *exito)}).
+\end{enumerate}
+
+%=====================================================================
+\section{Comandos \'utiles durante la defensa}
+%=====================================================================
+\begin{itemize}[leftmargin=1.6em]
+\item \texttt{make} / \texttt{make run} / \texttt{make clean} — compilar, ejecutar, limpiar.
+\item \texttt{bash tests/run\_tests.sh} — bater\'ia completa (23 PASS / 0 FALLA).
+\item \texttt{bash scripts/verificar\_entrega.sh} — compilar y ejecutar el zip en un directorio limpio.
+\item \texttt{make entrega} — regenerar el paquete \texttt{dist/gran-torneo-pokemon-entrega.zip}.
+\item \texttt{nm build/torneo | grep -E " [tT] "} — s\'imbolos locales (\texttt{t}, static) vs globales (\texttt{T}).
+\item \texttt{doxygen Doxyfile} — documentaci\'on HTML del c\'odigo (binario local en \texttt{tools/} o \texttt{sudo apt install doxygen}).
+\item \texttt{grep -h "\#\#\# Requirement" openspec/specs/*/spec.md} — los 45 requisitos formales con su c\'odigo.
+\end{itemize}
+
+\vspace{6mm}
+\noindent\rule{\textwidth}{0.4pt}
+\begin{center}\small
+Documento generado como material de estudio para la defensa oral del proyecto
+\textbf{El Gran Torneo Pok\'emon} (Programaci\'on I, Universidad de Carabobo).
+\end{center}
+
+\end{document}
