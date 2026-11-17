@@ -118,6 +118,7 @@ bool combate_ataca_primero(const Ejemplar *local, const Ejemplar *visita)
 static void combate_atacar(int turno, Entrenador *atacante_ent,
                            Entrenador *defensor_ent, Ejemplar *atacante,
                            Ejemplar **defensor, bool atacante_es_local,
+                           bool silencioso,
                            CombateSeleccionar seleccionar,
                            ResultadoCombate *res, int *ganador)
 {
@@ -127,14 +128,16 @@ static void combate_atacar(int turno, Entrenador *atacante_ent,
     if ((*defensor)->hp_actual < 0) {
         (*defensor)->hp_actual = 0;
     }
-    if (danio > 0) {
-        printf("Turno %d: %s ataca a %s y causa %d de daño (HP %d/%d).\n",
-               turno, atacante->nombre, (*defensor)->nombre, danio,
-               (*defensor)->hp_actual, (*defensor)->hp_max);
-    } else {
-        printf("Turno %d: %s ataca a %s: sin efecto (HP %d/%d).\n",
-               turno, atacante->nombre, (*defensor)->nombre,
-               (*defensor)->hp_actual, (*defensor)->hp_max);
+    if (!silencioso) {
+        if (danio > 0) {
+            printf("Turno %d: %s ataca a %s y causa %d de daño (HP %d/%d).\n",
+                   turno, atacante->nombre, (*defensor)->nombre, danio,
+                   (*defensor)->hp_actual, (*defensor)->hp_max);
+        } else {
+            printf("Turno %d: %s ataca a %s: sin efecto (HP %d/%d).\n",
+                   turno, atacante->nombre, (*defensor)->nombre,
+                   (*defensor)->hp_actual, (*defensor)->hp_max);
+        }
     }
     if ((*defensor)->hp_actual > 0) {
         *ganador = 0;
@@ -143,7 +146,9 @@ static void combate_atacar(int turno, Entrenador *atacante_ent,
 
     /* KO (RF-CMB-04): el atacante suma un derrotado y el defensor elige
        reemplazo entre sus disponibles; sin disponibles, el atacante gana. */
-    printf("¡%s ha sido debilitado!\n", (*defensor)->nombre);
+    if (!silencioso) {
+        printf("¡%s ha sido debilitado!\n", (*defensor)->nombre);
+    }
     if (atacante_es_local) {
         res->kos_local++;
     } else {
@@ -190,7 +195,8 @@ static int combate_total_nivel(const Entrenador *ent)
 
 /* Implementación de combate_ejecutar: documentación canónica en combate.h. */
 void combate_ejecutar(Entrenador *local, Entrenador *visita,
-                      bool es_eliminatoria, CombateSeleccionar seleccionar,
+                      bool es_eliminatoria, bool silencioso,
+                      CombateSeleccionar seleccionar,
                       ResultadoCombate *res, bool *exito)
 {
     Ejemplar *activo_local;
@@ -216,18 +222,24 @@ void combate_ejecutar(Entrenador *local, Entrenador *visita,
     combate_restaurar_hp(local);
     combate_restaurar_hp(visita);
 
-    printf("=== Combate: %s vs %s (%s) ===\n", local->nombre, visita->nombre,
-           es_eliminatoria ? "eliminatoria" : "fase de grupos");
+    if (!silencioso) {
+        printf("=== Combate: %s vs %s (%s) ===\n", local->nombre, visita->nombre,
+               es_eliminatoria ? "eliminatoria" : "fase de grupos");
+    }
 
     activo_local = combate_seleccionar_activo(local, "local", seleccionar);
     if (activo_local == NULL) {
-        printf("Combate cancelado.\n");
+        if (!silencioso) {
+            printf("Combate cancelado.\n");
+        }
         *exito = false;
         return;
     }
     activo_visita = combate_seleccionar_activo(visita, "visita", seleccionar);
     if (activo_visita == NULL) {
-        printf("Combate cancelado.\n");
+        if (!silencioso) {
+            printf("Combate cancelado.\n");
+        }
         *exito = false;
         return;
     }
@@ -267,9 +279,11 @@ void combate_ejecutar(Entrenador *local, Entrenador *visita,
         /* Intercambio completo: ataca primero y luego el segundo activo. */
         combate_atacar(turno, local_primero ? local : visita,
                        local_primero ? visita : local, primero, &segundo,
-                       local_primero, seleccionar, res, &g);
+                       local_primero, silencioso, seleccionar, res, &g);
         if (g == -1) {
-            printf("Combate cancelado.\n");
+            if (!silencioso) {
+                printf("Combate cancelado.\n");
+            }
             *exito = false;
             return;
         }
@@ -279,9 +293,11 @@ void combate_ejecutar(Entrenador *local, Entrenador *visita,
         }
         combate_atacar(turno, local_primero ? visita : local,
                        local_primero ? local : visita, segundo, &primero,
-                       !local_primero, seleccionar, res, &g);
+                       !local_primero, silencioso, seleccionar, res, &g);
         if (g == -1) {
-            printf("Combate cancelado.\n");
+            if (!silencioso) {
+                printf("Combate cancelado.\n");
+            }
             *exito = false;
             return;
         }
@@ -297,11 +313,13 @@ void combate_ejecutar(Entrenador *local, Entrenador *visita,
     if (ganador != 0) {
         /* Victoria por agotamiento: gana quien conserva Pokémon (RF-CMB-04). */
         res->id_ganador = ganador;
-        printf("Victoria de %s: %s se queda sin Pokémon disponibles "
-               "(KOs: %d a %d).\n",
-               ganador == local->id ? local->nombre : visita->nombre,
-               ganador == local->id ? visita->nombre : local->nombre,
-               res->kos_local, res->kos_visita);
+        if (!silencioso) {
+            printf("Victoria de %s: %s se queda sin Pokémon disponibles "
+                   "(KOs: %d a %d).\n",
+                   ganador == local->id ? local->nombre : visita->nombre,
+                   ganador == local->id ? visita->nombre : local->nombre,
+                   res->kos_local, res->kos_visita);
+        }
         *exito = true;
         return;
     }
@@ -325,14 +343,18 @@ void combate_ejecutar(Entrenador *local, Entrenador *visita,
             ganador = local->id;   /* criterio 3: entrenador 1 */
         }
         res->id_ganador = ganador;
-        printf("Desempate en eliminatoria tras %d turnos: HP total %d-%d, "
-               "nivel total %d-%d; gana %s.\n",
-               MAX_TURNOS_COMBATE, hp_local, hp_visita, nv_local, nv_visita,
-               ganador == local->id ? local->nombre : visita->nombre);
+        if (!silencioso) {
+            printf("Desempate en eliminatoria tras %d turnos: HP total %d-%d, "
+                   "nivel total %d-%d; gana %s.\n",
+                   MAX_TURNOS_COMBATE, hp_local, hp_visita, nv_local, nv_visita,
+                   ganador == local->id ? local->nombre : visita->nombre);
+        }
     } else {
         res->empate = true;
-        printf("Empate tras %d turnos (fase de grupos).\n",
-               MAX_TURNOS_COMBATE);
+        if (!silencioso) {
+            printf("Empate tras %d turnos (fase de grupos).\n",
+                   MAX_TURNOS_COMBATE);
+        }
     }
     *exito = true;
 }

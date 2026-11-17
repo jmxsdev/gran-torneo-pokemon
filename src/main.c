@@ -510,7 +510,7 @@ static void jugar_combate(const Pokedex *pd, RegistroEntrenadores *reg)
         return;
     }
 
-    combate_ejecutar(local, visita, modo == 2,
+    combate_ejecutar(local, visita, modo == 2, false,
                      seleccionar_pokemon_activo, &res, &exito);
     if (!exito) {
         printf("El combate no se pudo ejecutar.\n");

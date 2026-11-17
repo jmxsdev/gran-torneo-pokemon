@@ -83,6 +83,9 @@ bool combate_ataca_primero(const Ejemplar *local, const Ejemplar *visita);
  * @param visita        Entrenador visitante (no debe ser NULL).
  * @param es_eliminatoria true si el combate es de eliminatoria (anti-empate
  *                      D5); false si es de fase de grupos (empate D4).
+ * @param silencioso    true para suprimir la traza por consola (turnos,
+ *                      daños, KOs y desempates) conservando solo el
+ *                      resultado; false conserva la traza completa (D12).
  * @param seleccionar   Función que elige el Pokémon activo (no NULL).
  * @param res           Puntero donde se escribe el resultado (no NULL).
  * @param exito         Puntero donde se escribe true si el combate se ejecutó
@@ -91,7 +94,8 @@ bool combate_ataca_primero(const Ejemplar *local, const Ejemplar *visita);
  *                      canceló por fin de entrada (EOF) (no debe ser NULL).
  */
 void combate_ejecutar(Entrenador *local, Entrenador *visita,
-                      bool es_eliminatoria, CombateSeleccionar seleccionar,
+                      bool es_eliminatoria, bool silencioso,
+                      CombateSeleccionar seleccionar,
                       ResultadoCombate *res, bool *exito);
 
 #endif /* COMBATE_H */
