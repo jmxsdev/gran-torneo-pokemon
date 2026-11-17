@@ -71,12 +71,12 @@ Resolución: **Opción A + blindado (D17)**. En L6 se reescriben 012–015 como 
 - [x] L4.2 Ampliar `guardar_al_salir` para guardar resultados si `resultados_sucios` (usa `archivos_guardar_resultados`, ya existente); la función gana el parámetro `const Torneo *t`.
 - [x] L4.3 Verificación: cargar resultados por teclado → salir → `data/resultados.txt` refleja los aplicados (round-trip 20+1 verificado en sandbox); golden nuevo `023_resultados_guardados`; goldens 016/017/019/022 regenerados con la línea "Resultados guardados en data/resultados.txt."; batería 22/4 (solo los 4 de combate por dato, L6).
 
-## Lote L5 — Fix 63/64 + round-trip de orden
+## Lote L5 — Fix 63/64 + round-trip de orden — ✅ HECHO (2026-11-16)
 
-- [ ] L5.1 En `torneo_aplicar_resultado`: finalizar solo cuando 63 y 64 tienen resultado; aplicar 64 antes de 63 mantiene `TORNEO_ELIMINATORIAS` (D14). Ajustar `mostrar_posiciones` para 63 pendiente.
-- [ ] L5.2 En `archivos_guardar_entrenadores`: escribir ejemplares en orden inverso (D15) para round-trip estable.
-- [ ] L5.3 Actualizar `tests/probes/probe_torneo_completo.c` para aplicar 63 antes de 64 (o ambos) y verificar posiciones completas.
-- [ ] L5.4 Verificación: regresión completa + caso 64-antes-de-63 ya no bloquea el tercer lugar.
+- [x] L5.1 En `torneo_aplicar_resultado`: finalizar solo cuando 63 y 64 tienen resultado; aplicar 64 antes de 63 mantiene `TORNEO_ELIMINATORIAS` y muestra un mensaje con el combate 63 pendiente (D14). *(Ajuste de `mostrar_posiciones` no necesario: con D14 solo se llama con ambos resueltos.)*
+- [x] L5.2 En `archivos_guardar_entrenadores`: escribir ejemplares en orden inverso (D15) para round-trip estable — recoge la lista en un arreglo local y la escribe de cola a cabeza.
+- [x] L5.3 `tests/probes/probe_torneo_completo.c`: el bracket ahora aplica 49..62, luego **64 antes de 63** y verifica que no finaliza hasta resolver ambos (D14); probe 29/29 PASS.
+- [x] L5.4 Verificación: E2E por menú 64→63 (mensaje "Falta resolver el combate 63", luego posiciones completas: Ash/Clemont/Jessie/Shauna); round-trip D15 (31 equipos no tocados byte-idénticos tras guardar); batería 22/4 sin regresiones nuevas.
 
 ## Lote L6 — Blindar los tests de combate (D17) y cierre
 

@@ -218,12 +218,24 @@ void archivos_guardar_entrenadores(const RegistroEntrenadores *reg,
     }
     for (i = 0; i < reg->cantidad; i++) {
         const Entrenador *ent = &reg->entrenadores[i];
+        const Ejemplar *orden[MAX_EQUIPO];
         const Ejemplar *ej;
+        int n = 0;
+        int j;
+
+        /* D15: la lista enlazada inserta al frente (equipo_agregar), por lo
+           que se recoge en un arreglo y se escribe en orden inverso; así
+           cargar → guardar no invierte el orden de los ejemplares. */
+        for (ej = ent->equipo; ej != NULL && n < MAX_EQUIPO;
+             ej = ej->siguiente) {
+            orden[n++] = ej;
+        }
         fprintf(archivo, "%d;%s;%d", ent->id, ent->nombre,
                 equipo_contar(ent));
-        for (ej = ent->equipo; ej != NULL; ej = ej->siguiente) {
-            fprintf(archivo, ";%d;%d;%s;%d", ej->id, ej->numero_especie,
-                    ej->nombre, ej->nivel);
+        for (j = n - 1; j >= 0; j--) {
+            fprintf(archivo, ";%d;%d;%s;%d", orden[j]->id,
+                    orden[j]->numero_especie, orden[j]->nombre,
+                    orden[j]->nivel);
         }
         fprintf(archivo, "\n");
     }

@@ -586,11 +586,24 @@ void torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
                          "de %s (id %d).", r->numero,
                  ronda_a_texto(r->numero),
                  ganador != NULL ? ganador->nombre : "?", r->id_ganador);
-        if (r->numero == TOTAL_COMBATES) {
+
+        /* D14: el torneo finaliza solo cuando la final (64) Y el tercer
+           lugar (63) tienen resultado; aplicar 64 antes de 63 ya no bloquea
+           el combate 63 (antes quedaba perdido para siempre). */
+        if (t->combates[TOTAL_COMBATES - 1].estado != RES_PENDIENTE &&
+            t->combates[TOTAL_COMBATES - 2].estado != RES_PENDIENTE) {
             t->estado = TORNEO_FINALIZADO;
             /* RF-ELM-05: al finalizar, el sistema muestra los 4 primeros. */
             mostrar_posiciones(t, reg);
             snprintf(msg, n, "Torneo finalizado: el campeón es %s (id %d).",
+                     nombre_entrenador(reg,
+                             t->combates[TOTAL_COMBATES - 1].id_ganador),
+                     t->combates[TOTAL_COMBATES - 1].id_ganador);
+        } else if (r->numero == TOTAL_COMBATES) {
+            snprintf(msg, n, "Resultado del combate %d (%s) aplicado: "
+                             "victoria de %s (id %d). Falta resolver el "
+                             "combate 63 (tercer lugar) para finalizar.",
+                     r->numero, ronda_a_texto(r->numero),
                      ganador != NULL ? ganador->nombre : "?", r->id_ganador);
         }
         *exito = true;

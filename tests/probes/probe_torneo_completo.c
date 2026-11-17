@@ -73,18 +73,6 @@ static void completar_grupos(Torneo *t, RegistroEntrenadores *reg,
     }
 }
 
-/* Aplica el bracket completo 49..64 (V1). */
-static void completar_eliminatoria(Torneo *t, RegistroEntrenadores *reg,
-                                   char *msg, size_t n)
-{
-    int k;
-    for (k = 49; k <= TOTAL_COMBATES; k++) {
-        if (!aplicar_v1(t, reg, k, msg, n)) {
-            printf("ERROR: no se aplicó el combate de eliminatoria %d\n", k);
-        }
-    }
-}
-
 int main(void)
 {
     Pokedex pd;
@@ -93,6 +81,7 @@ int main(void)
     char msg[256];
     int id1;
     int id2;
+    int k;
     bool exito;
 
     /* ---------- 1. Carga de datos (RF-PRB-01: Pokédex y registro) ------- */
@@ -171,9 +160,21 @@ int main(void)
                   "eliminatoria: participantes inventados rechazados (RF-RES-03)");
     }
 
-    completar_eliminatoria(&t, &reg, msg, sizeof(msg));
+    /* Bracket 49..62 en orden (V1); la final (64) se aplica ANTES del
+       tercer lugar (63) para verificar D14. */
+    for (k = 49; k <= 62; k++) {
+        if (!aplicar_v1(&t, &reg, k, msg, sizeof(msg))) {
+            printf("ERROR: no se aplicó el combate de eliminatoria %d\n", k);
+        }
+    }
+    verificar(aplicar_v1(&t, &reg, 64, msg, sizeof(msg)),
+              "final: combate 64 aplicado con 63 pendiente");
+    verificar(t.estado == TORNEO_ELIMINATORIAS,
+              "final: 64 antes de 63 NO finaliza el torneo (D14)");
+    verificar(aplicar_v1(&t, &reg, 63, msg, sizeof(msg)),
+              "final: combate 63 aplicado tras la final");
     verificar(t.estado == TORNEO_FINALIZADO,
-              "final: ELIMINATORIAS->FINALIZADO al aplicar el 64");
+              "final: FINALIZADO al resolver 63 y 64 (D14)");
 
     /* Campeón y posiciones (RF-ELM-05): con V1 en todo el bracket,
        campeón = G64 = 1 (Ash), subcampeón = P64 = 17, tercero = G63 = 5,
