@@ -23,10 +23,10 @@
 #include "simulacion.h"
 #include "archivos.h"
 
-/* Marca de modificación de entrenadores en sesión: solo se guarda el
-   archivo si el registro cambió (RF-ENT-03). Los resultados NO se
-   autoguardan: se persisten vía archivos_guardar_resultados (F7). */
+/* Marcas de modificación en sesión: cada archivo se guarda solo si cambió
+   algo (RF-ENT-03 para entrenadores, D16 para resultados). */
 static bool entrenadores_sucios = false;
+static bool resultados_sucios = false;
 
 /**
  * Muestra el menú de las 12 opciones del torneo (RF-MEN-01).
@@ -677,27 +677,33 @@ static void cargar_resultados(const Pokedex *pd, Torneo *t,
     }
     if (sub == 1) {
         resultados_cargar_teclado(t, reg, &exito);
+        if (exito) {
+            resultados_sucios = true;   /* D16: persistir al salir */
+        }
     } else if (sub == 2) {
         resultados_cargar_archivo(t, reg, RUTA_RESULTADOS, &exito);
+        if (exito) {
+            resultados_sucios = true;   /* D16: persistir al salir */
+        }
     } else {
         simulacion_ejecutar(pd, t, reg, &exito);
         if (!exito) {
             printf("La simulación no se pudo completar.\n");
             return;
         }
+        resultados_sucios = true;       /* D16: persistir al salir */
     }
-    (void)exito;   /* el resultado de la carga se ignora (RF-RES-01) */
     resultados_mostrar_pendientes(t);
 }
 
 /**
- * @brief Persiste los entrenadores modificados en la sesión al salir.
+ * @brief Persiste los entrenadores y resultados modificados al salir.
  *
- * Solo escribe si el registro cambió (RF-ENT-03), para no reescribir datos
- * intactos. La clasificación se guarda en la opción 7 y los resultados se
- * persisten vía archivos_guardar_resultados (F7, no autoguardado).
+ * Solo escribe si algo cambió en la sesión (RF-ENT-03 para entrenadores,
+ * D16 para resultados), para no reescribir datos intactos. La clasificación
+ * se guarda en la opción 7.
  */
-static void guardar_al_salir(const RegistroEntrenadores *reg)
+static void guardar_al_salir(const RegistroEntrenadores *reg, const Torneo *t)
 {
     bool exito;
 
@@ -707,6 +713,14 @@ static void guardar_al_salir(const RegistroEntrenadores *reg)
             printf("Entrenadores guardados en %s.\n", RUTA_ENTRENADORES);
         } else {
             printf("Aviso: no se pudieron guardar los entrenadores.\n");
+        }
+    }
+    if (resultados_sucios) {
+        archivos_guardar_resultados(t, RUTA_RESULTADOS, &exito);
+        if (exito) {
+            printf("Resultados guardados en %s.\n", RUTA_RESULTADOS);
+        } else {
+            printf("Aviso: no se pudieron guardar los resultados.\n");
         }
     }
 }
@@ -820,7 +834,7 @@ int main(void)
 
     /* Persistencia de los entrenadores modificados en la sesión (RF-ENT-03)
        antes de liberar los equipos (sin fugas). */
-    guardar_al_salir(&registro);
+    guardar_al_salir(&registro, &torneo);
     for (i = 0; i < registro.cantidad; i++) {
         equipo_liberar(&registro.entrenadores[i]);
     }

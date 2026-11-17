@@ -65,11 +65,11 @@ Resolución: **Opción A + blindado (D17)**. En L6 se reescriben 012–015 como 
 - [x] L3.3 Añadir `case 9:` en `main.c` con helper `consultar_historial` (arma el torneo si falta; informa rechazo si ≠32, RF-TEC-03).
 - [x] L3.4 Verificación: goldens `021_historial_sin_resultados` y `022_historial_con_resultados` (20/48) PASS; batería 21/4 (solo los 4 de combate por dato, pendientes de L6); `make` cero warnings. *(Nota: `run_tests.sh` ganó `pantalla.c` en `SRC_MODULOS` para los probes.)*
 
-## Lote L4 — Persistencia de resultados (D16)
+## Lote L4 — Persistencia de resultados (D16) — ✅ HECHO (2026-11-16)
 
-- [ ] L4.1 Añadir `resultados_sucios` en `main.c`; marcarla al aplicar resultados (teclado, archivo o simulación).
-- [ ] L4.2 Ampliar `guardar_al_salir` para guardar resultados si `resultados_sucios` (usa `archivos_guardar_resultados`, ya existente).
-- [ ] L4.3 Verificación: cargar resultados por teclado → salir → `data/resultados.txt` refleja los aplicados (round-trip recargable).
+- [x] L4.1 Añadir `resultados_sucios` en `main.c`; marcarla al aplicar resultados (teclado, archivo o simulación).
+- [x] L4.2 Ampliar `guardar_al_salir` para guardar resultados si `resultados_sucios` (usa `archivos_guardar_resultados`, ya existente); la función gana el parámetro `const Torneo *t`.
+- [x] L4.3 Verificación: cargar resultados por teclado → salir → `data/resultados.txt` refleja los aplicados (round-trip 20+1 verificado en sandbox); golden nuevo `023_resultados_guardados`; goldens 016/017/019/022 regenerados con la línea "Resultados guardados en data/resultados.txt."; batería 22/4 (solo los 4 de combate por dato, L6).
 
 ## Lote L5 — Fix 63/64 + round-trip de orden
 
