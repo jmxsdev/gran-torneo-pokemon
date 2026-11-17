@@ -164,6 +164,25 @@ La columna **Verificación** indica el lote de la batería de pruebas
 
 ---
 
+### Change `simulacion-torneo` (2026-11-16) — requisitos nuevos y modificados
+
+| Código | Requisito | Esc. | Implementación | Verificación |
+|---|---|---|---|---|
+| RF-SIM-01 | Simulación completa del torneo | 2 | `src/simulacion.c` (`simulacion_ejecutar`, bucle 1–64 con `combate_ejecutar` silencioso) | L2 · goldens 021/022, verificación E2E |
+| RF-SIM-02 | Determinismo de la simulación | 1 | Sin `srand`; D1/D2/D3/D5 deterministas | L2 |
+| RF-SIM-03 | Reutilización de la máquina de estados | 1 | Todo pasa por `torneo_aplicar_resultado` | L2 · probe_torneo_completo 29/29 |
+| RF-SIM-04 | Relleno automático de equipos faltantes | 2 | `simulacion_preparar_equipos` + `equipo_formar_backtracking` (D18) | L2 |
+| RF-RES-05 | Persistencia de resultados al salir | 1 | `resultados_sucios` + `archivos_guardar_resultados` (D16) | L4 · golden 023 |
+| RF-RES-06 | Historial de combates | 2 | `torneo_mostrar_historial` (tabla 1–64, estilo D19) | L3 · goldens 021/022 |
+| RF-MEN-02 | Opción 9 implementada | 2 | `case 9` + `consultar_historial` en `src/main.c` | L3 |
+| RF-MEN-03 | Entrada de la simulación en el menú | 1 | Submenú `3. Simular…` de la opción 6 (D13) | L2 |
+| RF-ELM-06 | Finalización con 63 y 64 resueltos | 2 | `torneo_aplicar_resultado` (D14) | L5 · probe 29/29 |
+| RF-ENT-03 (mod) | Round-trip estable del archivo de entrenadores | 2 | `archivos_guardar_entrenadores` escribe en orden inverso (D15) | L5 |
+| RF-EQP-04 (mod) | Nivel objetivo en la formación automática | 2 | Campo `nivel_objetivo` en `RestriccionesEquipo` + `bt_rec` | L2 |
+| RF-PRB-01 (mod) | Tests de combate autónomos | — | 012–015 reescritos como `_sin_entrenadores` (D17) | L6 · batería 26/26 |
+
+---
+
 ## 5. Requisitos transversales (fuera de las 11 specs)
 
 Viven en `exploration.md`/`design.md`/`tasks.md` (archive) porque atraviesan

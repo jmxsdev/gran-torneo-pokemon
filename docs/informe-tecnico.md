@@ -513,18 +513,18 @@ Arranca el menú principal de 12 opciones:
 | 3 | Crear equipo (manual o automático por backtracking, RF-EQP-04) |
 | 4 | Consultar entrenadores |
 | 5 | Consultar equipos |
-| 6 | Cargar resultados (teclado o `data/resultados.txt`, RF-RES-01) |
+| 6 | Cargar resultados (teclado, `data/resultados.txt` o simulación automática, RF-RES-01/RF-SIM-01) |
 | 7 | Consultar clasificación (y guardar `data/clasificacion.txt`) |
 | 8 | Consultar enfrentamientos (combate amistoso / calendario 1–48) |
-| 9 | Consultar historial de combates |
+| 9 | Consultar historial de combates (tabla 1–64 con estilo D19, RF-RES-06) |
 | 10 | Mostrar resultados del torneo (bracket 49–64) |
 | 11 | Mostrar campeón |
-| 12 | Salir (guarda entrenadores modificados y libera equipos) |
+| 12 | Salir (guarda entrenadores y resultados modificados y libera equipos) |
 
 Al iniciar carga `data/pokedex.txt` (150 especies) y, si existe,
 `data/entrenadores.txt` (32 entrenadores); los resultados se cargan con la
-opción 6. Las opciones 7/8/10/11 arman el torneo al vuelo con 32 entrenadores
-(D10). Ninguna entrada inválida termina el programa (RF-TEC-03).
+opción 6. Las opciones 7/8/9/10/11 arman el torneo al vuelo con 32
+entrenadores (D10). Ninguna entrada inválida termina el programa (RF-TEC-03).
 
 ### 7.3 Documentación del código (Doxygen)
 
@@ -554,21 +554,67 @@ en `tools/doxygen-1.12.0/bin/doxygen` (ver F10.3).
 
 ---
 
-## 9. Conclusiones y trabajo futuro
+## 9. Change `simulacion-torneo` (2026-11-16) — D11–D19
 
-El sistema cumple las 11 capacidades especificadas (42 requisitos, 70
-escenarios) con determinismo total, cero warnings de compilación y una batería
-de 23 pruebas scriptadas verdes más 2 probes de módulos. Las decisiones D1–D10
-quedan cerradas y justificadas para la defensa oral.
+Ciclo SDD posterior a la entrega (F11) que cierra los hallazgos de la
+auditoría contra el PDF y añade la simulación automática del torneo.
 
-Trabajo futuro posible: movimientos con poder (restauraría el `/50` de D1),
-IVs/EVs como alternativa a la variación determinista, persistencia de la
-clasificación recargable, torneos de N participantes (N múltiplo de 4) y una
-interfaz gráfica.
+### 9.1 Decisiones nuevas (D11–D19)
+
+| # | Decisión | Valor adoptado |
+|---|----------|----------------|
+| D11 | Selección automática del Pokémon activo | Primer disponible (posición 1) |
+| D12 | Modo silencioso en combate | Parámetro `bool silencioso` en `combate_ejecutar` |
+| D13 | Entrada de la simulación | Submenú `3. Simular torneo automáticamente` de la opción 6 |
+| D14 | Finalización del torneo | Solo cuando 63 (tercer lugar) y 64 (final) tienen resultado |
+| D15 | Round-trip estable del guardado | `archivos_guardar_entrenadores` escribe la lista en orden inverso |
+| D16 | Persistencia de resultados | Bandera `resultados_sucios` + guardado al salir |
+| D17 | Tests de combate autónomos | 012–015 reescritos como `_sin_entrenadores` |
+| D18 | Relleno automático de equipos | Backtracking con nivel medio 30 y ventana rotativa (24 especies, paso 4) |
+| D19 | Guía de estilo de pantalla | Título `═`, tablas con cabecera, `Nombre (id N)`, padding UTF-8 por caracteres (`pantalla.c`) |
+
+### 9.2 Simulación automática del torneo (RF-SIM-01..04)
+
+Nuevo módulo `simulacion.c`: `simulacion_preparar_equipos` rellena por
+backtracking los equipos vacíos o inválidos (nivel medio 30, ventana de
+especies rotativa determinista por posición) y `simulacion_ejecutar` recorre
+los 64 combates: salta los ya resueltos (respeta parciales), resuelve los
+participantes con la tabla de bracket (RF-RES-03), ejecuta `combate_ejecutar`
+en modo silencioso y aplica cada resultado con `torneo_aplicar_resultado`. Con
+solo cargar 32 entrenadores, el sistema arma equipos, juega el torneo completo
+y corona al campeón, todo determinista (sin `srand`).
+
+### 9.3 Historial de combates y estilo de pantalla
+
+La opción 9 (`torneo_mostrar_historial`) muestra los 64 combates en una tabla
+con título y reglas (D19). La guía completa vive en
+`docs/guia-estilo-pantalla.md`; el resto de pantallas se migra en L7.
+
+### 9.4 Verificación
+
+`make` cero warnings; `bash tests/run_tests.sh` → **26 PASS, 0 FALLA**
+(23 casos de menú + 2 probes: efectividad 21/21 y torneo completo 29/29). Los
+tests de combate ya no leen `data/entrenadores.txt` (D17): ninguna edición
+futura de ese archivo rompe la batería.
 
 ---
 
-## 10. Referencias
+## 10. Conclusiones y trabajo futuro
+
+El sistema cumple las 11 capacidades especificadas (42 requisitos, 70
+escenarios) más el change `simulacion-torneo` (D11–D19), con determinismo
+total, cero warnings de compilación y una batería de 26 pruebas scriptadas
+verdes más 2 probes de módulos. Las decisiones D1–D19 quedan cerradas y
+justificadas para la defensa oral.
+
+Trabajo futuro posible: migrar el resto de pantallas al estilo D19 (L7),
+movimientos con poder (restauraría el `/50` de D1), IVs/EVs como alternativa
+a la variación determinista, torneos de N participantes (N múltiplo de 4) y
+una interfaz gráfica.
+
+---
+
+## 11. Referencias
 
 - `openspec/changes/gran-torneo-pokemon/design.md` — diseño técnico completo
   (D1–D10, §1–§16).

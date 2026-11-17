@@ -1,0 +1,123 @@
+Error: no se pudo abrir el archivo de entrenadores: data/entrenadores.txt
+Aviso: no se cargaron entrenadores desde el archivo; use la opción 2 para registrarlos.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Ingrese el id del entrenador: Ingrese el nombre del entrenador: Entrenador registrado: id 1, Local.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Crear equipo ---
+1. Formación manual
+2. Formación automática (backtracking)
+0. Volver al menú principal
+Seleccione una opción: Ingrese el id del entrenador: Ingrese el número de especie (0 para terminar): Ingrese el nivel del ejemplar (1-100): Nombre/apodo (Enter = nombre de la especie): Ejemplar #1 Charizard (especie Charizard, nivel 50) agregado; equipo 1/6.
+Ingrese el número de especie (0 para terminar): El equipo es válido (tamaño 1, especies y niveles correctos).
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Ingrese el id del entrenador: Ingrese el nombre del entrenador: Entrenador registrado: id 2, Visita.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Crear equipo ---
+1. Formación manual
+2. Formación automática (backtracking)
+0. Volver al menú principal
+Seleccione una opción: Ingrese el id del entrenador: Ingrese el número de especie (0 para terminar): Ingrese el nivel del ejemplar (1-100): Nombre/apodo (Enter = nombre de la especie): Ejemplar #2 Caterpie (especie Caterpie, nivel 1) agregado; equipo 1/6.
+Ingrese el número de especie (0 para terminar): El equipo es válido (tamaño 1, especies y niveles correctos).
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Consultar enfrentamientos ---
+1. Combate amistoso
+2. Calendario del torneo (combates 1-48)
+0. Volver al menú principal
+Seleccione una opción: 
+--- Combate amistoso ---
+1. Fase de grupos (admite empate)
+2. Eliminatoria (desempate forzoso)
+0. Volver al menú principal
+Seleccione una opción: Id del entrenador local: Id del entrenador visitante: === Combate: Local vs Visita (fase de grupos) ===
+--- Selección de Pokémon activo (local: Local) ---
+1. Charizard (nivel 50, HP 145/145)
+Seleccione posición (1-1): --- Selección de Pokémon activo (visita: Visita) ---
+1. Caterpie (nivel 1, HP 25/25)
+Seleccione posición (1-1): Turno 1: Charizard ataca a Caterpie y causa 324 de daño (HP 0/25).
+¡Caterpie ha sido debilitado!
+Victoria de Local: Visita se queda sin Pokémon disponibles (KOs: 1 a 0).
+Resultado: gana Local (id 1).
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.
+Entrenadores guardados en data/entrenadores.txt.

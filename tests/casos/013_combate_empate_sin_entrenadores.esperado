@@ -1,0 +1,161 @@
+Error: no se pudo abrir el archivo de entrenadores: data/entrenadores.txt
+Aviso: no se cargaron entrenadores desde el archivo; use la opción 2 para registrarlos.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Ingrese el id del entrenador: Ingrese el nombre del entrenador: Entrenador registrado: id 1, Local.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Crear equipo ---
+1. Formación manual
+2. Formación automática (backtracking)
+0. Volver al menú principal
+Seleccione una opción: Ingrese el id del entrenador: Ingrese el número de especie (0 para terminar): Ingrese el nivel del ejemplar (1-100): Nombre/apodo (Enter = nombre de la especie): Ejemplar #1 Gastly (especie Gastly, nivel 10) agregado; equipo 1/6.
+Ingrese el número de especie (0 para terminar): El equipo es válido (tamaño 1, especies y niveles correctos).
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Ingrese el id del entrenador: Ingrese el nombre del entrenador: Entrenador registrado: id 2, Visita.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Crear equipo ---
+1. Formación manual
+2. Formación automática (backtracking)
+0. Volver al menú principal
+Seleccione una opción: Ingrese el id del entrenador: Ingrese el número de especie (0 para terminar): Ingrese el nivel del ejemplar (1-100): Nombre/apodo (Enter = nombre de la especie): Ejemplar #2 Rattata (especie Rattata, nivel 10) agregado; equipo 1/6.
+Ingrese el número de especie (0 para terminar): El equipo es válido (tamaño 1, especies y niveles correctos).
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Consultar enfrentamientos ---
+1. Combate amistoso
+2. Calendario del torneo (combates 1-48)
+0. Volver al menú principal
+Seleccione una opción: 
+--- Combate amistoso ---
+1. Fase de grupos (admite empate)
+2. Eliminatoria (desempate forzoso)
+0. Volver al menú principal
+Seleccione una opción: Id del entrenador local: Id del entrenador visitante: === Combate: Local vs Visita (fase de grupos) ===
+--- Selección de Pokémon activo (local: Local) ---
+1. Gastly (nivel 10, HP 33/33)
+Seleccione posición (1-1): --- Selección de Pokémon activo (visita: Visita) ---
+1. Rattata (nivel 10, HP 40/40)
+Seleccione posición (1-1): Turno 1: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 1: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 2: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 2: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 3: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 3: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 4: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 4: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 5: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 5: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 6: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 6: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 7: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 7: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 8: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 8: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 9: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 9: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 10: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 10: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 11: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 11: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 12: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 12: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 13: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 13: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 14: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 14: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 15: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 15: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 16: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 16: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 17: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 17: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 18: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 18: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 19: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 19: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Turno 20: Rattata ataca a Gastly: sin efecto (HP 33/33).
+Turno 20: Gastly ataca a Rattata: sin efecto (HP 40/40).
+Empate tras 20 turnos (fase de grupos).
+Resultado: empate (1 punto para cada entrenador).
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.
+Entrenadores guardados en data/entrenadores.txt.

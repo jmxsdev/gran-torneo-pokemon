@@ -78,15 +78,15 @@ Resolución: **Opción A + blindado (D17)**. En L6 se reescriben 012–015 como 
 - [x] L5.3 `tests/probes/probe_torneo_completo.c`: el bracket ahora aplica 49..62, luego **64 antes de 63** y verifica que no finaliza hasta resolver ambos (D14); probe 29/29 PASS.
 - [x] L5.4 Verificación: E2E por menú 64→63 (mensaje "Falta resolver el combate 63", luego posiciones completas: Ash/Clemont/Jessie/Shauna); round-trip D15 (31 equipos no tocados byte-idénticos tras guardar); batería 22/4 sin regresiones nuevas.
 
-## Lote L6 — Blindar los tests de combate (D17) y cierre
+## Lote L6 — Blindar los tests de combate (D17) y cierre — ✅ HECHO (2026-11-16)
 
-- [ ] L6.1 Reescribir `tests/casos/012_combate_victoria` como `_sin_entrenadores`: registra 2 entrenadores + equipos por menú (opciones 2/3) y combate (8 → 1); verifica victoria determinista.
-- [ ] L6.2 Reescribir `013_combate_empate` (autónomo): equipos que llegan a 20 turnos sin KO mutuo (D4).
-- [ ] L6.3 Reescribir `014_combate_eliminatoria` (autónomo): verifica el anti-empate D5.
-- [ ] L6.4 Reescribir `015_efectividad_sin_efecto` (autónomo): multiplicador ×0 E2E.
-- [ ] L6.5 Conservar el equipo de Misty en `data/entrenadores.txt`; el archivo deja de ser entrada de la batería de combate.
-- [ ] L6.6 Actualizar `docs/informe-tecnico.md` (D11–D18 + sección de simulación) y `docs/trazabilidad-requisitos.md` (RF-SIM-*, RF-RES-05, RF-RES-06, RF-MEN-01/02/03, RF-ELM-06, RF-ENT-03, RF-PRB-01).
-- [ ] L6.7 `make` cero warnings; `bash tests/run_tests.sh` verde (20 casos + 2 probes); `verify-report.md` del change.
+- [x] L6.1 Reescribir `012_combate_victoria_sin_entrenadores` (autónomo): registra 2 entrenadores + equipos por menú y combate; Charizard 50 KO a Caterpie 1 → victoria determinista.
+- [x] L6.2 Reescribir `013_combate_empate_sin_entrenadores`: Gastly vs Rattata (mutuo "sin efecto") → empate por 20 turnos (D4).
+- [x] L6.3 Reescribir `014_combate_eliminatoria_sin_entrenadores`: mismos tipos, Gastly 20 vs Rattata 10 → anti-empate D5 por HP total 49-40.
+- [x] L6.4 Reescribir `015_efectividad_sin_efecto_sin_entrenadores`: Pikachu (Eléctrico) vs Diglett (Tierra) → "sin efecto" E2E + victoria.
+- [x] L6.5 `data/entrenadores.txt` normalizado: orden original de todos los entrenadores y **solo la línea de Misty cambiada** (equipo de 6 starters, Opción A); la batería ya no lee ese archivo para combatir.
+- [x] L6.6 `docs/informe-tecnico.md` (sección 9: D11–D19, simulación, historial, verificación) y `docs/trazabilidad-requisitos.md` (tabla del change: RF-SIM-*, RF-RES-05/06, RF-MEN-02/03, RF-ELM-06, RF-ENT-03 mod, RF-EQP-04 mod, RF-PRB-01 mod).
+- [x] L6.7 `make` cero warnings; `bash tests/run_tests.sh` → **26 PASS, 0 FALLA** (23 casos + 2 probes); `verify-report.md` del change creado.
 
 ## Lote L7 — Rediseño de pantalla (UI/UX, D19)
 

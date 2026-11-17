@@ -1,5 +1,5 @@
 1;Ash;3;101;1;Bulbi;12;102;25;Sparky;15;103;4;Llama;10
-2;Misty;2;104;7;Squirtli;20;105;54;Pato;18
+2;Misty;6;178;1;Bulbasaur;1;179;2;Ivysaur;1;180;3;Venusaur;1;181;4;Charmander;1;182;5;Charmeleon;1;183;6;Charizard;1
 3;Brock;3;106;74;Roca;25;107;95;Serpiente;22;108;111;Cuerno;30
 4;Gary;4;109;25;Rayo;40;110;133;Eevee;35;111;143;Gordito;50;112;129;Splash;8
 5;Jessie;2;113;63;Mente;28;114;92;Gas;16
