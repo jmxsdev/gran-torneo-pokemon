@@ -43,7 +43,6 @@ make run      # ejecuta el programa
 src/      Código fuente (.c/.h), incluido main.c
 data/     Pokédex y datos del torneo (.txt)
 tests/    Batería scriptada (casos/, probes/, run_tests.sh)
-scripts/  Empaquetado y verificación de la entrega
 Makefile  Doxyfile  README.md
 ```
 
@@ -51,11 +50,4 @@ Makefile  Doxyfile  README.md
 
 ```bash
 bash tests/run_tests.sh   # compila, ejecuta los casos y compara la salida
-```
-
-## Entrega
-
-```bash
-make entrega                       # genera dist/gran-torneo-pokemon-entrega.zip
-bash scripts/verificar_entrega.sh  # comprueba el paquete en un directorio limpio
 ```

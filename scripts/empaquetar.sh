@@ -8,7 +8,6 @@
 #   src/        Código fuente: todos los .c/.h, incluido main.c
 #   data/       Archivo de la Pokédex (pokedex.txt) y demás datos .txt
 #   tests/      Batería scriptada (casos/, probes/, run_tests.sh)
-#   scripts/    Este propio script (y el de verificación de entrega)
 #   Makefile  Doxyfile  README.md
 #
 # Reproducible: trabaja sobre una copia de staging en un directorio temporal y
@@ -29,7 +28,7 @@ ZIP="$DIST_DIR/$NOMBRE.zip"
 
 # --- Prerequisitos: todo lo que debe empaquetarse existe en el repositorio ---
 FALTAN=""
-for ruta in src data tests scripts Makefile Doxyfile README.md; do
+for ruta in src data tests Makefile Doxyfile README.md; do
     [ -e "$ruta" ] || FALTAN="$FALTAN $ruta"
 done
 if [ -n "$FALTAN" ]; then
@@ -44,7 +43,7 @@ trap 'rm -rf "$STAGING"' EXIT
 RAIZ="$STAGING/$NOMBRE"
 mkdir -p "$RAIZ"
 
-cp -r src data tests scripts "$RAIZ/"
+cp -r src data tests "$RAIZ/"
 cp Makefile Doxyfile README.md "$RAIZ/"
 
 # --- Empaquetado: zip si está disponible; si no, fallback con Python (zipfile) ---

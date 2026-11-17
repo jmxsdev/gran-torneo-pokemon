@@ -6,7 +6,7 @@
 # sin depender de archivos externos:
 #
 #   1. Estructura: el paquete contiene src/ (main.c incluido), data/ (Pokédex),
-#      tests/, scripts/, Makefile, Doxyfile y README.md.
+#      tests/, Makefile, Doxyfile y README.md.
 #   2. Compilación: make clean && make con gcc -std=c99 -Wall -Wextra
 #      (gate de cero warnings).
 #   3. Prueba de humo: menú -> opción 1 (Pokédex: buscar el 25) -> salir (12),
@@ -49,7 +49,7 @@ echo ""
 echo "=== 1. Estructura del paquete ==="
 ESTRUCTURA_OK=1
 for ruta in src/main.c data/pokedex.txt data/efectividad.txt data/entrenadores.txt \
-            tests/run_tests.sh scripts/empaquetar.sh scripts/verificar_entrega.sh \
+            tests/run_tests.sh \
             Makefile Doxyfile README.md; do
     if [ -f "$PAQUETE/$ruta" ]; then
         echo "  OK   $ruta"
@@ -58,7 +58,7 @@ for ruta in src/main.c data/pokedex.txt data/efectividad.txt data/entrenadores.t
         ESTRUCTURA_OK=0
     fi
 done
-if [ "$ESTRUCTURA_OK" -eq 1 ]; then ok "estructura completa (código, datos, tests, scripts)"; else falla "estructura incompleta"; fi
+if [ "$ESTRUCTURA_OK" -eq 1 ]; then ok "estructura completa (código, datos, tests)"; else falla "estructura incompleta"; fi
 
 cd "$PAQUETE" || exit 1
 
