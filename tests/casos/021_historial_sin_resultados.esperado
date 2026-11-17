@@ -1,0 +1,105 @@
+Entrenadores cargados: 32, líneas rechazadas: 0.
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): 
+--- Consultar historial de combates ---
+Torneo armado: 8 grupos de 4 entrenadores (combates 1-48).
+══════════════════════════════════════════════════════════════════════════════════════════════════════
+                                        HISTORIAL DE COMBATES
+                                   Resueltos: 0  ·  Pendientes: 64
+══════════════════════════════════════════════════════════════════════════════════════════════════════
+   #  Fase           Entrenador 1          Entrenador 2          Resultado   Ganador               KOs
+──────────────────────────────────────────────────────────────────────────────────────────────────────
+   1  Grupo A        Ash (id 1)            Misty (id 2)          Pendiente   -                     0-0
+   2  Grupo A        Ash (id 1)            Brock (id 3)          Pendiente   -                     0-0
+   3  Grupo A        Ash (id 1)            Gary (id 4)           Pendiente   -                     0-0
+   4  Grupo A        Misty (id 2)          Brock (id 3)          Pendiente   -                     0-0
+   5  Grupo A        Misty (id 2)          Gary (id 4)           Pendiente   -                     0-0
+   6  Grupo A        Brock (id 3)          Gary (id 4)           Pendiente   -                     0-0
+   7  Grupo B        Jessie (id 5)         James (id 6)          Pendiente   -                     0-0
+   8  Grupo B        Jessie (id 5)         Tracey (id 7)         Pendiente   -                     0-0
+   9  Grupo B        Jessie (id 5)         May (id 8)            Pendiente   -                     0-0
+  10  Grupo B        James (id 6)          Tracey (id 7)         Pendiente   -                     0-0
+  11  Grupo B        James (id 6)          May (id 8)            Pendiente   -                     0-0
+  12  Grupo B        Tracey (id 7)         May (id 8)            Pendiente   -                     0-0
+  13  Grupo C        Max (id 9)            Dawn (id 10)          Pendiente   -                     0-0
+  14  Grupo C        Max (id 9)            Paul (id 11)          Pendiente   -                     0-0
+  15  Grupo C        Max (id 9)            Barry (id 12)         Pendiente   -                     0-0
+  16  Grupo C        Dawn (id 10)          Paul (id 11)          Pendiente   -                     0-0
+  17  Grupo C        Dawn (id 10)          Barry (id 12)         Pendiente   -                     0-0
+  18  Grupo C        Paul (id 11)          Barry (id 12)         Pendiente   -                     0-0
+  19  Grupo D        Cilan (id 13)         Chili (id 14)         Pendiente   -                     0-0
+  20  Grupo D        Cilan (id 13)         Cress (id 15)         Pendiente   -                     0-0
+  21  Grupo D        Cilan (id 13)         Serena (id 16)        Pendiente   -                     0-0
+  22  Grupo D        Chili (id 14)         Cress (id 15)         Pendiente   -                     0-0
+  23  Grupo D        Chili (id 14)         Serena (id 16)        Pendiente   -                     0-0
+  24  Grupo D        Cress (id 15)         Serena (id 16)        Pendiente   -                     0-0
+  25  Grupo E        Clemont (id 17)       Bonnie (id 18)        Pendiente   -                     0-0
+  26  Grupo E        Clemont (id 17)       Tierno (id 19)        Pendiente   -                     0-0
+  27  Grupo E        Clemont (id 17)       Trevor (id 20)        Pendiente   -                     0-0
+  28  Grupo E        Bonnie (id 18)        Tierno (id 19)        Pendiente   -                     0-0
+  29  Grupo E        Bonnie (id 18)        Trevor (id 20)        Pendiente   -                     0-0
+  30  Grupo E        Tierno (id 19)        Trevor (id 20)        Pendiente   -                     0-0
+  31  Grupo F        Shauna (id 21)        Korrina (id 22)       Pendiente   -                     0-0
+  32  Grupo F        Shauna (id 21)        Ramos (id 23)         Pendiente   -                     0-0
+  33  Grupo F        Shauna (id 21)        Valerie (id 24)       Pendiente   -                     0-0
+  34  Grupo F        Korrina (id 22)       Ramos (id 23)         Pendiente   -                     0-0
+  35  Grupo F        Korrina (id 22)       Valerie (id 24)       Pendiente   -                     0-0
+  36  Grupo F        Ramos (id 23)         Valerie (id 24)       Pendiente   -                     0-0
+  37  Grupo G        Olympia (id 25)       Wulfric (id 26)       Pendiente   -                     0-0
+  38  Grupo G        Olympia (id 25)       Lillie (id 27)        Pendiente   -                     0-0
+  39  Grupo G        Olympia (id 25)       Kiawe (id 28)         Pendiente   -                     0-0
+  40  Grupo G        Wulfric (id 26)       Lillie (id 27)        Pendiente   -                     0-0
+  41  Grupo G        Wulfric (id 26)       Kiawe (id 28)         Pendiente   -                     0-0
+  42  Grupo G        Lillie (id 27)        Kiawe (id 28)         Pendiente   -                     0-0
+  43  Grupo H        Mallow (id 29)        Lana (id 30)          Pendiente   -                     0-0
+  44  Grupo H        Mallow (id 29)        Sophocles (id 31)     Pendiente   -                     0-0
+  45  Grupo H        Mallow (id 29)        Gladion (id 32)       Pendiente   -                     0-0
+  46  Grupo H        Lana (id 30)          Sophocles (id 31)     Pendiente   -                     0-0
+  47  Grupo H        Lana (id 30)          Gladion (id 32)       Pendiente   -                     0-0
+  48  Grupo H        Sophocles (id 31)     Gladion (id 32)       Pendiente   -                     0-0
+  49  Octavos        (por definir)         (por definir)         Pendiente   -                     0-0
+  50  Octavos        (por definir)         (por definir)         Pendiente   -                     0-0
+  51  Octavos        (por definir)         (por definir)         Pendiente   -                     0-0
+  52  Octavos        (por definir)         (por definir)         Pendiente   -                     0-0
+  53  Octavos        (por definir)         (por definir)         Pendiente   -                     0-0
+  54  Octavos        (por definir)         (por definir)         Pendiente   -                     0-0
+  55  Octavos        (por definir)         (por definir)         Pendiente   -                     0-0
+  56  Octavos        (por definir)         (por definir)         Pendiente   -                     0-0
+  57  Cuartos        (por definir)         (por definir)         Pendiente   -                     0-0
+  58  Cuartos        (por definir)         (por definir)         Pendiente   -                     0-0
+  59  Cuartos        (por definir)         (por definir)         Pendiente   -                     0-0
+  60  Cuartos        (por definir)         (por definir)         Pendiente   -                     0-0
+  61  Semifinal      (por definir)         (por definir)         Pendiente   -                     0-0
+  62  Semifinal      (por definir)         (por definir)         Pendiente   -                     0-0
+  63  Tercer lugar   (por definir)         (por definir)         Pendiente   -                     0-0
+  64  Final          (por definir)         (por definir)         Pendiente   -                     0-0
+──────────────────────────────────────────────────────────────────────────────────────────────────────
+                                 Resumen: 0 resueltos · 64 pendientes
+
+=== EL GRAN TORNEO POKÉMON ===
+1. Consultar Pokédex
+2. Registrar entrenador
+3. Crear equipo
+4. Consultar entrenadores
+5. Consultar equipos
+6. Cargar resultados
+7. Consultar clasificación
+8. Consultar enfrentamientos
+9. Consultar historial de combates
+10. Mostrar resultados del torneo
+11. Mostrar campeón
+12. Salir
+Seleccione una opción (1-12): Saliendo del programa.

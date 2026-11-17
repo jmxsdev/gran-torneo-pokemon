@@ -28,7 +28,8 @@ BIN="$REPO/build/torneo"
 CASOS="$REPO/tests/casos"
 PROBES="$REPO/tests/probes"
 SRC_MODULOS="src/archivos.c src/combate.c src/entrenador.c src/equipo.c \
-src/pokedex.c src/resultados.c src/tipos.c src/torneo.c src/validacion.c"
+src/pantalla.c src/pokedex.c src/resultados.c src/tipos.c src/torneo.c \
+src/validacion.c"
 
 TMP_BASE="$(mktemp -d)"
 trap 'rm -rf "$TMP_BASE"' EXIT

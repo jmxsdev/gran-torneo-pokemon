@@ -15,6 +15,7 @@
 #include <string.h>
 
 #include "torneo.h"
+#include "pantalla.h"
 
 /* 8 grupos (A..H) de 4 entrenadores: 32 en total (D10). */
 #define CANT_GRUPOS 8
@@ -741,6 +742,141 @@ void torneo_mostrar_enfrentamientos(const Torneo *t,
                c->id_entrenador1, e1 != NULL ? e1->nombre : "?",
                c->id_entrenador2, e2 != NULL ? e2->nombre : "?");
     }
+}
+
+/* Anchos de la tabla del historial (D19, columnas visibles UTF-8). */
+#define HIST_ANCHO_NUM   3
+#define HIST_ANCHO_FASE  13
+#define HIST_ANCHO_NOM   20
+#define HIST_ANCHO_RES   10
+#define HIST_ANCHO_GAN   20
+/* 1 (borde inicial) + columnas + 2 espacios entre campos + 3 de "KOs". */
+#define HIST_ANCHO_TOTAL (1 + HIST_ANCHO_NUM + 2 + HIST_ANCHO_FASE + 2 + \
+                          HIST_ANCHO_NOM + 2 + HIST_ANCHO_NOM + 2 + \
+                          HIST_ANCHO_RES + 2 + HIST_ANCHO_GAN + 2 + 3)
+
+void torneo_mostrar_historial(const Torneo *t, const RegistroEntrenadores *reg)
+{
+    int k;
+    int resueltos = 0;
+    int pendientes = 0;
+    char subtitulo[64];
+    char resumen[64];
+
+    if (t == NULL || reg == NULL) {
+        return;
+    }
+    if (t->estado == TORNEO_SIN_INICIAR) {
+        printf("El torneo no está armado.\n");
+        return;
+    }
+
+    /* Conteo previo para el subtítulo y el pie de resumen. */
+    for (k = 0; k < TOTAL_COMBATES; k++) {
+        if (t->combates[k].estado == RES_PENDIENTE) {
+            pendientes++;
+        } else {
+            resueltos++;
+        }
+    }
+
+    snprintf(subtitulo, sizeof(subtitulo),
+             "Resueltos: %d  ·  Pendientes: %d", resueltos, pendientes);
+    pantalla_linea(HIST_ANCHO_TOTAL, "═");
+    pantalla_centro("HISTORIAL DE COMBATES", HIST_ANCHO_TOTAL);
+    pantalla_centro(subtitulo, HIST_ANCHO_TOTAL);
+    pantalla_linea(HIST_ANCHO_TOTAL, "═");
+
+    /* Cabecera de columnas alineada con los anchos de la tabla. */
+    printf(" %*s", HIST_ANCHO_NUM, "#");
+    printf("  ");
+    pantalla_pad("Fase", HIST_ANCHO_FASE);
+    printf("  ");
+    pantalla_pad("Entrenador 1", HIST_ANCHO_NOM);
+    printf("  ");
+    pantalla_pad("Entrenador 2", HIST_ANCHO_NOM);
+    printf("  ");
+    pantalla_pad("Resultado", HIST_ANCHO_RES);
+    printf("  ");
+    pantalla_pad("Ganador", HIST_ANCHO_GAN);
+    printf("  KOs\n");
+    pantalla_linea(HIST_ANCHO_TOTAL, "─");
+
+    for (k = 1; k <= TOTAL_COMBATES; k++) {
+        const Combate *c = &t->combates[k - 1];
+        int id1;
+        int id2;
+        char fase[16];
+        char nombre1[64];
+        char nombre2[64];
+        char ganador[64];
+        const char *resultado;
+        int kos1;
+        int kos2;
+
+        torneo_participantes(t, k, &id1, &id2);
+
+        if (k <= COMBATES_GRUPO) {
+            snprintf(fase, sizeof(fase), "Grupo %c",
+                     letra_grupo((k - 1) / 6));
+        } else {
+            snprintf(fase, sizeof(fase), "%s", ronda_a_texto(k));
+        }
+
+        if (id1 > 0) {
+            snprintf(nombre1, sizeof(nombre1), "%s (id %d)",
+                     nombre_entrenador(reg, id1), id1);
+        } else {
+            snprintf(nombre1, sizeof(nombre1), "(por definir)");
+        }
+        if (id2 > 0) {
+            snprintf(nombre2, sizeof(nombre2), "%s (id %d)",
+                     nombre_entrenador(reg, id2), id2);
+        } else {
+            snprintf(nombre2, sizeof(nombre2), "(por definir)");
+        }
+
+        switch (c->estado) {
+        case RES_V1:
+        case RES_V2:
+            resultado = "Victoria";
+            break;
+        case RES_EMPATE:
+            resultado = "Empate";
+            break;
+        default:
+            resultado = "Pendiente";
+            break;
+        }
+
+        if (c->estado == RES_V1 || c->estado == RES_V2) {
+            snprintf(ganador, sizeof(ganador), "%s (id %d)",
+                     nombre_entrenador(reg, c->id_ganador), c->id_ganador);
+        } else {
+            snprintf(ganador, sizeof(ganador), "-");
+        }
+
+        kos1 = (c->estado == RES_PENDIENTE) ? 0 : c->kos1;
+        kos2 = (c->estado == RES_PENDIENTE) ? 0 : c->kos2;
+
+        printf(" %*d", HIST_ANCHO_NUM, k);
+        printf("  ");
+        pantalla_pad(fase, HIST_ANCHO_FASE);
+        printf("  ");
+        pantalla_pad(nombre1, HIST_ANCHO_NOM);
+        printf("  ");
+        pantalla_pad(nombre2, HIST_ANCHO_NOM);
+        printf("  ");
+        pantalla_pad(resultado, HIST_ANCHO_RES);
+        printf("  ");
+        pantalla_pad(ganador, HIST_ANCHO_GAN);
+        printf("  %d-%d\n", kos1, kos2);
+    }
+
+    pantalla_linea(HIST_ANCHO_TOTAL, "─");
+    snprintf(resumen, sizeof(resumen),
+             "Resumen: %d resueltos · %d pendientes", resueltos, pendientes);
+    pantalla_centro(resumen, HIST_ANCHO_TOTAL);
 }
 
 void torneo_mostrar_resultados(const Torneo *t,

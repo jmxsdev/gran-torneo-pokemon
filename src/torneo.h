@@ -181,6 +181,21 @@ void torneo_mostrar_enfrentamientos(const Torneo *t,
                                     const RegistroEntrenadores *reg);
 
 /**
+ * @brief Muestra el historial de los 64 combates (RF-RES-06, estilo D19).
+ *
+ * Tabla con título y reglas: por combate imprime número, fase (grupo o
+ * ronda), participantes como "Nombre (id N)", resultado en palabras
+ * (Victoria/Empate/Pendiente), ganador y KOs "X-Y". Los pendientes se marcan
+ * explícitamente y se incluye un resumen de resueltos/pendientes. Solo
+ * lectura (const): no modifica ningún dato.
+ *
+ * @param t   Puntero al estado del torneo (no debe ser NULL).
+ * @param reg Puntero al registro de entrenadores (no debe ser NULL).
+ */
+void torneo_mostrar_historial(const Torneo *t,
+                              const RegistroEntrenadores *reg);
+
+/**
  * @brief Muestra el bracket de la eliminatoria (combates 49-64).
  *
  * Lista cada combate con su ronda, la etiqueta de origen de cada

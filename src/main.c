@@ -626,6 +626,25 @@ static void consultar_enfrentamientos(const Pokedex *pd,
 }
 
 /**
+ * @brief Opcion 9: consultar el historial de combates (RF-RES-06).
+ *
+ * Arma el torneo si hace falta (32, D10) y muestra la tabla de los 64
+ * combates con participantes, resultado, ganador y KOs (estilo D19); si el
+ * conteo no es 32 informa el rechazo sin terminar el programa (RF-TEC-03).
+ */
+static void consultar_historial(Torneo *t, const RegistroEntrenadores *reg)
+{
+    bool exito;
+
+    printf("\n--- Consultar historial de combates ---\n");
+    armar_torneo_si_falta(t, reg, &exito);
+    if (!exito) {
+        return;
+    }
+    torneo_mostrar_historial(t, reg);
+}
+
+/**
  * @brief Opcion 6: cargar resultados del torneo (RF-RES-01/RF-RES-04/RF-SIM-01).
  *
  * Submenu teclado, data/resultados.txt (admite parciales) o simulacion
@@ -783,6 +802,9 @@ int main(void)
             break;
         case 8:
             consultar_enfrentamientos(&pokedex, &registro, &torneo);
+            break;
+        case 9:
+            consultar_historial(&torneo, &registro);
             break;
         case 10:
             torneo_mostrar_resultados(&torneo, &registro);

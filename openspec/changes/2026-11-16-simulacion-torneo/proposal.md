@@ -43,6 +43,8 @@ Objetivo: añadir la **simulación automática del torneo**, implementar la **op
 
 6. **Blindar los tests de combate (decisión del usuario)**: los goldens 012–015 se reescriben como **tests autónomos** (`_sin_entrenadores`): registran sus propios entrenadores y equipos por el menú en lugar de depender de `data/entrenadores.txt`. Así, ninguna edición futura de ese archivo rompe la batería (mismo patrón ya usado por 005–011). Se **conserva el equipo nuevo de Misty** en `data/entrenadores.txt` (Opción A) sin necesidad de regenerar goldens.
 
+7. **Rediseño de pantalla (UI/UX, D19)**: guía de estilo para las consultas (título con regla `═`, tablas con cabecera y regla `─`, `Nombre (id N)`, estados en palabras, padding por caracteres UTF-8 vía el nuevo módulo `pantalla.c/.h`) aplicada a las opciones 1 (Pokédex), 4 (entrenadores), 5 (equipos), 7 (clasificación), 8 (calendario), 9 (historial, piloto en L3), 10 (bracket) y 11 (campeón). Los **archivos de datos (D8) no cambian**; los goldens afectados se regeneran en el mismo lote.
+
 ### Out of Scope
 
 - Interfaz gráfica, multijugador en red, movimientos/PP/IVs/EVs (ya fuera del alcance original).
@@ -96,6 +98,8 @@ Chain strategy: single-pr
 | `src/combate.c/.h` | Modificado | Parámetro `silencioso` (o función de traza suprimible) para la simulación |
 | `src/equipo.c/.h` | Modificado | Campo `nivel_objetivo` en `RestriccionesEquipo` + lógica en `bt_rec` (niveles medios) |
 | `src/simulacion.c/.h` | Nuevo | `simulacion_ejecutar` + `simulacion_preparar_equipos` (relleno por backtracking) + selector automático |
+| `src/pantalla.c/.h` | Nuevo | Helpers de presentación con padding por caracteres UTF-8 (D19) |
+| `src/torneo.c/.h`, `src/pokedex.c`, `src/entrenador.c`, `src/equipo.c` | Modificado | Funciones de consulta migradas al estilo de pantalla (D19, L3/L7) |
 | `src/torneo.c/.h` | Modificado | `torneo_mostrar_historial` + finalización exige 63+64 |
 | `src/resultados.c/.h` | Modificado | Historial (o delegación) + persistencia de resultados |
 | `src/archivos.c` | Modificado | `archivos_guardar_entrenadores` round-trip estable; conectar `archivos_guardar_resultados` |
