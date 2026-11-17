@@ -51,6 +51,8 @@ Las estadísticas del ejemplar MUST generarse a partir de la especie, y dos ejem
 
 La construcción automática MUST usar recursividad + backtracking: explora combinaciones hasta cumplir TODAS las restricciones (cantidad determinada, nivel total máximo, mínimo de tipos diferentes, estadísticas objetivo, restricciones sobre integrantes); retrocede ante combinaciones parciales inválidas; si encuentra solución, muestra el equipo; si no existe solución, informa que no existe.
 
+La restricción MAY incluir un **nivel objetivo** (`nivel_objetivo`): cuando es mayor que 0, cada ejemplar de la solución se genera en ese nivel (acotado al nivel total máximo), en lugar del nivel mínimo; cuando es 0, se conserva el comportamiento actual (nivel mínimo).
+
 #### Scenario: Equipo que cumple todas las restricciones
 
 - GIVEN la Pokédex cargada y restricciones: 3 Pokémon, nivel total máximo 100, al menos 2 tipos distintos
@@ -64,6 +66,12 @@ La construcción automática MUST usar recursividad + backtracking: explora comb
 - WHEN se invoca la formación automática
 - THEN el sistema informa que no existe solución
 - AND no devuelve un equipo inválido
+
+#### Scenario: Nivel objetivo medio en la formación
+
+- GIVEN restricciones con `nivel_objetivo = 30` y nivel total máximo 180
+- WHEN se invoca la formación automática
+- THEN cada ejemplar de la solución se genera en nivel 30 (acotado al presupuesto)
 
 ### Requirement: Validación de equipos (RF-EQP-05)
 

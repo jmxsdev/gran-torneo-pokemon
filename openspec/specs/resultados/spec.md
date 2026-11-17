@@ -59,3 +59,23 @@ El archivo `data/resultados.txt` MUST identificar por registro: número de comba
 - GIVEN `data/resultados.txt` con registros válidos
 - WHEN se carga
 - THEN se incorporan y validan los resultados
+
+### Requirement: Persistencia de resultados al salir (RF-RES-05)
+
+Los resultados aplicados en una sesión MUST persistirse en `data/resultados.txt` al salir del programa.
+
+#### Scenario: Resultados por teclado sobreviven al salir
+
+- GIVEN el usuario aplica resultados por teclado
+- WHEN sale del programa
+- THEN `data/resultados.txt` refleja esos resultados
+
+### Requirement: Historial de combates (RF-RES-06)
+
+El sistema MUST poder consultar el historial de los combates: participantes, ronda o grupo, resultado, ganador y KOs; los pendientes se identifican explícitamente.
+
+#### Scenario: Historial con parciales
+
+- GIVEN resultados parciales cargados
+- WHEN se consulta el historial
+- THEN los combates resueltos muestran su ganador y KOs, y los pendientes se marcan

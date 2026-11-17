@@ -23,6 +23,33 @@ El menú principal MUST ofrecer las opciones: 1. Consultar Pokédex, 2. Registra
 - THEN se informa del error
 - AND se vuelve a mostrar el menú sin terminar el programa
 
+### Requirement: Opción 9 — historial de combates (RF-MEN-02)
+
+La opción 9 ("Consultar historial de combates") MUST ejecutar una consulta real de los combates del torneo (participantes, ronda o grupo, resultado, ganador y KOs) y MUST NOT responder "en construcción".
+
+#### Scenario: Historial sin torneo armado
+
+- GIVEN el torneo sin armar
+- WHEN el usuario selecciona la opción 9
+- THEN el sistema informa que el torneo no está armado
+- AND vuelve al menú sin terminar el programa
+
+#### Scenario: Historial con resultados
+
+- GIVEN el torneo armado con resultados cargados
+- WHEN el usuario selecciona la opción 9
+- THEN se listan los combates con sus participantes y resultados
+
+### Requirement: Entrada de la simulación (RF-MEN-03)
+
+La simulación automática del torneo MUST estar accesible desde el menú (submenú de la opción 6 "Cargar resultados") sin alterar la numeración de las 12 opciones principales.
+
+#### Scenario: Acceso a la simulación
+
+- GIVEN el menú mostrado
+- WHEN el usuario abre "Cargar resultados" (opción 6)
+- THEN el submenú ofrece "Simular torneo automáticamente" junto a teclado y archivo
+
 ### Requirement: `main` limitado a flujo y menú (RF-TEC-02)
 
 La funcionalidad MUST estar separada en funciones y módulos; `main` controla solo el flujo general y el menú, sin concentrar toda la lógica.

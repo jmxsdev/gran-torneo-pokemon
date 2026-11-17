@@ -84,3 +84,21 @@ La clasificación a la eliminatoria MUST ser automática por posición y grupo (
 - GIVEN la fase de grupos finalizada
 - WHEN se determina quién clasifica
 - THEN el sistema resuelve el 1.º y 2.º de cada grupo sin entrada del usuario
+
+### Requirement: Finalización con tercer lugar y final resueltos (RF-ELM-06)
+
+La transición a torneo finalizado MUST ocurrir solo cuando ambos combates 63 (tercer lugar) y 64 (final) tienen resultado. Aplicar la final antes del tercer lugar MUST NOT bloquear el registro del combate 63.
+
+#### Scenario: Final antes que tercer lugar
+
+- GIVEN las semifinales resueltas y el combate 63 pendiente
+- WHEN se aplica el resultado del combate 64
+- THEN el torneo NO pasa a finalizado todavía
+- AND el combate 63 sigue aceptando su resultado
+
+#### Scenario: Finalización completa
+
+- GIVEN los combates 63 y 64 con resultado
+- WHEN se aplica el último de ellos
+- THEN el torneo pasa a finalizado
+- AND muestra campeón, subcampeón, tercero y cuarto lugar

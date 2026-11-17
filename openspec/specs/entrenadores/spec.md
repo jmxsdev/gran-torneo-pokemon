@@ -36,10 +36,22 @@ El sistema MUST validar que el identificador sea único; MUST NOT existir dos en
 
 ### Requirement: Persistencia (RF-ENT-03)
 
-El sistema SHOULD persistir los entrenadores en `data/entrenadores.txt` con id, nombre e información suficiente para reconstruir el equipo.
+El sistema MUST poder guardar y recargar la información de los entrenadores y sus equipos desde archivo. El ciclo cargar → guardar → recargar MUST preservar el orden de los ejemplares de cada equipo (round-trip estable): el guardado MUST NOT invertir el orden de los ejemplares respecto al archivo cargado.
 
 #### Scenario: Guardado y recarga de entrenadores
 
 - GIVEN entrenadores registrados en memoria
 - WHEN se guardan en `data/entrenadores.txt` y se recargan
 - THEN se reconstruyen id, nombre y equipo
+
+#### Scenario: Round-trip estable del orden de equipos
+
+- GIVEN un archivo de entrenadores con equipos en un orden determinado
+- WHEN se carga y se guarda sin cambios
+- THEN el archivo resultante conserva el mismo orden de ejemplares en cada equipo
+
+#### Scenario: Recarga fiel
+
+- GIVEN un archivo de entrenadores guardado
+- WHEN se recarga
+- THEN cada entrenador reconstruye su equipo con los mismos ejemplares y el mismo orden
