@@ -20,6 +20,7 @@
 #include "combate.h"
 #include "torneo.h"
 #include "resultados.h"
+#include "simulacion.h"
 #include "archivos.h"
 
 /* Marca de modificación de entrenadores en sesión: solo se guarda el
@@ -233,6 +234,7 @@ static void formar_equipo_automatico(const Pokedex *pd, Entrenador *ent)
         return;   /* EOF: cierre ordenado */
     }
     restricciones.ataque_total_min = 0;
+    restricciones.nivel_objetivo = 0;   /* formación manual: nivel mínimo */
     restricciones.permitir_repetidas = false;
     restricciones.cantidad_permitidas = 0;
 
@@ -624,14 +626,16 @@ static void consultar_enfrentamientos(const Pokedex *pd,
 }
 
 /**
- * @brief Opcion 6: cargar resultados del torneo (RF-RES-01/RF-RES-04).
+ * @brief Opcion 6: cargar resultados del torneo (RF-RES-01/RF-RES-04/RF-SIM-01).
  *
- * Submenu teclado o data/resultados.txt (admite parciales); arma el torneo
- * si hace falta (32, D10) y muestra los pendientes. Los participantes los
- * resuelve el sistema (RF-RES-03); cada registro pasa por
- * resultados_validar (RF-RES-02).
+ * Submenu teclado, data/resultados.txt (admite parciales) o simulacion
+ * automatica; arma el torneo si hace falta (32, D10) y muestra los pendientes.
+ * Los participantes los resuelve el sistema (RF-RES-03); cada registro pasa
+ * por resultados_validar (RF-RES-02). La simulacion rellena equipos por
+ * backtracking y ejecuta los combates pendientes (D11/D12/D18).
  */
-static void cargar_resultados(Torneo *t, RegistroEntrenadores *reg)
+static void cargar_resultados(const Pokedex *pd, Torneo *t,
+                              RegistroEntrenadores *reg)
 {
     int sub;
     bool exito;
@@ -639,9 +643,10 @@ static void cargar_resultados(Torneo *t, RegistroEntrenadores *reg)
     printf("\n--- Cargar resultados ---\n");
     printf("1. Por teclado\n");
     printf("2. Desde archivo (%s)\n", RUTA_RESULTADOS);
+    printf("3. Simular torneo automáticamente\n");
     printf("0. Volver al menú principal\n");
     sub = validar_leer_entero_msg(
-        "Seleccione una opción: ", 0, 2,
+        "Seleccione una opción: ", 0, 3,
         "Opción inválida. Intente de nuevo.");
     if (sub == 0) {
         printf("\n");
@@ -653,8 +658,14 @@ static void cargar_resultados(Torneo *t, RegistroEntrenadores *reg)
     }
     if (sub == 1) {
         resultados_cargar_teclado(t, reg, &exito);
-    } else {
+    } else if (sub == 2) {
         resultados_cargar_archivo(t, reg, RUTA_RESULTADOS, &exito);
+    } else {
+        simulacion_ejecutar(pd, t, reg, &exito);
+        if (!exito) {
+            printf("La simulación no se pudo completar.\n");
+            return;
+        }
     }
     (void)exito;   /* el resultado de la carga se ignora (RF-RES-01) */
     resultados_mostrar_pendientes(t);
@@ -765,7 +776,7 @@ int main(void)
             consultar_equipo(&pokedex, &registro);
             break;
         case 6:
-            cargar_resultados(&torneo, &registro);
+            cargar_resultados(&pokedex, &torneo, &registro);
             break;
         case 7:
             consultar_clasificacion(&torneo, &registro);

@@ -34,6 +34,9 @@
 /* Total de combates del torneo: 48 de grupos + 16 de eliminatoria (D10). */
 #define TOTAL_COMBATES 64
 
+/* Combates de la fase de grupos (1..48); el resto (49..64) es eliminatoria. */
+#define COMBATES_GRUPO 48
+
 /* Tope de turnos de un combate: 1 turno = intercambio completo (D4). */
 #define MAX_TURNOS_COMBATE 20
 

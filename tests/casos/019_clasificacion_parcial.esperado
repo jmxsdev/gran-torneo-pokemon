@@ -17,6 +17,7 @@ Seleccione una opción (1-12):
 --- Cargar resultados ---
 1. Por teclado
 2. Desde archivo (data/resultados.txt)
+3. Simular torneo automáticamente
 0. Volver al menú principal
 Seleccione una opción: Torneo armado: 8 grupos de 4 entrenadores (combates 1-48).
 Resultado del combate 1 (grupo A) aplicado: victoria.

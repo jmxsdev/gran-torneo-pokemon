@@ -18,8 +18,8 @@
 #include "resultados.h"
 #include "validacion.h"
 
-/* Combates de la fase de grupos (48); el resto (49..64) es eliminatoria. */
-#define COMBATES_GRUPO 48
+/* Combates de la fase de grupos (48); el resto (49..64) es eliminatoria.
+   COMBATES_GRUPO se define en constantes.h. */
 
 /* Máximo de campos por línea del esquema §5.3 (NUM;ID1;ID2;RES;GAN;KOS1;KOS2). */
 #define CAMPOS_MAX_LINEA 8

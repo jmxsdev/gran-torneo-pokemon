@@ -50,6 +50,8 @@ typedef struct {
     int  nivel_total_max;        /* suma de niveles de los ejemplares */
     int  min_tipos;              /* tipos distintos mínimos, 1..CANT_TIPOS */
     int  ataque_total_min;       /* stats objetivo; 0 = sin restricción */
+    int  nivel_objetivo;         /* nivel uniforme por ejemplar (D18);
+                                    0 = nivel mínimo (comportamiento actual) */
     bool permitir_repetidas;     /* especies repetidas dentro del equipo */
     int  especies_permitidas[POKEDEX_MAX]; /* números de especie admitidos */
     int  cantidad_permitidas;    /* 0 = todas las especies permitidas */

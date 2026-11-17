@@ -49,13 +49,13 @@ Resolución: **Opción A + blindado (D17)**. En L6 se reescriben 012–015 como 
 - [x] L1.3 Verificación: `make` cero warnings; `probe_efectividad` 21/21; batería 19 PASS / 4 FALLA (los mismos 4 fallos por dato, sin regresión nueva).
 - [ ] ~~L1.4 selector `seleccionar_primero_disponible`~~ → movido a L2.3 (evita `-Wunused-function` al no usarse en L1).
 
-## Lote L2 — Simulación del torneo (módulo `simulacion.c` + menú)
+## Lote L2 — Simulación del torneo (módulo `simulacion.c` + menú) — ✅ HECHO (2026-11-16)
 
-- [ ] L2.1 Añadir el campo `nivel_objetivo` a `RestriccionesEquipo` (equipo.h) y su lógica en `bt_rec` (equipo.c): con `0` conserva el comportamiento actual (nivel 1); con `>0` asigna ese nivel medio a cada ejemplar (acotado al presupuesto) — RF-EQP-04 (mod).
-- [ ] L2.2 Crear `src/simulacion.c/.h`: `simulacion_preparar_equipos` (relleno por backtracking con **ventana rotativa** de 24 especies y **nivel medio 30**, D18) y `simulacion_ejecutar` (bucle 1–64 saltando resueltos, `combate_ejecutar` silencioso, `torneo_aplicar_resultado`, posiciones finales) (RF-SIM-01..04).
-- [ ] L2.3 Añadir `COMBATES_GRUPO` (48) a `constantes.h` y el selector `seleccionar_primero_disponible` (D11) en `simulacion.c`.
-- [ ] L2.4 Añadir el submenú `3. Simular torneo automáticamente` en la opción 6 (`cargar_resultados`, main.c) y su `case` (D13).
-- [ ] L2.5 Verificación scriptada: (a) 32 con equipos → simulación → campeón; (b) 32 **sin** equipos → relleno (nivel medio + ventana rotativa) → simulación → campeón; (c) rechazo ordenado si ≠32 (RF-TEC-03).
+- [x] L2.1 Añadir el campo `nivel_objetivo` a `RestriccionesEquipo` (equipo.h) y su lógica en `bt_rec` (equipo.c): con `0` conserva el comportamiento actual (nivel 1); con `>0` asigna ese nivel medio a cada ejemplar (acotado al presupuesto) — RF-EQP-04 (mod). *(También se inicializó `nivel_objetivo = 0` en `formar_equipo_automatico` de main.c para no leer basura.)*
+- [x] L2.2 Crear `src/simulacion.c/.h`: `simulacion_preparar_equipos` (relleno por backtracking con **ventana rotativa** de 24 especies y **nivel medio 30**, D18) y `simulacion_ejecutar` (bucle 1–64 saltando resueltos, `combate_ejecutar` silencioso, `torneo_aplicar_resultado`, posiciones finales) (RF-SIM-01..04).
+- [x] L2.3 Añadir `COMBATES_GRUPO` (48) a `constantes.h` (retirando los `#define` locales de `torneo.c`/`resultados.c`) y el selector `seleccionar_primero_disponible` (D11) en `simulacion.c`.
+- [x] L2.4 Añadir el submenú `3. Simular torneo automáticamente` en la opción 6 (`cargar_resultados`, main.c) y su `case` (D13); `cargar_resultados` gana el parámetro `const Pokedex *pd`.
+- [x] L2.5 Verificación: (a) 32 con equipos → campeón; (b) 32 sin equipos → relleno nivel 30 + ventana → campeón distinto; (c) rechazo ordenado con 31; (d) híbrido 20 parciales + simulación. Batería 19/4 (solo los 4 de combate por dato, pendientes de L6). Goldens 016/017/019 regenerados con la línea del submenú.
 
 ## Lote L3 — Opción 9: historial de combates
 

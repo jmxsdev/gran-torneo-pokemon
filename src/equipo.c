@@ -357,10 +357,10 @@ static void bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
             uint32_t bits;
             Ejemplar *ej;
 
-            /* Nivel del ejemplar (diseño §4.2): mínimo factible dentro del
-               presupuesto restante; con objetivo de ataque se escala al
-               máximo que el presupuesto permite (superset determinista del
-               criterio "mejor base", sin estado adicional). */
+            /* Nivel del ejemplar (diseño §4.2 + nivel_objetivo D18): con
+               nivel_objetivo > 0, nivel medio uniforme acotado al presupuesto;
+               si no, mínimo factible, o máximo del presupuesto con objetivo
+               de ataque (superset determinista del criterio "mejor base"). */
             nivel_max_ej = r->nivel_total_max - niv
                            - (restantes - j - 1) * NIVEL_MIN;
             if (nivel_max_ej > NIVEL_MAX) {
@@ -369,7 +369,14 @@ static void bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
             if (nivel_max_ej < NIVEL_MIN) {
                 nivel_max_ej = NIVEL_MIN;   /* defensivo: poda 2 lo garantiza */
             }
-            nivel = (r->ataque_total_min > 0) ? nivel_max_ej : NIVEL_MIN;
+            if (r->nivel_objetivo > 0) {
+                nivel = r->nivel_objetivo;
+                if (nivel > nivel_max_ej) {
+                    nivel = nivel_max_ej;   /* acotado al presupuesto */
+                }
+            } else {
+                nivel = (r->ataque_total_min > 0) ? nivel_max_ej : NIVEL_MIN;
+            }
 
             equipo_siguiente_id(&id);
             ej = equipo_crear_ejemplar(pd, esp->numero, esp->nombre, nivel,

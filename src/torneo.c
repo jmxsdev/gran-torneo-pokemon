@@ -19,8 +19,8 @@
 /* 8 grupos (A..H) de 4 entrenadores: 32 en total (D10). */
 #define CANT_GRUPOS 8
 #define POR_GRUPO 4
-/* Combates de la fase de grupos: 8 grupos x 6 pares (RF-TRN-02). */
-#define COMBATES_GRUPO 48
+/* Combates de la fase de grupos: 8 grupos x 6 pares (RF-TRN-02).
+   COMBATES_GRUPO (48) se define en constantes.h. */
 
 /* Pares fijos del round-robin de un grupo (diseño §6.1):
    (m0,m1) (m0,m2) (m0,m3) (m1,m2) (m1,m3) (m2,m3). */
