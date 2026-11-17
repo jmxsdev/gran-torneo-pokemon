@@ -1,8 +1,8 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file resultados.h
- * @brief Carga de resultados por teclado o archivo con validación completa
- *        (RF-RES-01, RF-RES-02, RF-RES-04).
- * @author Nombre del estudiante
+ * @brief Carga de resultados por teclado o archivo con validación completa.
+ * @author Jesus Mora
  * @date 2026-09-01
  */
 
@@ -16,49 +16,49 @@
 /**
  * @brief Carga resultados del torneo por teclado.
  *
- * Pide número de combate y resultado con lectura validada (RF-RES-01);
- * cada registro se valida contra el estado real del torneo (RF-RES-02)
+ * Pide número de combate y resultado con lectura validada;
+ * cada registro se valida contra el estado real del torneo 
  * antes de aplicarse con torneo_aplicar_resultado.
  *
- * @param t   Puntero al estado del torneo (no debe ser NULL).
+ * @param t Puntero al estado del torneo (no debe ser NULL).
  * @param reg Puntero al registro de entrenadores (no debe ser NULL).
  * @param exito true si al menos un resultado se aplicó; false si no se
- *              cargó ninguno o los parámetros son inválidos.
+ * cargó ninguno o los parámetros son inválidos.
  */
 void resultados_cargar_teclado(Torneo *t, RegistroEntrenadores *reg,
                                bool *exito);
 
 /**
- * @brief Carga resultados desde un archivo de texto (RF-RES-01/RF-RES-04).
+ * @brief Carga resultados desde un archivo de texto.
  *
- * Formato D8, separador ';'; admite parciales. Cada línea válida se aplica;
+ * Formato, separador ';'; admite parciales. Cada línea válida se aplica;
  * las inválidas se rechazan con mensaje y la carga continúa sin terminar
  * el programa.
  *
- * @param t    Puntero al estado del torneo (no debe ser NULL).
- * @param reg  Puntero al registro de entrenadores (no debe ser NULL).
+ * @param t Puntero al estado del torneo (no debe ser NULL).
+ * @param reg Puntero al registro de entrenadores (no debe ser NULL).
  * @param ruta Ruta del archivo de resultados (p. ej. RUTA_RESULTADOS).
  * @param exito true si se aplicó al menos un resultado; false si el archivo
- *              no se pudo abrir, no contenía registros válidos o los
- *              parámetros son inválidos.
+ * no se pudo abrir, no contenía registros válidos o los
+ * parámetros son inválidos.
  */
 void resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
                                const char *ruta, bool *exito);
 
 /**
- * @brief Valida un resultado contra el estado real del torneo (RF-RES-02).
+ * @brief Valida un resultado contra el estado real del torneo.
  *
- * Catálogo del diseño §8.1: combate en 1..64, estado de ronda, no
+ * Catálogo: combate en 1..64, estado de ronda, no
  * duplicado, entrenadores registrados, participantes resueltos por el
- * sistema (RF-RES-03), fuente del bracket disponible, ganador coherente,
- * sin empates en eliminatoria (RF-ELM-01) y KOs no negativos, con motivo
+ * sistema, fuente del bracket disponible, ganador coherente,
+ * sin empates en eliminatoria y KOs no negativos, con motivo
  * específico en msg.
  *
- * @param t   Puntero al estado del torneo (no debe ser NULL).
+ * @param t Puntero al estado del torneo (no debe ser NULL).
  * @param reg Puntero al registro de entrenadores (no debe ser NULL).
- * @param r   Puntero al resultado a validar (no debe ser NULL).
+ * @param r Puntero al resultado a validar (no debe ser NULL).
  * @param msg Buffer con el motivo del rechazo (no NULL).
- * @param n   Capacidad del buffer msg.
+ * @param n Capacidad del buffer msg.
  * @param exito true si el resultado es válido; false en caso contrario.
  */
 void resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
@@ -66,7 +66,7 @@ void resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
                         bool *exito);
 
 /**
- * @brief Muestra cuántos combates del torneo siguen pendientes (RF-RES-01).
+ * @brief Muestra cuántos combates del torneo siguen pendientes.
  *
  * Informa los pendientes de grupos (1..48) y de eliminatoria (49..64),
  * útil tras cargar resultados parciales.

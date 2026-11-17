@@ -1,8 +1,9 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file tipos.c
  * @brief Implementación del módulo de tipos: catálogo de 18 tipos y su
- *        matriz de efectividad (RF-CMB-05, RF-PDX-03).
- * @author Nombre del estudiante
+ * matriz de efectividad.
+ * @author Jesus Mora
  * @date 2026-09-01
  */
 
@@ -58,7 +59,7 @@ static void tipos_normalizar(const char *entrada, char *salida)
 }
 
 /**
- * @brief Matriz de efectividad de 18x18 (MINOR-1).
+ * @brief Matriz de efectividad de 18x18.
  *
  * efectividad[atacante][defensor] es el multiplicador del tipo atacante
  * contra el tipo defensor. Valores posibles: 0.0f, 0.5f, 1.0f y 2.0f.
@@ -86,17 +87,17 @@ static float efectividad[CANT_TIPOS][CANT_TIPOS];
 static const float matriz_por_defecto[CANT_TIPOS][CANT_TIPOS] = {
     /* NORMAL */ {1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,
                   1.0f,1.0f,1.0f,0.5f,0.0f,1.0f,1.0f,0.5f,1.0f},
-    /* FUEGO  */ {1.0f,0.5f,0.5f,2.0f,1.0f,2.0f,1.0f,1.0f,1.0f,
+    /* FUEGO */ {1.0f,0.5f,0.5f,2.0f,1.0f,2.0f,1.0f,1.0f,1.0f,
                   1.0f,1.0f,2.0f,0.5f,1.0f,0.5f,1.0f,2.0f,1.0f},
-    /* AGUA   */ {1.0f,2.0f,0.5f,0.5f,1.0f,1.0f,1.0f,1.0f,2.0f,
+    /* AGUA */ {1.0f,2.0f,0.5f,0.5f,1.0f,1.0f,1.0f,1.0f,2.0f,
                   1.0f,1.0f,1.0f,2.0f,1.0f,0.5f,1.0f,1.0f,1.0f},
     /* PLANTA */ {1.0f,0.5f,2.0f,0.5f,1.0f,1.0f,1.0f,0.5f,2.0f,
                   0.5f,1.0f,0.5f,2.0f,1.0f,0.5f,1.0f,0.5f,1.0f},
     /* ELECTR */ {1.0f,1.0f,2.0f,0.5f,0.5f,1.0f,1.0f,1.0f,0.0f,
                   2.0f,1.0f,1.0f,1.0f,1.0f,0.5f,1.0f,1.0f,1.0f},
-    /* HIELO  */ {1.0f,0.5f,0.5f,2.0f,1.0f,0.5f,1.0f,1.0f,2.0f,
+    /* HIELO */ {1.0f,0.5f,0.5f,2.0f,1.0f,0.5f,1.0f,1.0f,2.0f,
                   2.0f,1.0f,1.0f,1.0f,1.0f,2.0f,1.0f,0.5f,1.0f},
-    /* LUCHA  */ {2.0f,1.0f,1.0f,1.0f,1.0f,2.0f,1.0f,0.5f,1.0f,
+    /* LUCHA */ {2.0f,1.0f,1.0f,1.0f,1.0f,2.0f,1.0f,0.5f,1.0f,
                   0.5f,0.5f,0.5f,2.0f,0.0f,1.0f,2.0f,2.0f,0.5f},
     /* VENENO */ {1.0f,1.0f,1.0f,2.0f,1.0f,1.0f,1.0f,0.5f,0.5f,
                   1.0f,1.0f,1.0f,0.5f,0.5f,1.0f,1.0f,0.0f,2.0f},
@@ -106,9 +107,9 @@ static const float matriz_por_defecto[CANT_TIPOS][CANT_TIPOS] = {
                   1.0f,1.0f,2.0f,0.5f,1.0f,1.0f,1.0f,0.5f,1.0f},
     /* PSIQUIC*/ {1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,2.0f,2.0f,1.0f,
                   1.0f,0.5f,1.0f,1.0f,1.0f,1.0f,0.0f,0.5f,1.0f},
-    /* BICHO  */ {1.0f,0.5f,1.0f,2.0f,1.0f,1.0f,0.5f,0.5f,1.0f,
+    /* BICHO */ {1.0f,0.5f,1.0f,2.0f,1.0f,1.0f,0.5f,0.5f,1.0f,
                   0.5f,2.0f,1.0f,1.0f,0.5f,1.0f,2.0f,0.5f,0.5f},
-    /* ROCA   */ {1.0f,2.0f,1.0f,1.0f,1.0f,2.0f,0.5f,1.0f,0.5f,
+    /* ROCA */ {1.0f,2.0f,1.0f,1.0f,1.0f,2.0f,0.5f,1.0f,0.5f,
                   2.0f,1.0f,2.0f,1.0f,1.0f,1.0f,1.0f,0.5f,1.0f},
     /* FANTASMA*/{0.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,0.5f,1.0f,
                   1.0f,2.0f,1.0f,1.0f,2.0f,1.0f,0.5f,1.0f,1.0f},
@@ -116,9 +117,9 @@ static const float matriz_por_defecto[CANT_TIPOS][CANT_TIPOS] = {
                   1.0f,1.0f,1.0f,1.0f,1.0f,2.0f,1.0f,0.5f,0.0f},
     /* SINIESTRO*/{1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,0.5f,1.0f,1.0f,
                   1.0f,2.0f,1.0f,1.0f,2.0f,1.0f,0.5f,1.0f,0.5f},
-    /* ACERO  */ {1.0f,0.5f,0.5f,1.0f,0.5f,2.0f,1.0f,1.0f,1.0f,
+    /* ACERO */ {1.0f,0.5f,0.5f,1.0f,0.5f,2.0f,1.0f,1.0f,1.0f,
                   1.0f,1.0f,1.0f,2.0f,1.0f,1.0f,1.0f,0.5f,2.0f},
-    /* HADA   */ {1.0f,0.5f,1.0f,1.0f,1.0f,1.0f,2.0f,0.5f,1.0f,
+    /* HADA */ {1.0f,0.5f,1.0f,1.0f,1.0f,1.0f,2.0f,0.5f,1.0f,
                   1.0f,1.0f,1.0f,1.0f,1.0f,2.0f,2.0f,0.5f,1.0f}
 };
 
@@ -176,9 +177,9 @@ void tipos_inicializar(void)
         int ncampos;
         validar_separar_campos(linea, campos, CANT_TIPOS, &ncampos);
 
-        /* F8: se separa sin omitir campos vacios (';;'); un conteo distinto
+        /* se separa sin omitir campos vacios (';;'); un conteo distinto
            de CANT_TIPOS o un campo vacio invalida la matriz y se usa la
-           tabla por defecto (cierre del hallazgo SUGGESTION F2). */
+           tabla por defecto. */
         if (ncampos != CANT_TIPOS) {
             printf("Error: linea %d de %s tiene %d valores (se esperaban "
                    "%d); se usara la tabla por defecto.\n",

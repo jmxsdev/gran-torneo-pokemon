@@ -1,12 +1,12 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file validacion.c
- * @brief Implementación de la lectura segura de entradas (RF-TEC-03).
+ * @brief Implementación de la lectura segura de entradas.
  *
- * F8: API común de lectura con reintentos y detección de EOF. Garantía
- * estructural del diseño §8.1: ninguna función de validación llama a exit;
- * todos los bucles reintentan hasta entrada válida o EOF (EOF ⇒ cierre
- * ordenado decidido por el llamador).
- * @author Nombre del estudiante
+ * API común de lectura con reintentos y detección de EOF. Ninguna función
+ * de validación llama a exit; todos los bucles reintentan hasta entrada
+ * válida o EOF.
+ * @author Jesus Mora
  * @date 2026-09-21
  */
 

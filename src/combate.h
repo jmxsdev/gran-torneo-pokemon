@@ -1,7 +1,8 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file combate.h
- * @brief Reglamento del combate 1 vs 1: daño (D1), orden (D3) y fin (D4/D5).
- * @author Nombre del estudiante
+ * @brief Reglamento del combate 1 vs 1: daño, orden y fin.
+ * @author Jesus Mora
  * @date 2026-09-01
  */
 
@@ -13,12 +14,12 @@
 #include "entrenador.h"
 
 /**
- * @brief Resultado de un combate ejecutado (RF-CMB-01..05).
+ * @brief Resultado de un combate ejecutado.
  *
  * El módulo combate devuelve el resultado; quien lo orquesta lo pasa a
  * torneo_aplicar_resultado para actualizar el estado del torneo. kos_local
  * son los Pokémon del visitante que el local derrotó, y kos_visita los del
- * local que derrotó el visitante (criterio 3 de RF-TRN-04).
+ * local que derrotó el visitante (criterio 3).
  */
 typedef struct {
     bool empate;
@@ -38,16 +39,16 @@ typedef struct {
  * @param ent Entrenador que elige (nunca NULL).
  * @param rol Rol textual del turno ("local", "visita" o "reemplazo").
  * @return Posición 1-based del Pokémon elegido entre los disponibles;
- *         -1 si la entrada termina (EOF) o la elección es inválida.
+ * -1 si la entrada termina (EOF) o la elección es inválida.
  */
 typedef int (*CombateSeleccionar)(const Entrenador *ent, const char *rol);
 
 /**
  * @brief Calcula el daño de un ataque del ejemplar atacante al defensor.
  *
- * Fórmula cerrada D1: base = (2*nivel/5 + 2) * ataque / defensa + 2 con
+ * Fórmula cerrada base = (2*nivel/5 + 2) * ataque / defensa + 2 con
  * enteros en ese orden; multiplicador de tipos del tipo primario del
- * atacante contra ambos tipos del defensor (RF-CMB-03/RF-CMB-05). Mínimo 1
+ * atacante contra ambos tipos del defensor. Mínimo 1
  * si el multiplicador es > 0; 0 si es 0.
  *
  * @param atacante Ejemplar que ataca (no debe ser NULL).
@@ -57,41 +58,41 @@ typedef int (*CombateSeleccionar)(const Entrenador *ent, const char *rol);
 int combate_calcular_danio(const Ejemplar *atacante, const Ejemplar *defensor);
 
 /**
- * @brief Decide qué ejemplar ataca primero según su velocidad (D3).
+ * @brief Decide qué ejemplar ataca primero según su velocidad.
  *
  * Mayor velocidad ataca primero; empate => ataca el ejemplar del entrenador
  * local (entrenador 1 del enfrentamiento).
  *
- * @param local  Ejemplar activo del entrenador local (no debe ser NULL).
+ * @param local Ejemplar activo del entrenador local (no debe ser NULL).
  * @param visita Ejemplar activo del entrenador visitante (no debe ser NULL).
  * @return true si ataca primero *local; false si ataca primero *visita.
  */
 bool combate_ataca_primero(const Ejemplar *local, const Ejemplar *visita);
 
 /**
- * @brief Ejecuta un combate completo entre dos equipos (RF-CMB-01..05).
+ * @brief Ejecuta un combate completo entre dos equipos.
  *
- * Restaura hp_actual = hp_max de los participantes (D2), pide el Pokémon
+ * Restaura hp_actual = hp_max de los participantes, pide el Pokémon
  * inicial de cada entrenador y aplica el ciclo de turnos con tope
  * MAX_TURNOS_COMBATE (un turno = intercambio completo, ambos activos atacan
- * según el orden de velocidad D3). Resuelve el final: agotamiento de
- * disponibles (RF-CMB-04), empate en fase de grupos (D4) o anti-empate en
- * eliminatoria por la cadena HP total -> nivel total -> entrenador 1 (D5).
+ * según el orden de velocidad). Resuelve el final: agotamiento de
+ * disponibles, empate en fase de grupos o anti-empate en
+ * eliminatoria por la cadena HP total -> nivel total -> entrenador 1.
  * Registra por consola la traza de turnos, daños y KOs.
  *
- * @param local         Entrenador local (entrenador 1; no debe ser NULL).
- * @param visita        Entrenador visitante (no debe ser NULL).
+ * @param local Entrenador local (entrenador 1; no debe ser NULL).
+ * @param visita Entrenador visitante (no debe ser NULL).
  * @param es_eliminatoria true si el combate es de eliminatoria (anti-empate
- *                      D5); false si es de fase de grupos (empate D4).
- * @param silencioso    true para suprimir la traza por consola (turnos,
- *                      daños, KOs y desempates) conservando solo el
- *                      resultado; false conserva la traza completa (D12).
- * @param seleccionar   Función que elige el Pokémon activo (no NULL).
- * @param res           Puntero donde se escribe el resultado (no NULL).
- * @param exito         Puntero donde se escribe true si el combate se ejecutó
- *                      y *res quedó definido; false si los parámetros son
- *                      inválidos, un equipo está vacío o el combate se
- *                      canceló por fin de entrada (EOF) (no debe ser NULL).
+ *); false si es de fase de grupos (empate).
+ * @param silencioso true para suprimir la traza por consola (turnos,
+ * daños, KOs y desempates) conservando solo el
+ * resultado; false conserva la traza completa.
+ * @param seleccionar Función que elige el Pokémon activo (no NULL).
+ * @param res Puntero donde se escribe el resultado (no NULL).
+ * @param exito Puntero donde se escribe true si el combate se ejecutó
+ * y *res quedó definido; false si los parámetros son
+ * inválidos, un equipo está vacío o el combate se
+ * canceló por fin de entrada (EOF) (no debe ser NULL).
  */
 void combate_ejecutar(Entrenador *local, Entrenador *visita,
                       bool es_eliminatoria, bool silencioso,

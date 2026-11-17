@@ -1,8 +1,9 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file pantalla.h
  * @brief Helpers de presentación por consola con padding por caracteres
- *        visibles UTF-8 (D19, guía de estilo de pantalla).
- * @author Nombre del estudiante
+ * visibles UTF-8 (guía de estilo de pantalla).
+ * @author Jesus Mora
  * @date 2026-11-16
  */
 
@@ -10,7 +11,7 @@
 #define PANTALLA_H
 
 /**
- * @brief Ancho visible de una cadena UTF-8 en columnas (D19).
+ * @brief Ancho visible de una cadena UTF-8 en columnas.
  *
  * Cuenta un carácter visible por cada byte inicial UTF-8 (ignora los bytes de
  * continuación 0x80..0xBF), de modo que "Pokémon" mide 7 columnas y no 8.
@@ -24,7 +25,7 @@ int pantalla_ancho(const char *texto);
  * @brief Imprime un texto y completa con espacios hasta 'ancho' columnas.
  *
  * Alineación a la izquierda; el padding se calcula en columnas visibles, no
- * en bytes (D19).
+ * en bytes.
  *
  * @param texto Cadena a imprimir (no debe ser NULL).
  * @param ancho Columnas totales de la columna (>= 0).
@@ -42,7 +43,7 @@ void pantalla_centro(const char *texto, int ancho);
 /**
  * @brief Imprime una regla de 'ancho' repeticiones del símbolo indicado.
  *
- * @param ancho   Columnas de la regla (>= 0).
+ * @param ancho Columnas de la regla (>= 0).
  * @param simbolo Cadena repetida (p. ej. "═" o "─"), no NULL.
  */
 void pantalla_linea(int ancho, const char *simbolo);

@@ -1,8 +1,9 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file simulacion.c
  * @brief Simulación automática del torneo: relleno de equipos por
- *        backtracking (D18) y ejecución de los 64 combates (RF-SIM-01..04).
- * @author Nombre del estudiante
+ * backtracking y ejecución de los 64 combates.
+ * @author Jesus Mora
  * @date 2026-11-16
  */
 
@@ -15,14 +16,14 @@
 #include "entrenador.h"
 #include "equipo.h"
 
-/* Nivel medio del relleno automático (D18): equipos no básicos. */
+/* Nivel medio del relleno automático: equipos no básicos. */
 #define NIVEL_MEDIO 30
-/* Ventana rotativa determinista de especies (D18): 24 especies, paso 4. */
+/* Ventana rotativa determinista de especies: 24 especies, paso 4. */
 #define ANCHO_VENTANA 24
 #define PASO_VENTANA 4
 
 /**
- * Selecciona el primer Pokémon disponible (D11): devuelve la posición 1 de
+ * Selecciona el primer Pokémon disponible: devuelve la posición 1 de
  * los ejemplares con hp_actual > 0. Determinista y sin consola.
  */
 static int seleccionar_primero_disponible(const Entrenador *ent, const char *rol)
@@ -46,17 +47,17 @@ static int seleccionar_primero_disponible(const Entrenador *ent, const char *rol
 }
 
 /**
- * Rellena por backtracking los equipos vacíos o inválidos (D18).
+ * Rellena por backtracking los equipos vacíos o inválidos.
  *
  * Para cada entrenador sin equipo válido arma una ventana de especies
  * rotativa (ANCHO_VENTANA especies desde pos * PASO_VENTANA, con envoltura)
  * y llama equipo_formar_backtracking con nivel medio NIVEL_MEDIO. Los equipos
  * válidos existentes no se modifican.
  *
- * @param pd    Pokédex cargada (no NULL).
- * @param reg   Registro de entrenadores (no NULL).
+ * @param pd Pokédex cargada (no NULL).
+ * @param reg Registro de entrenadores (no NULL).
  * @param exito true si todos los equipos quedaron válidos; false si falló
- *              una generación (no debería ocurrir con restricciones laxas).
+ * una generación (no debería ocurrir con restricciones laxas).
  */
 static void simulacion_preparar_equipos(const Pokedex *pd,
                                         RegistroEntrenadores *reg,
@@ -114,7 +115,7 @@ void simulacion_ejecutar(const Pokedex *pd, Torneo *t,
         return;
     }
 
-    /* Rellena equipos faltantes antes de combatir (D18). */
+    /* Rellena equipos faltantes antes de combatir. */
     simulacion_preparar_equipos(pd, reg, &ok);
     if (!ok) {
         *exito = false;

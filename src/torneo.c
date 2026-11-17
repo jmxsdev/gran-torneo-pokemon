@@ -1,13 +1,13 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file torneo.c
  * @brief Estado del torneo: grupos A-H, calendario 1-48, puntuación 3/1/0,
- *        clasificación (RF-TRN-01..06, RF-CLS-01, D9/D10) y bracket
- *        eliminatorio 49-64 (RF-ELM-01..05, RF-RES-03).
+ * clasificación y bracket eliminatorio 49-64.
  *
- * F5: fase de grupos. F6: bracket 49-64 con participantes resueltos por el
- * sistema, transición GRUPOS -> ELIMINATORIAS -> FINALIZADO y posiciones
- * finales (campeón, subcampeón, tercero y cuarto).
- * @author Nombre del estudiante
+ * Fase de grupos, clasificación con desempates, bracket 49-64 con
+ * participantes resueltos por el sistema, transición de estados y
+ * posiciones finales.
+ * @author Jesus Mora
  * @date 2026-09-21
  */
 
@@ -17,67 +17,67 @@
 #include "torneo.h"
 #include "pantalla.h"
 
-/* 8 grupos (A..H) de 4 entrenadores: 32 en total (D10). */
+/* 8 grupos (A..H) de 4 entrenadores: 32 en total. */
 #define CANT_GRUPOS 8
 #define POR_GRUPO 4
-/* Combates de la fase de grupos: 8 grupos x 6 pares (RF-TRN-02).
+/* Combates de la fase de grupos: 8 grupos x 6 pares.
    COMBATES_GRUPO (48) se define en constantes.h. */
 
-/* Pares fijos del round-robin de un grupo (diseño §6.1):
+/* Pares fijos del round-robin de un grupo:
    (m0,m1) (m0,m2) (m0,m3) (m1,m2) (m1,m3) (m2,m3). */
 static const int PARES[6][2] = {
     {0, 1}, {0, 2}, {0, 3}, {1, 2}, {1, 3}, {2, 3}
 };
 
-/* ---- Fuentes de los participantes del bracket (diseño §6.2) ---- */
+/* ---- Fuentes de los participantes del bracket ---- */
 
 /* Tipo de fuente de un participante en la tabla ORIGEN_PARTICIPANTE. */
 typedef enum {
-    ORIGEN_NINGUNO = 0,   /* 1..48: los fija el calendario (RF-TRN-02) */
+    ORIGEN_NINGUNO = 0,   /* 1..48: los fija el calendario */
     ORIGEN_CLASIFICADO,   /* 49..56: puesto del grupo en id_clasificados */
     ORIGEN_GANADOR,       /* 57..64: ganador del combate fuente (G#) */
     ORIGEN_PERDEDOR       /* 63: perdedor del combate fuente (P61/P62) */
 } TipoOrigen;
 
-/* Un participante del bracket según su origen (RF-RES-03). */
+/* Un participante del bracket según su origen. */
 typedef struct {
     TipoOrigen tipo;
     int valor;   /* índice 0..15 de id_clasificados, o número de combate */
 } OrigenParticipante;
 
-/* Tabla estática de orígenes (RF-RES-03): de dónde sale cada participante
+/* Tabla estática de orígenes: de dónde sale cada participante
    de los combates 49..64. Las filas 1..48 quedan en ORIGEN_NINGUNO (el
    calendario las fija en torneo_armar_grupos). Orden de id_clasificados:
    1A,2A,1B,2B,...,1H,2H (índices 0..15). Los octavos enfrentan a los 16
-   clasificados con los cruces fijos de RF-ELM-02 y los cuartos/semifinales/
-   tercer lugar/final encadenan ganadores y perdedores (RF-ELM-03/04/05). */
+   clasificados con los cruces fijos de y los cuartos/semifinales/
+   tercer lugar/final encadenan ganadores y perdedores. */
 static const OrigenParticipante ORIGEN_PARTICIPANTE[TOTAL_COMBATES][2] = {
-    /* Octavos 49-52: cruces superiores del cuadro (RF-ELM-02) */
+    /* Octavos 49-52: cruces superiores del cuadro */
     [48] = { {ORIGEN_CLASIFICADO, 0},  {ORIGEN_CLASIFICADO, 3} },  /* 1A-2B */
     [49] = { {ORIGEN_CLASIFICADO, 4},  {ORIGEN_CLASIFICADO, 7} },  /* 1C-2D */
     [50] = { {ORIGEN_CLASIFICADO, 8},  {ORIGEN_CLASIFICADO, 11} }, /* 1E-2F */
     [51] = { {ORIGEN_CLASIFICADO, 12}, {ORIGEN_CLASIFICADO, 15} }, /* 1G-2H */
-    /* Octavos 53-56: cruces inferiores del cuadro (RF-ELM-02) */
+    /* Octavos 53-56: cruces inferiores del cuadro */
     [52] = { {ORIGEN_CLASIFICADO, 2},  {ORIGEN_CLASIFICADO, 1} },  /* 1B-2A */
     [53] = { {ORIGEN_CLASIFICADO, 6},  {ORIGEN_CLASIFICADO, 5} },  /* 1D-2C */
     [54] = { {ORIGEN_CLASIFICADO, 10}, {ORIGEN_CLASIFICADO, 9} },  /* 1F-2E */
     [55] = { {ORIGEN_CLASIFICADO, 14}, {ORIGEN_CLASIFICADO, 13} }, /* 1H-2G */
-    /* Cuartos 57-60 (RF-ELM-03) */
+    /* Cuartos 57-60 */
     [56] = { {ORIGEN_GANADOR, 49}, {ORIGEN_GANADOR, 50} },  /* G49-G50 */
     [57] = { {ORIGEN_GANADOR, 53}, {ORIGEN_GANADOR, 54} },  /* G53-G54 */
     [58] = { {ORIGEN_GANADOR, 51}, {ORIGEN_GANADOR, 52} },  /* G51-G52 */
     [59] = { {ORIGEN_GANADOR, 55}, {ORIGEN_GANADOR, 56} },  /* G55-G56 */
-    /* Semifinales 61-62 (RF-ELM-04) */
+    /* Semifinales 61-62 */
     [60] = { {ORIGEN_GANADOR, 57}, {ORIGEN_GANADOR, 58} },  /* G57-G58 */
     [61] = { {ORIGEN_GANADOR, 59}, {ORIGEN_GANADOR, 60} },  /* G59-G60 */
-    /* Tercer lugar 63 y final 64 (RF-ELM-05) */
+    /* Tercer lugar 63 y final 64 */
     [62] = { {ORIGEN_PERDEDOR, 61}, {ORIGEN_PERDEDOR, 62} }, /* P61-P62 */
     [63] = { {ORIGEN_GANADOR, 61},  {ORIGEN_GANADOR, 62} }   /* G61-G62 */
 };
 
 /**
  * Número de combate del par p (0..5) dentro del grupo g (0..7):
- * 6*g + p + 1 (grupo A: 1-6, B: 7-12, ..., H: 43-48).
+ * 6*g + p + 1 (grupo A: 1-6, B: 7-12,..., H: 43-48).
  */
 static int numero_combate(int grupo, int par)
 {
@@ -127,7 +127,7 @@ static void stats_de_combates(const Torneo *t, int id, int *puntos,
 }
 
 /**
- * Resultado del enfrentamiento directo entre a y b en fase de grupos (D9):
+ * Resultado del enfrentamiento directo entre a y b en fase de grupos:
  * id del ganador; 0 si fue empate, está pendiente o no existe el combate
  * entre ambos (no debería ocurrir dentro del mismo grupo).
  */
@@ -150,9 +150,9 @@ static int combate_directo(const Torneo *t, int a, int b)
 }
 
 /**
- * Comparador de clasificación (RF-TRN-04): devuelve <0 si a va antes que b.
+ * Comparador de clasificación: devuelve <0 si a va antes que b.
  * 1) puntos desc, 2) victorias desc, 3) pokemon_derrotados desc,
- * 4) enfrentamiento directo (D9), 5) id asc.
+ * 4) enfrentamiento directo, 5) id asc.
  */
 static int comparar_clasificacion(const Torneo *t, int a, int b)
 {
@@ -186,7 +186,7 @@ static int comparar_clasificacion(const Torneo *t, int a, int b)
 
 /**
  * Ordena los 4 ids de un grupo con inserción según el comparador de
- * RF-TRN-04 (determinista: el orden inicial es el de aparición en el
+ * (determinista: el orden inicial es el de aparición en el
  * calendario y el comparador es una cadena total con el id como último
  * criterio).
  */
@@ -236,9 +236,9 @@ static void ids_del_grupo(const Torneo *t, int grupo, int ids[POR_GRUPO])
 }
 
 /**
- * Núcleo de la clasificación (RF-TRN-05/06): ordena cada grupo con la
- * cadena de RF-TRN-04 y guarda el 1.º y 2.º en id_clasificados[16] con el
- * orden 1A, 2A, 1B, 2B, ..., 1H, 2H.
+ * Núcleo de la clasificación: ordena cada grupo con la
+ * cadena de y guarda el 1.º y 2.º en id_clasificados[16] con el
+ * orden 1A, 2A, 1B, 2B,..., 1H, 2H.
  */
 static void clasificar_grupos(Torneo *t)
 {
@@ -335,7 +335,7 @@ void torneo_participantes(const Torneo *t, int numero, int *id1, int *id2)
 
 /**
  * Ronda del bracket a la que pertenece un combate de eliminatoria:
- * 1 octavos, 2 cuartos, 3 semifinal, 4 tercer lugar, 5 final (RF-ELM-01).
+ * 1 octavos, 2 cuartos, 3 semifinal, 4 tercer lugar, 5 final.
  */
 static int ronda_de(int numero)
 {
@@ -352,7 +352,7 @@ static int ronda_de(int numero)
 }
 
 /**
- * Nombre textual de la ronda de un combate de eliminatoria (RF-ELM-01).
+ * Nombre textual de la ronda de un combate de eliminatoria.
  */
 static const char *ronda_a_texto(int numero)
 {
@@ -364,7 +364,7 @@ static const char *ronda_a_texto(int numero)
 
 /**
  * Escribe la etiqueta de una fuente del bracket ("1A", "G49", "P61" o "-"
- * para el calendario) en el buffer buf (diseño §6.2).
+ * para el calendario) en el buffer buf.
  */
 static void etiqueta_origen(const OrigenParticipante *o, char *buf, size_t n)
 {
@@ -380,12 +380,12 @@ static void etiqueta_origen(const OrigenParticipante *o, char *buf, size_t n)
     }
 }
 
-/* Ancho del recuadro de posiciones finales y campeón (D19). */
+/* Ancho del recuadro de posiciones finales y campeón. */
 #define POS_ANCHO 55
 
 /**
- * Imprime las posiciones finales del torneo (RF-ELM-05): campeon = G64,
- * subcampeon = P64, tercero = G63, cuarto = P63, con estilo D19.
+ * Imprime las posiciones finales del torneo: campeon = G64,
+ * subcampeon = P64, tercero = G63, cuarto = P63, con estilo.
  */
 static void mostrar_posiciones(const Torneo *t,
                                const RegistroEntrenadores *reg)
@@ -430,11 +430,11 @@ void torneo_armar_grupos(Torneo *t, const RegistroEntrenadores *reg,
         return;
     }
     if (reg->cantidad != MAX_ENTRENADORES) {
-        *exito = false;   /* D10: exactamente 32 entrenadores */
+        *exito = false;   /* exactamente 32 entrenadores */
         return;
     }
 
-    /* Estado inicial de los 64 combates (49..64 se resuelven en F6). */
+    /* Estado inicial de los 64 combates (49..64 se resuelven). */
     for (k = 0; k < TOTAL_COMBATES; k++) {
         t->combates[k].numero = k + 1;
         t->combates[k].id_entrenador1 = 0;
@@ -445,9 +445,9 @@ void torneo_armar_grupos(Torneo *t, const RegistroEntrenadores *reg,
         t->combates[k].kos2 = 0;
     }
 
-    /* Distribución determinista (diseño §6.1): la posición k del registro
+    /* Distribución determinista: la posición k del registro
        define grupo k/4 y puesto k%4; el calendario usa los pares fijos con
-       número de combate 6*g + par + 1 (A: 1-6, ..., H: 43-48). */
+       número de combate 6*g + par + 1 (A: 1-6,..., H: 43-48). */
     for (g = 0; g < CANT_GRUPOS; g++) {
         for (par = 0; par < 6; par++) {
             Combate *c = &t->combates[numero_combate(g, par) - 1];
@@ -511,7 +511,7 @@ void torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
         return;
     }
 
-    /* Participantes resueltos por el sistema (RF-RES-03): el calendario
+    /* Participantes resueltos por el sistema: el calendario
        fija 1..48 y el bracket (clasificados / G# / P#) resuelve 49..64. */
     if (es_eliminatoria) {
         int id1;
@@ -526,7 +526,7 @@ void torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
         }
         if (r->id_entrenador1 != id1 || r->id_entrenador2 != id2) {
             snprintf(msg, n, "Los participantes no coinciden con los "
-                             "resueltos por el sistema (RF-RES-03).");
+                             "resueltos por el sistema.");
             *exito = false;
             return;
         }
@@ -537,7 +537,7 @@ void torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
     } else if (r->id_entrenador1 != c->id_entrenador1 ||
                r->id_entrenador2 != c->id_entrenador2) {
         snprintf(msg, n, "Los participantes no coinciden con los resueltos "
-                         "por el sistema (RF-RES-03).");
+                         "por el sistema.");
         *exito = false;
         return;
     }
@@ -549,7 +549,7 @@ void torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
         return;
     }
     if (es_eliminatoria && r->resultado == RES_EMPATE) {
-        snprintf(msg, n, "La eliminatoria no admite empates (RF-ELM-01).");
+        snprintf(msg, n, "La eliminatoria no admite empates.");
         *exito = false;
         return;
     }
@@ -591,20 +591,20 @@ void torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
     c->kos2 = r->kos2;
 
     if (es_eliminatoria) {
-        /* La eliminatoria no toca los contadores de grupos (RF-TRN-03
-           puntúa 3/1/0 solo en 1..48): solo avanza G#/P# en el estado. */
+        /* La eliminatoria no toca los contadores de grupos (puntúa 3/1/0
+           solo en 1..48): solo avanza G#/P# en el estado. */
         snprintf(msg, n, "Resultado del combate %d (%s) aplicado: victoria "
                          "de %s (id %d).", r->numero,
                  ronda_a_texto(r->numero),
                  ganador != NULL ? ganador->nombre : "?", r->id_ganador);
 
-        /* D14: el torneo finaliza solo cuando la final (64) Y el tercer
+        /* el torneo finaliza solo cuando la final (64) Y el tercer
            lugar (63) tienen resultado; aplicar 64 antes de 63 ya no bloquea
            el combate 63 (antes quedaba perdido para siempre). */
         if (t->combates[TOTAL_COMBATES - 1].estado != RES_PENDIENTE &&
             t->combates[TOTAL_COMBATES - 2].estado != RES_PENDIENTE) {
             t->estado = TORNEO_FINALIZADO;
-            /* RF-ELM-05: al finalizar, el sistema muestra los 4 primeros. */
+            /*: al finalizar, el sistema muestra los 4 primeros. */
             mostrar_posiciones(t, reg);
             snprintf(msg, n, "Torneo finalizado: el campeón es %s (id %d).",
                      nombre_entrenador(reg,
@@ -621,7 +621,7 @@ void torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
         return;
     }
 
-    /* Puntuación 3/1/0 (RF-TRN-03) y KOs (criterio 3 de RF-TRN-04). */
+    /* Puntuación 3/1/0 y KOs (criterio 3). */
     if (r->resultado == RES_EMPATE) {
         e1->empates++;
         e2->empates++;
@@ -644,8 +644,8 @@ void torneo_aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
              r->resultado == RES_EMPATE ? "empate" : "victoria");
 
     /* Al completar los 48 combates de grupos se ordena, se definen los
-       clasificados (RF-TRN-06), se resuelven los octavos 49..56 y el
-       torneo pasa a la eliminatoria (diseño §6.1). */
+       clasificados, se resuelven los octavos 49..56 y el
+       torneo pasa a la eliminatoria. */
     completos = 0;
     for (k = 0; k < COMBATES_GRUPO; k++) {
         if (t->combates[k].estado != RES_PENDIENTE) {
@@ -713,7 +713,7 @@ void torneo_clasificacion_grupo(const Torneo *t, int grupo, int filas[4][7])
     }
 }
 
-/* Anchos de la tabla de clasificación (D19, columnas visibles UTF-8). */
+/* Anchos de la tabla de clasificación (columnas visibles UTF-8). */
 #define CLA_ANCHO_POS     3
 #define CLA_ANCHO_NOMBRE  20
 #define CLA_ANCHO_TOTAL   (1 + CLA_ANCHO_POS + 2 + CLA_ANCHO_NOMBRE + 2 + \
@@ -763,7 +763,7 @@ void torneo_mostrar_clasificacion(const Torneo *t,
     pantalla_linea(CLA_ANCHO_TOTAL, "─");
 }
 
-/* Anchos de la tabla del calendario (D19). */
+/* Anchos de la tabla del calendario. */
 #define CAL_ANCHO_NUM     3
 #define CAL_ANCHO_GRUPO   7
 #define CAL_ANCHO_NOMBRE  22
@@ -819,7 +819,7 @@ void torneo_mostrar_enfrentamientos(const Torneo *t,
     pantalla_linea(CAL_ANCHO_TOTAL, "─");
 }
 
-/* Anchos de la tabla del historial (D19, columnas visibles UTF-8). */
+/* Anchos de la tabla del historial (columnas visibles UTF-8). */
 #define HIST_ANCHO_NUM   3
 #define HIST_ANCHO_FASE  13
 #define HIST_ANCHO_NOM   20
@@ -954,7 +954,7 @@ void torneo_mostrar_historial(const Torneo *t, const RegistroEntrenadores *reg)
     pantalla_centro(resumen, HIST_ANCHO_TOTAL);
 }
 
-/* Anchos de la tabla del bracket (D19, columnas visibles UTF-8). */
+/* Anchos de la tabla del bracket (columnas visibles UTF-8). */
 #define BRI_ANCHO_NUM     3
 #define BRI_ANCHO_ORIGEN  8
 #define BRI_ANCHO_NOMBRE  20

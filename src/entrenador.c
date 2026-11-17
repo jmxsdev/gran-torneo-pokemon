@@ -1,8 +1,9 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file entrenador.c
  * @brief Implementación del módulo de entrenadores: registro con id único,
- *        búsqueda y listado (RF-ENT-01..02).
- * @author Nombre del estudiante
+ * búsqueda y listado.
+ * @author Jesus Mora
  * @date 2026-09-19
  */
 
@@ -59,7 +60,7 @@ void entrenador_registrar(RegistroEntrenadores *reg, int id, const char *nombre,
     *exito = true;
 }
 
-/* Anchos de la tabla de entrenadores (D19, columnas visibles UTF-8). */
+/* Anchos de la tabla de entrenadores (columnas visibles UTF-8). */
 #define ENT_ANCHO_ID     3
 #define ENT_ANCHO_NOMBRE 18
 #define ENT_ANCHO_EQUIPO 6

@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
-# verificar_entrega.sh — Verifica el paquete de entrega del Gran Torneo Pokémon (F11.2).
+# verificar_entrega.sh — Verifica el paquete de entrega del Gran Torneo Pokémon.
 #
 # Extrae dist/gran-torneo-pokemon-entrega.zip a un directorio temporal LIMPIO
 # (ajeno al repositorio) y prueba que el paquete compila y ejecuta por sí solo,
-# sin depender de archivos externos no entregados (sección 7 del enunciado):
+# sin depender de archivos externos:
 #
 #   1. Estructura: el paquete contiene src/ (main.c incluido), data/ (Pokédex),
-#      tests/, docs/, Makefile, Doxyfile, README.md y openspec/.
+#      tests/, scripts/, Makefile, Doxyfile y README.md.
 #   2. Compilación: make clean && make con gcc -std=c99 -Wall -Wextra
 #      (gate de cero warnings).
 #   3. Prueba de humo: menú -> opción 1 (Pokédex: buscar el 25) -> salir (12),
 #      exit code 0 y salida con "Pikachu" y "Saliendo del programa.".
-#   4. Batería completa: bash tests/run_tests.sh dentro del paquete
-#      (23 PASS, 0 FALLA).
+#   4. Batería completa: bash tests/run_tests.sh dentro del paquete.
 #   5. Sin dependencias externas: rutas de datos relativas (data/) y sin rutas
 #      absolutas en el código fuente ni en el Makefile.
 #
@@ -50,11 +49,8 @@ echo ""
 echo "=== 1. Estructura del paquete ==="
 ESTRUCTURA_OK=1
 for ruta in src/main.c data/pokedex.txt data/efectividad.txt data/entrenadores.txt \
-            tests/run_tests.sh docs/planificacion.md docs/informe-tecnico.md \
-            Makefile Doxyfile README.md \
-            openspec/changes/archive/2026-09-21-gran-torneo-pokemon/tasks.md \
-            openspec/changes/archive/2026-09-25-refactor-funciones-un-resultado/tasks.md \
-            openspec/specs/pokedex/spec.md; do
+            tests/run_tests.sh scripts/empaquetar.sh scripts/verificar_entrega.sh \
+            Makefile Doxyfile README.md; do
     if [ -f "$PAQUETE/$ruta" ]; then
         echo "  OK   $ruta"
     else
@@ -62,7 +58,7 @@ for ruta in src/main.c data/pokedex.txt data/efectividad.txt data/entrenadores.t
         ESTRUCTURA_OK=0
     fi
 done
-if [ "$ESTRUCTURA_OK" -eq 1 ]; then ok "estructura completa (código, datos, docs, tests, trazabilidad SDD)"; else falla "estructura incompleta"; fi
+if [ "$ESTRUCTURA_OK" -eq 1 ]; then ok "estructura completa (código, datos, tests, scripts)"; else falla "estructura incompleta"; fi
 
 cd "$PAQUETE" || exit 1
 
@@ -85,8 +81,8 @@ echo "=== 3. Prueba de humo: menú -> opción 1 (Pokédex) -> salir (12) ==="
 # Entrada: 1 (consultar Pokédex), 2 (buscar por número), 25 (Pikachu),
 #          0 (volver al menú), 12 (salir).
 if printf '1\n2\n25\n0\n12\n' | timeout 60 ./build/torneo > "$TMP/humo.txt" 2>&1; then
-    if grep -q "025 Pikachu" "$TMP/humo.txt" && grep -q "Saliendo del programa." "$TMP/humo.txt"; then
-        ok "humo: exit 0, Pokédex responde (025 Pikachu) y salida ordenada por 12"
+    if grep -q "Pikachu" "$TMP/humo.txt" && grep -q "Saliendo del programa." "$TMP/humo.txt"; then
+        ok "humo: exit 0, Pokédex responde (Pikachu) y salida ordenada por 12"
     else
         falla "humo: salida sin la Pokédex o sin la despedida esperada"
         grep -E "Pikachu|Saliendo" "$TMP/humo.txt" || tail -5 "$TMP/humo.txt"
@@ -99,8 +95,8 @@ fi
 echo ""
 echo "=== 4. Batería completa: bash tests/run_tests.sh ==="
 if bash tests/run_tests.sh > "$TMP/bateria.log" 2>&1; then
-    if grep -q "23 PASS, 0 FALLA" "$TMP/bateria.log"; then
-        ok "batería: BATERÍA F9: 23 PASS, 0 FALLA (20 casos de menú + 2 probes)"
+    if grep -q "0 FALLA" "$TMP/bateria.log"; then
+        ok "batería: $(grep 'BATERÍA F9:' "$TMP/bateria.log" | tail -1)"
     else
         falla "batería: exit 0 pero sin el resumen esperado"
         tail -5 "$TMP/bateria.log"

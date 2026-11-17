@@ -1,7 +1,8 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file entrenador.h
- * @brief Entrenadores: registro con id único, búsqueda y listado (RF-ENT-01..02).
- * @author Nombre del estudiante
+ * @brief Entrenadores: registro con id único, búsqueda y listado.
+ * @author Jesus Mora
  * @date 2026-09-01
  */
 
@@ -18,17 +19,17 @@
  *
  * Los contadores de fase de grupos (victorias/empates/derrotas/puntos y
  * pokemon_derrotados) se reconstruyen desde data/resultados.txt; no se
- * persisten en data/entrenadores.txt (D8).
+ * persisten en data/entrenadores.txt.
  *
  * El tag "struct Entrenador" completa la declaración adelantada de equipo.h
  * (evita conflicto de tipos al incluir ambas cabeceras).
  */
 typedef struct Entrenador {
-    int   id;                    /* único (RF-ENT-02) */
+    int   id;                    /* único */
     char  nombre[TAM_MAX_NOMBRE];
     int   victorias, empates, derrotas;
     int   puntos;                /* 3/1/0 solo fase de grupos */
-    int   pokemon_derrotados;    /* criterio 3 de desempate (RF-TRN-04) */
+    int   pokemon_derrotados;    /* criterio 3 de desempate */
     Ejemplar *equipo;            /* cabeza de la lista enlazada */
 } Entrenador;
 
@@ -36,7 +37,7 @@ typedef struct Entrenador {
  * @brief Registro de entrenadores: arreglo estático y su conteo.
  *
  * capacidad MAX_ENTRENADORES (32); el torneo exige exactamente 32 para
- * armar grupos (D10).
+ * armar grupos.
  */
 typedef struct {
     Entrenador entrenadores[MAX_ENTRENADORES];
@@ -44,15 +45,15 @@ typedef struct {
 } RegistroEntrenadores;
 
 /**
- * @brief Registra un entrenador nuevo con id único (RF-ENT-02).
+ * @brief Registra un entrenador nuevo con id único.
  *
  * Rechaza ids repetidos, ids fuera de rango y el desborde del registro.
  *
- * @param reg    Puntero al registro (no debe ser NULL).
- * @param id     Identificador único propuesto (entero > 0).
+ * @param reg Puntero al registro (no debe ser NULL).
+ * @param id Identificador único propuesto (entero > 0).
  * @param nombre Nombre del entrenador (no debe ser NULL).
- * @param exito  true si se registró; false si el id ya existe, los
- *               parámetros son inválidos o el registro está lleno.
+ * @param exito true si se registró; false si el id ya existe, los
+ * parámetros son inválidos o el registro está lleno.
  */
 void entrenador_registrar(RegistroEntrenadores *reg, int id, const char *nombre,
                           bool *exito);
@@ -61,9 +62,9 @@ void entrenador_registrar(RegistroEntrenadores *reg, int id, const char *nombre,
  * @brief Busca un entrenador por su id en el registro.
  *
  * @param reg Puntero al registro (no debe ser NULL).
- * @param id  Identificador a buscar.
+ * @param id Identificador a buscar.
  * @return Puntero al entrenador encontrado; NULL si no existe o el
- *         registro es inválido.
+ * registro es inválido.
  */
 Entrenador *entrenador_buscar(RegistroEntrenadores *reg, int id);
 

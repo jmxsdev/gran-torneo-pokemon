@@ -1,12 +1,11 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file resultados.c
- * @brief Carga de resultados por teclado o archivo con validación completa
- *        (RF-RES-01, RF-RES-02, RF-RES-03, RF-RES-04).
+ * @brief Carga de resultados por teclado o archivo con validación completa.
  *
- * F7: catálogo de validación del diseño §8.1. Los participantes los
- * resuelve el sistema (RF-RES-03); la aplicación se delega en
+ * Los participantes los resuelve el sistema; la aplicación se delega en
  * torneo_aplicar_resultado.
- * @author Nombre del estudiante
+ * @author Jesus Mora
  * @date 2026-09-21
  */
 
@@ -21,7 +20,7 @@
 /* Combates de la fase de grupos (48); el resto (49..64) es eliminatoria.
    COMBATES_GRUPO se define en constantes.h. */
 
-/* Máximo de campos por línea del esquema §5.3 (NUM;ID1;ID2;RES;GAN;KOS1;KOS2). */
+/* Máximo de campos por línea del esquema (NUM;ID1;ID2;RES;GAN;KOS1;KOS2). */
 #define CAMPOS_MAX_LINEA 8
 
 /* Busca un entrenador por id sin mutar el registro (solo lectura). */
@@ -87,7 +86,7 @@ void resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
         return;
     }
 
-    /* Entrenadores existentes (catálogo §8.1: RF-RES-02). */
+    /* Entrenadores existentes (catálogo). */
     if (entrenador_por_id(reg, r->id_entrenador1) == NULL) {
         snprintf(msg, n, "El entrenador %d del combate %d no está "
                          "registrado.", r->id_entrenador1, r->numero);
@@ -101,9 +100,9 @@ void resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
         return;
     }
 
-    /* Participantes resueltos por el sistema (RF-RES-03): el usuario nunca
+    /* Participantes resueltos por el sistema: el usuario nunca
        los inventa. Esto cubre también "eliminado no reaparece": los ids
-       resueltos son los únicos válidos para cada combate (§8.1). */
+       resueltos son los únicos válidos para cada combate. */
     torneo_participantes(t, r->numero, &id1, &id2);
     if (id1 == 0 || id2 == 0) {
         snprintf(msg, n, "El combate %d no está disponible aún: sus "
@@ -116,7 +115,7 @@ void resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
         const Entrenador *e1 = entrenador_por_id(reg, id1);
         const Entrenador *e2 = entrenador_por_id(reg, id2);
         snprintf(msg, n, "Los participantes no coinciden con los resueltos "
-                         "por el sistema (RF-RES-03): el combate %d "
+                         "por el sistema: el combate %d "
                          "enfrenta a %s (id %d) contra %s (id %d).",
                  r->numero, e1 != NULL ? e1->nombre : "?", id1,
                  e2 != NULL ? e2->nombre : "?", id2);
@@ -132,7 +131,7 @@ void resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
         return;
     }
     if (es_eliminatoria && r->resultado == RES_EMPATE) {
-        snprintf(msg, n, "La eliminatoria no admite empates (RF-ELM-01).");
+        snprintf(msg, n, "La eliminatoria no admite empates.");
         *exito = false;
         return;
     }
@@ -169,9 +168,9 @@ void resultados_validar(const Torneo *t, const RegistroEntrenadores *reg,
  * aplica nada; si pasa, delega en torneo_aplicar_resultado e imprime su
  * mensaje.
  *
- * @param t   Puntero al estado del torneo (no debe ser NULL).
+ * @param t Puntero al estado del torneo (no debe ser NULL).
  * @param reg Puntero al registro de entrenadores (no debe ser NULL).
- * @param r   Puntero al resultado ya parseado (no debe ser NULL).
+ * @param r Puntero al resultado ya parseado (no debe ser NULL).
  * @param exito true si el resultado se aplicó; false si fue rechazado.
  */
 static void aplicar_resultado(Torneo *t, RegistroEntrenadores *reg,
@@ -225,7 +224,7 @@ void resultados_cargar_teclado(Torneo *t, RegistroEntrenadores *reg,
             break;   /* "terminar" o EOF: cierre ordenado */
         }
 
-        /* El sistema resuelve los participantes (RF-RES-03). */
+        /* El sistema resuelve los participantes. */
         torneo_participantes(t, numero, &id1, &id2);
         if (id1 == 0 || id2 == 0) {
             printf("El combate %d no está disponible aún: sus fuentes "
@@ -321,11 +320,11 @@ void resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
             continue;   /* linea vacia: no cuenta */
         }
 
-        /* Esquema §5.3: NUM;ID1;ID2;RESULTADO;GANADOR[;KOS1;KOS2].
-           Los 5 primeros campos son el mínimo de RF-RES-04: si la línea
-           trae solo 5, los KOs valen 0. F8: se separa sin omitir campos
+        /* Esquema: NUM;ID1;ID2;RESULTADO;GANADOR[;KOS1;KOS2].
+           Los 5 primeros campos son el mínimo de: si la línea
+           trae solo 5, los KOs valen 0. se separa sin omitir campos
            vacíos (';;') para no desplazar los campos silenciosamente
-           (cierre del hallazgo SUGGESTION F2). */
+. */
         validar_separar_campos(linea, campos, CAMPOS_MAX_LINEA, &ncampos);
         if (ncampos < 5 || ncampos == 6 || ncampos > 7) {
             goto linea_invalida;
@@ -350,7 +349,7 @@ void resultados_cargar_archivo(Torneo *t, RegistroEntrenadores *reg,
         r.id_ganador = (strcmp(campos[4], "-") == 0) ? 0 : atoi(campos[4]);
 
         if (ncampos == 5) {
-            r.kos1 = 0;   /* mínimo de RF-RES-04: KOs por defecto en 0 */
+            r.kos1 = 0;   /* mínimo de: KOs por defecto en 0 */
             r.kos2 = 0;
         } else {
             r.kos1 = atoi(campos[5]);

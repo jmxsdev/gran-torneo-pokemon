@@ -1,7 +1,8 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file main.c
- * @brief Bucle del menú principal y flujo general del torneo (RF-MEN-01).
- * @author Nombre del estudiante
+ * @brief Bucle del menú principal y flujo general del torneo.
+ * @author Jesus Mora
  * @date 2026-09-01
  */
 
@@ -24,12 +25,12 @@
 #include "archivos.h"
 
 /* Marcas de modificación en sesión: cada archivo se guarda solo si cambió
-   algo (RF-ENT-03 para entrenadores, D16 para resultados). */
+   algo (para entrenadores, para resultados). */
 static bool entrenadores_sucios = false;
 static bool resultados_sucios = false;
 
 /**
- * Muestra el menú de las 12 opciones del torneo (RF-MEN-01).
+ * Muestra el menú de las 12 opciones del torneo.
  */
 static void mostrar_menu(void)
 {
@@ -48,7 +49,7 @@ static void mostrar_menu(void)
     printf("12. Salir\n");
 }
 
-/* Lee la opción del menú con la API común (RF-TEC-03); 0 ante EOF. */
+/* Lee la opción del menú con la API común; 0 ante EOF. */
 static int leer_opcion(void)
 {
     return validar_leer_entero_msg("Seleccione una opción (1-12): ", 1, 12,
@@ -63,7 +64,7 @@ static int leer_id_entrenador(const char *prompt)
 
 /**
  * Muestra el resultado de una busqueda en la Pokédex: si se encontro la
- * especie muestra su ficha completa; si no, informa que no existe (RF-PDX-05).
+ * especie muestra su ficha completa; si no, informa que no existe.
  */
 static void mostrar_resultado_busqueda(const Especie *esp)
 {
@@ -75,17 +76,16 @@ static void mostrar_resultado_busqueda(const Especie *esp)
 }
 
 /**
- * @brief Submenu de la opcion 1: consultar la Pokédex (RF-PDX-05).
+ * @brief Submenu de la opcion 1: consultar la Pokédex.
  *
  * Ofrece mostrar todas, buscar por numero, buscar por nombre y consultar la
  * ficha completa de una especie. Las consultas no modifican ningun dato.
  */
 static void consultar_pokedex(const Pokedex *pd)
 {
-    /* Cierre del hallazgo F1 (WARNING): si la Pokédex no está cargada, el
-       submenú completo avisa y vuelve al menú en lugar de responder
-       "No se encontró la especie solicitada." en las ramas 2/3/4
-       (RF-PDX-06, RF-TEC-03). */
+    /* Si la Pokédex no está cargada, el submenú completo avisa y vuelve
+       al menú en lugar de responder "No se encontró la especie
+       solicitada." en las ramas 2/3/4. */
     if (pd->cantidad == 0) {
         printf("La Pokédex no está cargada.\n");
         return;
@@ -143,10 +143,10 @@ static void consultar_pokedex(const Pokedex *pd)
 }
 
 /**
- * @brief Opcion 2: registra un entrenador por teclado (RF-ENT-01/02).
+ * @brief Opcion 2: registra un entrenador por teclado.
  *
  * Valida id entero positivo y único y nombre no vacío; ninguna entrada
- * inválida termina el programa (RF-TEC-03).
+ * inválida termina el programa.
  */
 static void registrar_entrenador(RegistroEntrenadores *reg)
 {
@@ -187,10 +187,10 @@ static void registrar_entrenador(RegistroEntrenadores *reg)
 }
 
 /**
- * @brief Formación automática de equipo por backtracking (RF-EQP-04).
+ * @brief Formación automática de equipo por backtracking.
  *
  * Pide las restricciones (cantidad 1..MAX_EQUIPO, nivel total máximo
- * positivo y mínimo de tipos 1..CANT_TIPOS) con reintentos (RF-TEC-03) y
+ * positivo y mínimo de tipos 1..CANT_TIPOS) con reintentos y
  * delega en equipo_formar_backtracking. Si existe solución la asigna al
  * entrenador y muestra el equipo; si no, informa que no existe y conserva
  * el equipo anterior (nunca se devuelve un equipo inválido).
@@ -209,8 +209,8 @@ static void formar_equipo_automatico(const Pokedex *pd, Entrenador *ent)
         return;
     }
 
-    /* Mensajes específicos de rechazo (F8): se conservan los textos que la
-       batería F4 verifica, con la API común validar_leer_entero_msg. */
+    /* Mensajes específicos de rechazo: se conservan los textos que la
+       batería verifica, con la API común validar_leer_entero_msg. */
     snprintf(msg_cantidad, sizeof(msg_cantidad),
              "Cantidad inválida: debe estar entre 1 y %d.", MAX_EQUIPO);
     snprintf(msg_tipos, sizeof(msg_tipos),
@@ -255,11 +255,11 @@ static void formar_equipo_automatico(const Pokedex *pd, Entrenador *ent)
  * @brief Opcion 3: crea el equipo de un entrenador (manual o automático).
  *
  * Ofrece un submenu: formacion manual (seleccionando especies y niveles)
- * o formacion automatica por backtracking (RF-EQP-04) con restricciones.
+ * o formacion automatica por backtracking con restricciones.
  * En el modo manual libera el equipo anterior si existe y agrega ejemplares
  * por numero de especie y nivel (1..100); el id del ejemplar lo asigna el
  * modulo de equipos (unico global). Termina con especie 0 o al llegar a
- * MAX_EQUIPO. Ninguna entrada invalida termina el programa (RF-TEC-03).
+ * MAX_EQUIPO. Ninguna entrada invalida termina el programa.
  */
 static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
 {
@@ -370,12 +370,12 @@ static void crear_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
         printf("El equipo es válido (tamaño %d, especies y niveles correctos).\n",
                equipo_contar(ent));
     } else {
-        printf("Aviso: el equipo no cumple las reglas (RF-EQP-05).\n");
+        printf("Aviso: el equipo no cumple las reglas.\n");
     }
 }
 
 /**
- * @brief Opcion 5: consulta el equipo de un entrenador (RF-EQP-02/03).
+ * @brief Opcion 5: consulta el equipo de un entrenador.
  */
 static void consultar_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
 {
@@ -400,12 +400,12 @@ static void consultar_equipo(const Pokedex *pd, RegistroEntrenadores *reg)
  * Implementa CombateSeleccionar: lista los ejemplares disponibles
  * (hp_actual > 0) y lee una posicion validada. Ante EOF devuelve -1 (el
  * combate se cancela); una entrada no numerica o fuera de rango se rechaza
- * y se vuelve a preguntar sin terminar el programa (RF-TEC-03).
+ * y se vuelve a preguntar sin terminar el programa.
  *
  * @param ent Entrenador que elige (no debe ser NULL).
  * @param rol Rol textual del turno ("local", "visita" o "reemplazo").
  * @return Posicion 1-based elegida entre los disponibles; -1 ante EOF o
- *         si el entrenador no tiene Pokemon disponibles.
+ * si el entrenador no tiene Pokemon disponibles.
  */
 static int seleccionar_pokemon_activo(const Entrenador *ent, const char *rol)
 {
@@ -455,11 +455,11 @@ static int seleccionar_pokemon_activo(const Entrenador *ent, const char *rol)
 /**
  * @brief Opcion 8: combate amistoso entre dos entrenadores existentes.
  *
- * Submenu que elige la fase (grupos con empate D4 o eliminatoria con
- * anti-empate D5) y los ids de ambos entrenadores; valida que existan,
+ * Submenu que elige la fase (grupos con empate o eliminatoria con
+ * anti-empate) y los ids de ambos entrenadores; valida que existan,
  * que sean distintos y que tengan equipo valido, y delega la ejecucion en
- * combate_ejecutar (RF-CMB-01..05). Ninguna entrada invalida termina el
- * programa (RF-TEC-03).
+ * combate_ejecutar. Ninguna entrada invalida termina el
+ * programa.
  */
 static void jugar_combate(const Pokedex *pd, RegistroEntrenadores *reg)
 {
@@ -531,15 +531,15 @@ static void jugar_combate(const Pokedex *pd, RegistroEntrenadores *reg)
 /**
  * @brief Arma los grupos del torneo si aún no están armados.
  *
- * La distribución es determinista por orden de registro (diseño §6.1) y
- * exige exactamente 32 entrenadores (D10). Se invoca desde las consultas
+ * La distribución es determinista por orden de registro y
+ * exige exactamente 32 entrenadores. Se invoca desde las consultas
  * de clasificación y enfrentamientos; si el conteo no es 32 informa el
- * rechazo sin terminar el programa (RF-TEC-03).
+ * rechazo sin terminar el programa.
  *
- * @param t   Puntero al estado del torneo (no debe ser NULL).
+ * @param t Puntero al estado del torneo (no debe ser NULL).
  * @param reg Puntero al registro de entrenadores (no debe ser NULL).
  * @param exito true si el torneo quedó armado (o ya lo estaba); false si
- *              los parámetros son inválidos o el conteo no es 32.
+ * los parámetros son inválidos o el conteo no es 32.
  */
 static void armar_torneo_si_falta(Torneo *t, const RegistroEntrenadores *reg,
                                   bool *exito)
@@ -562,8 +562,8 @@ static void armar_torneo_si_falta(Torneo *t, const RegistroEntrenadores *reg,
 /**
  * @brief Opcion 7: consultar la clasificación de la fase de grupos.
  *
- * Arma los grupos si hace falta (32, D10), muestra la tabla (RF-CLS-01) y
- * guarda la clasificación en data/clasificacion.txt (formato §5.4).
+ * Arma los grupos si hace falta (32), muestra la tabla y
+ * guarda la clasificación en data/clasificacion.txt (formato).
  */
 static void consultar_clasificacion(Torneo *t, const RegistroEntrenadores *reg)
 {
@@ -587,10 +587,10 @@ static void consultar_clasificacion(Torneo *t, const RegistroEntrenadores *reg)
 /**
  * @brief Opcion 8: consultar los enfrentamientos del torneo.
  *
- * Submenu que ofrece el combate amistoso (migrado de F3, antes opcion
+ * Submenu que ofrece el combate amistoso (migrado de, antes opcion
  * directa) y el calendario de la fase de grupos (combates 1-48 con los
- * participantes resueltos por el sistema, RF-RES-03). Ninguna entrada
- * invalida termina el programa (RF-TEC-03).
+ * participantes resueltos por el sistema). Ninguna entrada
+ * invalida termina el programa.
  */
 static void consultar_enfrentamientos(const Pokedex *pd,
                                       RegistroEntrenadores *reg,
@@ -626,11 +626,11 @@ static void consultar_enfrentamientos(const Pokedex *pd,
 }
 
 /**
- * @brief Opcion 9: consultar el historial de combates (RF-RES-06).
+ * @brief Opcion 9: consultar el historial de combates.
  *
- * Arma el torneo si hace falta (32, D10) y muestra la tabla de los 64
- * combates con participantes, resultado, ganador y KOs (estilo D19); si el
- * conteo no es 32 informa el rechazo sin terminar el programa (RF-TEC-03).
+ * Arma el torneo si hace falta (32) y muestra la tabla de los 64
+ * combates con participantes, resultado, ganador y KOs (estilo); si el
+ * conteo no es 32 informa el rechazo sin terminar el programa.
  */
 static void consultar_historial(Torneo *t, const RegistroEntrenadores *reg)
 {
@@ -645,13 +645,13 @@ static void consultar_historial(Torneo *t, const RegistroEntrenadores *reg)
 }
 
 /**
- * @brief Opcion 6: cargar resultados del torneo (RF-RES-01/RF-RES-04/RF-SIM-01).
+ * @brief Opcion 6: cargar resultados del torneo.
  *
  * Submenu teclado, data/resultados.txt (admite parciales) o simulacion
- * automatica; arma el torneo si hace falta (32, D10) y muestra los pendientes.
- * Los participantes los resuelve el sistema (RF-RES-03); cada registro pasa
- * por resultados_validar (RF-RES-02). La simulacion rellena equipos por
- * backtracking y ejecuta los combates pendientes (D11/D12/D18).
+ * automatica; arma el torneo si hace falta (32) y muestra los pendientes.
+ * Los participantes los resuelve el sistema; cada registro pasa
+ * por resultados_validar. La simulacion rellena equipos por
+ * backtracking y ejecuta los combates pendientes.
  */
 static void cargar_resultados(const Pokedex *pd, Torneo *t,
                               RegistroEntrenadores *reg)
@@ -678,12 +678,12 @@ static void cargar_resultados(const Pokedex *pd, Torneo *t,
     if (sub == 1) {
         resultados_cargar_teclado(t, reg, &exito);
         if (exito) {
-            resultados_sucios = true;   /* D16: persistir al salir */
+            resultados_sucios = true;   /* persistir al salir */
         }
     } else if (sub == 2) {
         resultados_cargar_archivo(t, reg, RUTA_RESULTADOS, &exito);
         if (exito) {
-            resultados_sucios = true;   /* D16: persistir al salir */
+            resultados_sucios = true;   /* persistir al salir */
         }
     } else {
         simulacion_ejecutar(pd, t, reg, &exito);
@@ -691,7 +691,7 @@ static void cargar_resultados(const Pokedex *pd, Torneo *t,
             printf("La simulación no se pudo completar.\n");
             return;
         }
-        resultados_sucios = true;       /* D16: persistir al salir */
+        resultados_sucios = true;       /* persistir al salir */
     }
     resultados_mostrar_pendientes(t);
 }
@@ -699,8 +699,8 @@ static void cargar_resultados(const Pokedex *pd, Torneo *t,
 /**
  * @brief Persiste los entrenadores y resultados modificados al salir.
  *
- * Solo escribe si algo cambió en la sesión (RF-ENT-03 para entrenadores,
- * D16 para resultados), para no reescribir datos intactos. La clasificación
+ * Solo escribe si algo cambió en la sesión (para entrenadores,
+ * para resultados), para no reescribir datos intactos. La clasificación
  * se guarda en la opción 7.
  */
 static void guardar_al_salir(const RegistroEntrenadores *reg, const Torneo *t)
@@ -727,19 +727,19 @@ static void guardar_al_salir(const RegistroEntrenadores *reg, const Torneo *t)
 
 /**
  * @brief Punto de entrada: carga los datos iniciales, muestra el menú y
- *        despacha las 12 opciones.
+ * despacha las 12 opciones.
  *
- * F2: al inicio se cargan tipos, Pokédex y (si existe) el archivo de
+ * al inicio se cargan tipos, Pokédex y (si existe) el archivo de
  * entrenadores; las opciones 1..5 quedan cableadas y la opción 12 sale
  * liberando todos los equipos (sin fugas).
  *
- * F5: las opciones 7 (clasificación) y 8 (enfrentamientos) delegan en el
+ * las opciones 7 (clasificación) y 8 (enfrentamientos) delegan en el
  * módulo torneo; el torneo se arma al primer uso con 32 entrenadores.
  *
- * F6: las opciones 10 (resultados del torneo: bracket 49-64) y 11 (campeón)
+ * las opciones 10 (resultados del torneo: bracket 49-64) y 11 (campeón)
  * delegan en el módulo torneo.
  *
- * F7: la opción 6 (cargar resultados) delega en resultados (teclado o
+ * la opción 6 (cargar resultados) delega en resultados (teclado o
  * archivo, con pendientes), la opción 7 guarda la clasificación en
  * data/clasificacion.txt y al salir se persisten los entrenadores
  * modificados en la sesión.
@@ -758,7 +758,7 @@ int main(void)
     registro.cantidad = 0;
     torneo.estado = TORNEO_SIN_INICIAR;
 
-    /* Carga inicial de datos: tipos, Pokédex y entrenadores (RF-PDX-06). */
+    /* Carga inicial de datos: tipos, Pokédex y entrenadores. */
     tipos_inicializar();
     pokedex_cargar(&pokedex, RUTA_POKEDEX, &exito);
     if (!exito) {
@@ -767,7 +767,7 @@ int main(void)
     }
 
     /* Carga opcional de entrenadores: si el archivo no existe o queda
-       vacío, el programa continúa y se registran por teclado (RF-ENT-03). */
+       vacío, el programa continúa y se registran por teclado. */
     archivos_cargar_entrenadores(&registro, &pokedex, RUTA_ENTRENADORES,
                                  &exito);
     if (!exito) {
@@ -832,7 +832,7 @@ int main(void)
         }
     }
 
-    /* Persistencia de los entrenadores modificados en la sesión (RF-ENT-03)
+    /* Persistencia de los entrenadores modificados en la sesión 
        antes de liberar los equipos (sin fugas). */
     guardar_al_salir(&registro, &torneo);
     for (i = 0; i < registro.cantidad; i++) {

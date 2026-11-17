@@ -1,3 +1,4 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file probe_efectividad.c
  * @brief Probe de efectividad de tipos y reglamento de combate (F9, RF-PRB-01):

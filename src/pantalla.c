@@ -1,8 +1,9 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file pantalla.c
  * @brief Helpers de presentación por consola con padding por caracteres
- *        visibles UTF-8 (D19, guía de estilo de pantalla).
- * @author Nombre del estudiante
+ * visibles UTF-8 (guía de estilo de pantalla).
+ * @author Jesus Mora
  * @date 2026-11-16
  */
 

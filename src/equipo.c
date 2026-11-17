@@ -1,9 +1,9 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file equipo.c
  * @brief Implementación del módulo de equipos: creación de ejemplares desde
- *        especie (D2), agregación, validación, liberación y consulta
- *        (RF-EQP-01..05).
- * @author Nombre del estudiante
+ * especie, agregación, validación, liberación y consulta.
+ * @author Jesus Mora
  * @date 2026-09-19
  */
 
@@ -16,7 +16,7 @@
 #include "pantalla.h"
 #include "entrenador.h"   /* struct Entrenador completo (equipo.h solo adelanta) */
 
-/* Contador global de ids de ejemplar: único y monótono (diseño §2 y §5.2).
+/* Contador global de ids de ejemplar: único y monótono.
    Al recargar data/entrenadores.txt se fija al máximo id visto + 1. */
 static int contador_id_ejemplar = 0;
 
@@ -54,7 +54,7 @@ Ejemplar *equipo_crear_ejemplar(const Pokedex *pd, int numero_especie,
     }
     esp = pokedex_buscar_numero(pd, numero_especie);
     if (esp == NULL) {
-        return NULL;   /* RF-EQP-01: la especie no pertenece a la Pokédex */
+        return NULL;   /*: la especie no pertenece a la Pokédex */
     }
     ej = (Ejemplar *)malloc(sizeof(Ejemplar));
     if (ej == NULL) {
@@ -101,7 +101,7 @@ void equipo_agregar_ejemplar(Entrenador *ent, Ejemplar *nuevo, bool *exito)
         return;
     }
     if (equipo_contar(ent) >= MAX_EQUIPO) {
-        *exito = false;   /* RF-EQP-05: tamaño máximo 6 */
+        *exito = false;   /*: tamaño máximo 6 */
         return;
     }
     nuevo->siguiente = ent->equipo;
@@ -154,7 +154,7 @@ void equipo_liberar(Entrenador *ent)
     ent->equipo = NULL;
 }
 
-/* Anchos de la tabla del equipo (D19, columnas visibles UTF-8). */
+/* Anchos de la tabla del equipo (columnas visibles UTF-8). */
 #define EQP_ANCHO_ID      4
 #define EQP_ANCHO_APODO   14
 #define EQP_ANCHO_ESPECIE 14
@@ -246,10 +246,10 @@ void equipo_asignar(Entrenador *ent, Ejemplar *equipo)
 }
 
 /* ------------------------------------------------------------------ */
-/* Formación automática por recursividad + backtracking (RF-EQP-04).  */
-/* Diseño §4: podas de cantidad, cota inferior de nivel, cota de tipos */
-/* con sufijo precomputado, restricciones de integrantes y salida      */
-/* temprana; cada ejemplar descartado se libera al retroceder (§4.4).  */
+/* Formación automática por recursividad + backtracking. */
+/* Diseño: podas de cantidad, cota inferior de nivel, cota de tipos */
+/* con sufijo precomputado, restricciones de integrantes y salida */
+/* temprana; cada ejemplar descartado se libera al retroceder. */
 /* ------------------------------------------------------------------ */
 
 /**
@@ -307,27 +307,27 @@ static void bt_invertir_lista(Ejemplar **lista)
  *
  * En cada nodo decide cuántas copias k de la especie i incluir (1..k_max,
  * donde k_max = restantes si se permiten repetidas y 1 si no) y luego
- * excluirla; el primer éxito (salida temprana §4.3.5) se propaga true.
- * Aplica las podas §4.3 antes de ramificar: 1) cantidad, 2) cota inferior
+ * excluirla; el primer éxito (salida temprana.5) se propaga true.
+ * Aplica las podas antes de ramificar: 1) cantidad, 2) cota inferior
  * de nivel, 3) cota de tipos con el sufijo precomputado y la máscara
  * actual, y la cota extra 3b (un ejemplar aporta a lo sumo 2 tipos).
  * Los ejemplares creados que no conducen a solución se liberan al
- * retroceder (§4.4): la lista parcial queda intacta para el llamador.
+ * retroceder: la lista parcial queda intacta para el llamador.
  *
- * @param pd           Pokédex cargada (no debe ser NULL).
- * @param r            Restricciones a cumplir (no debe ser NULL).
+ * @param pd Pokédex cargada (no debe ser NULL).
+ * @param r Restricciones a cumplir (no debe ser NULL).
  * @param tipos_sufijo Tabla sufijo: tipos alcanzables desde cada índice.
- * @param i            Índice de especie en curso (0..cantidad).
- * @param restantes    Ejemplares aún por incluir (0..r->cantidad).
- * @param nivel_acum   Suma de niveles del equipo parcial.
- * @param tipos_dist   Tipos distintos presentes en el parcial.
- * @param ataque_acum  Suma de ataque derivado del parcial.
- * @param mascara      Máscara de bits de los tipos vistos (reemplaza el
- *                     arreglo bool del diseño §4.1; §4.2 habla de máscara).
- * @param parcial      Puntero a la cabeza de la lista parcial.
- * @param creados      Contador de ejemplares vivos del parcial.
- * @param exito        true si el parcial se completó cumpliendo todas las
- *                     restricciones; false en caso contrario.
+ * @param i Índice de especie en curso (0..cantidad).
+ * @param restantes Ejemplares aún por incluir (0..r->cantidad).
+ * @param nivel_acum Suma de niveles del equipo parcial.
+ * @param tipos_dist Tipos distintos presentes en el parcial.
+ * @param ataque_acum Suma de ataque derivado del parcial.
+ * @param mascara Máscara de bits de los tipos vistos (reemplaza el
+ * arreglo bool del; habla de máscara).
+ * @param parcial Puntero a la cabeza de la lista parcial.
+ * @param creados Contador de ejemplares vivos del parcial.
+ * @param exito true si el parcial se completó cumpliendo todas las
+ * restricciones; false en caso contrario.
  */
 static void bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
                    const uint32_t *tipos_sufijo, int i,
@@ -351,20 +351,20 @@ static void bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
         return;
     }
 
-    /* Poda 1 (cantidad, §4.3.1): no quedan especies suficientes para el
+    /* Poda 1 (cantidad,.1): no quedan especies suficientes para el
        equipo (se usa pd->cantidad como límite real de candidatas). */
     if (restantes > pd->cantidad - i) {
         *exito = false;
         return;
     }
-    /* Poda 2 (cota inferior de nivel, §4.3.2): cada ejemplar cuesta al
+    /* Poda 2 (cota inferior de nivel,.2): cada ejemplar cuesta al
        menos NIVEL_MIN; si el presupuesto ya no alcanza, retroceder. Hace
        que "6 Pokémon con nivel total máximo 5" falle en profundidad 1. */
     if (nivel_acum + restantes * NIVEL_MIN > r->nivel_total_max) {
         *exito = false;
         return;
     }
-    /* Poda 3 (cota de tipos, §4.3.3): los tipos aún alcanzables desde i
+    /* Poda 3 (cota de tipos,.3): los tipos aún alcanzables desde i
        (sufijo menos la máscara actual) no bastan para min_tipos. */
     if (tipos_dist + bt_contar_bits(tipos_sufijo[i] & ~mascara)
         < r->min_tipos) {
@@ -372,7 +372,7 @@ static void bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
         return;
     }
     /* Poda 3b (cota extra): un ejemplar aporta a lo sumo 2 tipos nuevos;
-       evita que min_tipos inalcanzable explote el árbol (§4.5 peor caso). */
+       evita que min_tipos inalcanzable explote el árbol (peor caso). */
     if (tipos_dist + 2 * restantes < r->min_tipos) {
         *exito = false;
         return;
@@ -380,7 +380,7 @@ static void bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
 
     esp = &pd->especies[i];
 
-    /* Restricción de integrantes (§4.3.4, aplicada al generar el candidato):
+    /* Restricción de integrantes (.4, aplicada al generar el candidato):
        si la especie no está admitida por la lista, solo queda excluirla. */
     if (!bt_especie_admitida(r, esp->numero)) {
         bt_rec(pd, r, tipos_sufijo, i + 1, restantes, nivel_acum,
@@ -405,7 +405,7 @@ static void bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
             uint32_t bits;
             Ejemplar *ej;
 
-            /* Nivel del ejemplar (diseño §4.2 + nivel_objetivo D18): con
+            /* Nivel del ejemplar (+ nivel_objetivo): con
                nivel_objetivo > 0, nivel medio uniforme acotado al presupuesto;
                si no, mínimo factible, o máximo del presupuesto con objetivo
                de ataque (superset determinista del criterio "mejor base"). */
@@ -453,7 +453,7 @@ static void bt_rec(const Pokedex *pd, const RestriccionesEquipo *r,
             }
         }
 
-        /* Retroceder (§4.4): liberar las j copias descartadas de esta rama
+        /* Retroceder: liberar las j copias descartadas de esta rama
            para que la búsqueda continúe sin fugas de memoria. */
         while (j > 0) {
             Ejemplar *descarte = *parcial;
@@ -496,7 +496,7 @@ void equipo_formar_backtracking(const Pokedex *pd, const RestriccionesEquipo *r,
     }
 
     /* Tabla sufijo de tipos: en tipos_sufijo[i] están los tipos de todas
-       las especies con índice >= i (base de la poda 3, §4.3.3). */
+       las especies con índice >= i (base de la poda 3,.3). */
     tipos_sufijo[POKEDEX_MAX] = 0;
     for (i = POKEDEX_MAX - 1; i >= 0; i--) {
         uint32_t bits = 0;

@@ -1,8 +1,9 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file pokedex.c
  * @brief Implementación del módulo Pokédex: carga y consulta de las 150
- *        especies de la 1.ª generación (RF-PDX-01..06).
- * @author Nombre del estudiante
+ * especies de la 1.ª generación.
+ * @author Jesus Mora
  * @date 2026-09-01
  */
 
@@ -17,7 +18,7 @@
 
 /**
  * Normaliza una cadena UTF-8 a ASCII plegando acentos y minusculas, para
- * comparar nombres sin distinguir mayusculas ni acentos (RF-PDX-05).
+ * comparar nombres sin distinguir mayusculas ni acentos.
  * Escribe en 'salida' (debe tener espacio suficiente, p. ej. TAM_MAX_APODO*2).
  */
 static void pokedex_normalizar(const char *entrada, char *salida)
@@ -105,10 +106,9 @@ void pokedex_cargar(Pokedex *pd, const char *ruta, bool *exito)
             continue;   /* linea vacia: no cuenta como especie */
         }
 
-        /* Division estricta por ';' (formato D8). F8: se separa sin omitir
+        /* Division estricta por ';' (formato). se separa sin omitir
            campos vacios (';;') para no desplazar los campos siguientes y se
-           rechaza cualquier exceso de campos (cierre del hallazgo
-           SUGGESTION F2). */
+           rechaza cualquier exceso de campos. */
         validar_separar_campos(linea, campos, 8, &ncampos);
         if (ncampos != 8) {
             printf("Error en %s linea %d: se esperaban 8 campos y se "
@@ -131,7 +131,7 @@ void pokedex_cargar(Pokedex *pd, const char *ruta, bool *exito)
         defensa = atoi(campos[6]);
         velocidad = atoi(campos[7]);
 
-        /* Validacion de rango de numero (RF-PDX-01). */
+        /* Validacion de rango de numero. */
         if (numero < 1 || numero > POKEDEX_MAX) {
             printf("Error en %s linea %d: numero %d fuera de rango 1..%d.\n",
                    ruta, numero_linea, numero, POKEDEX_MAX);
@@ -146,7 +146,7 @@ void pokedex_cargar(Pokedex *pd, const char *ruta, bool *exito)
         }
         vistos[numero] = 1;
 
-        /* Validacion de rangos numericos de stats (RF-PDX-02). */
+        /* Validacion de rangos numericos de stats. */
         if (hp <= 0 || ataque <= 0 || defensa <= 0 || velocidad <= 0) {
             printf("Error en %s linea %d: las stats base deben ser > 0.\n",
                    ruta, numero_linea);
@@ -154,7 +154,7 @@ void pokedex_cargar(Pokedex *pd, const char *ruta, bool *exito)
             continue;
         }
 
-        /* Validacion de tipos (RF-PDX-03). D-F: sin cortocircuito, se
+        /* Validacion de tipos. D-F: sin cortocircuito, se
            consultan ambos tipos y se decide con la conjunción de los
            resultados (el cuerpo de tipos_es_valido solo escribe *salida
            en éxito). */
@@ -213,12 +213,12 @@ void pokedex_cargar(Pokedex *pd, const char *ruta, bool *exito)
 /**
  * @brief Busca una especie por su número en la Pokédex.
  *
- * No modifica ningún dato de la Pokédex (RF-PDX-05).
+ * No modifica ningún dato de la Pokédex.
  *
- * @param pd     Puntero a la Pokédex cargada (no debe ser NULL).
+ * @param pd Puntero a la Pokédex cargada (no debe ser NULL).
  * @param numero Número de especie a buscar, en el rango 1..150.
  * @return Puntero constante a la especie encontrada; NULL si no existe o
- *         los parámetros son inválidos.
+ * los parámetros son inválidos.
  */
 const Especie *pokedex_buscar_numero(const Pokedex *pd, int numero)
 {
@@ -239,12 +239,12 @@ const Especie *pokedex_buscar_numero(const Pokedex *pd, int numero)
 /**
  * @brief Busca una especie por su nombre exacto en la Pokédex.
  *
- * Comparación de cadenas sin distinguir mayúsculas ni acentos (RF-PDX-05).
+ * Comparación de cadenas sin distinguir mayúsculas ni acentos.
  *
- * @param pd     Puntero a la Pokédex cargada (no debe ser NULL).
+ * @param pd Puntero a la Pokédex cargada (no debe ser NULL).
  * @param nombre Nombre de la especie a buscar (no debe ser NULL).
  * @return Puntero constante a la especie encontrada; NULL si no existe o
- *         los parámetros son inválidos.
+ * los parámetros son inválidos.
  */
 const Especie *pokedex_buscar_nombre(const Pokedex *pd, const char *nombre)
 {
@@ -266,7 +266,7 @@ const Especie *pokedex_buscar_nombre(const Pokedex *pd, const char *nombre)
     return NULL;
 }
 
-/* Anchos de la tabla de la Pokédex (D19, columnas visibles UTF-8). */
+/* Anchos de la tabla de la Pokédex (columnas visibles UTF-8). */
 #define PDX_ANCHO_NUM    3
 #define PDX_ANCHO_NOMBRE 13
 #define PDX_ANCHO_TIPO   10
@@ -317,7 +317,7 @@ void pokedex_mostrar_todas(const Pokedex *pd)
 }
 
 /**
- * @brief Muestra por consola la ficha de una especie (D19).
+ * @brief Muestra por consola la ficha de una especie.
  *
  * @param esp Puntero a la especie a mostrar (no debe ser NULL).
  */

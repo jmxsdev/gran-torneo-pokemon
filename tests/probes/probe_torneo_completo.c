@@ -1,3 +1,4 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file probe_torneo_completo.c
  * @brief Probe de integración completa (F9.3, RF-PRB-01): torneo 32

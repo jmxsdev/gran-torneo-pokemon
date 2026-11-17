@@ -1,10 +1,11 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file archivos.c
- * @brief E/S de los archivos de texto del torneo (D8).
+ * @brief Entrada y salida de los archivos de texto del torneo.
  *
- * F2: carga de entrenadores (RF-ENT-03). F7: guardado de entrenadores,
- * carga y guardado de resultados y guardado de la clasificación.
- * @author Nombre del estudiante
+ * Guardado y carga de entrenadores, carga y guardado de resultados y
+ * guardado de la clasificación.
+ * @author Jesus Mora
  * @date 2026-09-21
  */
 
@@ -16,7 +17,7 @@
 #include "resultados.h"   /* archivos_cargar_resultados delega aquí */
 #include "validacion.h"
 
-/* Máximo de campos por línea del formato §5.2: 3 + 4*MAX_EQUIPO. */
+/* Máximo de campos por línea del formato: 3 + 4*MAX_EQUIPO. */
 #define CAMPOS_MAX_LINEA (3 + 4 * MAX_EQUIPO + 1)
 
 /* Busca un entrenador por id sin mutar el registro (solo lectura). */
@@ -100,9 +101,9 @@ void archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
             continue;   /* linea vacia: no cuenta */
         }
 
-        /* F8: se separa sin omitir campos vacios (';;') para no desplazar
-           los campos siguientes (cierre del hallazgo SUGGESTION F2). El
-           formato §5.2 exige exactamente 3 + 4*CANT campos por linea. */
+        /* se separa sin omitir campos vacios (';;') para no desplazar
+           los campos siguientes. El
+           formato exige exactamente 3 + 4*CANT campos por linea. */
         validar_separar_campos(linea, campos, CAMPOS_MAX_LINEA, &ncampos);
         if (ncampos < 3 || ncampos > CAMPOS_MAX_LINEA) {
             goto linea_invalida;
@@ -144,7 +145,7 @@ void archivos_cargar_entrenadores(RegistroEntrenadores *reg, const Pokedex *pd,
                 goto linea_invalida;
             }
             if (pokedex_buscar_numero(pd, nums_ej[i]) == NULL) {
-                goto linea_invalida;   /* RF-EQP-01: especie inexistente */
+                goto linea_invalida;   /*: especie inexistente */
             }
             if (ids_ej[i] > max_id_ejemplar) {
                 max_id_ejemplar = ids_ej[i];
@@ -223,7 +224,7 @@ void archivos_guardar_entrenadores(const RegistroEntrenadores *reg,
         int n = 0;
         int j;
 
-        /* D15: la lista enlazada inserta al frente (equipo_agregar), por lo
+        /* la lista enlazada inserta al frente (equipo_agregar), por lo
            que se recoge en un arreglo y se escribe en orden inverso; así
            cargar → guardar no invierte el orden de los ejemplares. */
         for (ej = ent->equipo; ej != NULL && n < MAX_EQUIPO;
@@ -251,13 +252,13 @@ void archivos_cargar_resultados(Torneo *t, RegistroEntrenadores *reg,
 }
 
 /**
- * @brief Guarda los resultados aplicados del torneo en un archivo (§5.3).
+ * @brief Guarda los resultados aplicados del torneo en un archivo.
  *
  * Escribe una línea por combate con resultado definido (los pendientes se
  * omiten): NUM;ID1;ID2;RESULTADO;GANADOR;KOS1;KOS2, con "-" como ganador
- * de un empate (recargable, RF-RES-01/04).
+ * de un empate (recargable).
  *
- * @param t    Puntero al estado del torneo (no debe ser NULL).
+ * @param t Puntero al estado del torneo (no debe ser NULL).
  * @param ruta Ruta del archivo de salida (p. ej. RUTA_RESULTADOS).
  * @param exito true si se escribió el archivo; false en caso contrario.
  */
@@ -301,15 +302,15 @@ void archivos_guardar_resultados(const Torneo *t, const char *ruta,
 }
 
 /**
- * @brief Guarda la clasificación de los 8 grupos en un archivo (RF-CLS-01).
+ * @brief Guarda la clasificación de los 8 grupos en un archivo.
  *
- * Formato D8 §5.4 EXACTO: cabecera [GRUPO X] + 4 líneas
+ * Formato EXACTO: cabecera [GRUPO X] + 4 líneas
  * POSICION;ID;NOMBRE;VICTORIAS;EMPATES;DERROTAS;PUNTOS por grupo (la
  * columna de derrotados solo se muestra en pantalla, no se persiste);
- * orden de la cadena completa de RF-TRN-04.
+ * orden de la cadena completa de.
  *
- * @param t    Puntero al estado del torneo (no debe ser NULL).
- * @param reg  Puntero al registro de entrenadores (no debe ser NULL).
+ * @param t Puntero al estado del torneo (no debe ser NULL).
+ * @param reg Puntero al registro de entrenadores (no debe ser NULL).
  * @param ruta Ruta del archivo de salida (p. ej. RUTA_CLASIFICACION).
  * @param exito true si se escribió el archivo; false en caso contrario.
  */

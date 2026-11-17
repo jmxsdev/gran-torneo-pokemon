@@ -1,23 +1,19 @@
 #!/usr/bin/env bash
-# empaquetar.sh — Genera el paquete de entrega del Gran Torneo Pokémon (F11.1).
+# empaquetar.sh — Genera el paquete de entrega del Gran Torneo Pokémon.
 #
 # Produce dist/gran-torneo-pokemon-entrega.zip: un único archivo comprimido con
 # todo lo necesario para compilar y ejecutar el programa sin depender de
-# archivos externos no entregados (sección 7 del enunciado):
+# archivos externos:
 #
 #   src/        Código fuente: todos los .c/.h, incluido main.c
 #   data/       Archivo de la Pokédex (pokedex.txt) y demás datos .txt
 #   tests/      Batería scriptada (casos/, probes/, run_tests.sh)
-#   docs/       Documentación breve (planificación, informe, convenciones)
-#               SIN el html generado por Doxygen (docs/doxygen/)
-#   openspec/   Trazabilidad SDD (propuesta, specs, diseño, tareas, verificación)
 #   scripts/    Este propio script (y el de verificación de entrega)
 #   Makefile  Doxyfile  README.md
 #
 # Reproducible: trabaja sobre una copia de staging en un directorio temporal y
 # empaqueta con la raíz gran-torneo-pokemon-entrega/ (todas las rutas internas
-# son relativas). El zip se regenera en cada ejecución; dist/ NO se versiona
-# (está en .gitignore).
+# son relativas). El zip se regenera en cada ejecución; dist/ NO se versiona.
 #
 # Uso: bash scripts/empaquetar.sh   (o: make entrega)
 # Salida: dist/gran-torneo-pokemon-entrega.zip + lista y resumen del contenido.
@@ -33,7 +29,7 @@ ZIP="$DIST_DIR/$NOMBRE.zip"
 
 # --- Prerequisitos: todo lo que debe empaquetarse existe en el repositorio ---
 FALTAN=""
-for ruta in src data tests docs openspec scripts Makefile Doxyfile README.md; do
+for ruta in src data tests scripts Makefile Doxyfile README.md; do
     [ -e "$ruta" ] || FALTAN="$FALTAN $ruta"
 done
 if [ -n "$FALTAN" ]; then
@@ -48,13 +44,8 @@ trap 'rm -rf "$STAGING"' EXIT
 RAIZ="$STAGING/$NOMBRE"
 mkdir -p "$RAIZ"
 
-cp -r src data tests openspec scripts "$RAIZ/"
-mkdir -p "$RAIZ/docs"
-cp docs/*.md "$RAIZ/docs/"
+cp -r src data tests scripts "$RAIZ/"
 cp Makefile Doxyfile README.md "$RAIZ/"
-
-# docs/doxygen/ es salida regenerable (make no la usa; se excluye del paquete).
-rm -rf "$RAIZ/docs/doxygen"
 
 # --- Empaquetado: zip si está disponible; si no, fallback con Python (zipfile) ---
 rm -rf "$DIST_DIR"

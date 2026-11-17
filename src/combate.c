@@ -1,9 +1,9 @@
+/* Jesus Mora - CI 28480557 */
 /**
  * @file combate.c
- * @brief Reglamento del combate 1 vs 1: daño (D1), orden (D3), KO y
- *        reemplazo (RF-CMB-04), empate en grupos (D4) y anti-empate en
- *        eliminatoria (D5) — RF-CMB-01..05, diseño §7.
- * @author Nombre del estudiante
+ * @brief Reglamento del combate 1 vs 1: daño, orden, KO y reemplazo,
+ * empate en fase de grupos y desempate en eliminatoria.
+ * @author Jesus Mora
  * @date 2026-09-21
  */
 
@@ -13,7 +13,7 @@
 #include "tipos.h"
 
 /**
- * Restaura hp_actual = hp_max de todos los ejemplares del equipo (D2: un
+ * Restaura hp_actual = hp_max de todos los ejemplares del equipo (un
  * combate siempre arranca con equipos íntegros).
  */
 static void combate_restaurar_hp(Entrenador *ent)
@@ -113,7 +113,7 @@ bool combate_ataca_primero(const Ejemplar *local, const Ejemplar *visita)
  * atacante y pide un reemplazo al defensor (si no tiene, el atacante gana).
  *
  * @param ganador id del ganador, 0 si el combate continúa o -1 si se canceló
- *                por EOF.
+ * por EOF.
  */
 static void combate_atacar(int turno, Entrenador *atacante_ent,
                            Entrenador *defensor_ent, Ejemplar *atacante,
@@ -144,7 +144,7 @@ static void combate_atacar(int turno, Entrenador *atacante_ent,
         return;
     }
 
-    /* KO (RF-CMB-04): el atacante suma un derrotado y el defensor elige
+    /* KO: el atacante suma un derrotado y el defensor elige
        reemplazo entre sus disponibles; sin disponibles, el atacante gana. */
     if (!silencioso) {
         printf("¡%s ha sido debilitado!\n", (*defensor)->nombre);
@@ -168,7 +168,7 @@ static void combate_atacar(int turno, Entrenador *atacante_ent,
 }
 
 /**
- * Suma el HP actual de todos los ejemplares del equipo (criterio 1 de D5).
+ * Suma el HP actual de todos los ejemplares del equipo (criterio 1).
  */
 static int combate_total_hp(const Entrenador *ent)
 {
@@ -181,7 +181,7 @@ static int combate_total_hp(const Entrenador *ent)
 }
 
 /**
- * Suma el nivel de todos los ejemplares del equipo (criterio 2 de D5).
+ * Suma el nivel de todos los ejemplares del equipo (criterio 2).
  */
 static int combate_total_nivel(const Entrenador *ent)
 {
@@ -251,8 +251,8 @@ void combate_ejecutar(Entrenador *local, Entrenador *visita,
         int g;
 
         /* Fin por agotamiento: un entrenador sin disponibles pierde; si
-           ambos quedan sin Pokémon en el mismo turno (D4) se resuelve fuera
-           del bucle (empate en grupos o cadena D5 en eliminatoria). */
+           ambos quedan sin Pokémon en el mismo turno se resuelve fuera
+           del bucle (empate en grupos o cadena en eliminatoria). */
         if (combate_disponibles(local) == 0 &&
             combate_disponibles(visita) == 0) {
             break;
@@ -266,7 +266,7 @@ void combate_ejecutar(Entrenador *local, Entrenador *visita,
             break;
         }
 
-        /* Orden de ataque por velocidad (D3). */
+        /* Orden de ataque por velocidad. */
         local_primero = combate_ataca_primero(activo_local, activo_visita);
         if (local_primero) {
             primero = activo_local;
@@ -311,7 +311,7 @@ void combate_ejecutar(Entrenador *local, Entrenador *visita,
     }
 
     if (ganador != 0) {
-        /* Victoria por agotamiento: gana quien conserva Pokémon (RF-CMB-04). */
+        /* Victoria por agotamiento: gana quien conserva Pokémon. */
         res->id_ganador = ganador;
         if (!silencioso) {
             printf("Victoria de %s: %s se queda sin Pokémon disponibles "
@@ -324,7 +324,7 @@ void combate_ejecutar(Entrenador *local, Entrenador *visita,
         return;
     }
 
-    /* 20 turnos completados con ambos equipos vivos (D4/D5). */
+    /* 20 turnos completados con ambos equipos vivos. */
     if (es_eliminatoria) {
         int hp_local = combate_total_hp(local);
         int hp_visita = combate_total_hp(visita);
