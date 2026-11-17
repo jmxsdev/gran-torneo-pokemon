@@ -88,13 +88,13 @@ Resolución: **Opción A + blindado (D17)**. En L6 se reescriben 012–015 como 
 - [x] L6.6 `docs/informe-tecnico.md` (sección 9: D11–D19, simulación, historial, verificación) y `docs/trazabilidad-requisitos.md` (tabla del change: RF-SIM-*, RF-RES-05/06, RF-MEN-02/03, RF-ELM-06, RF-ENT-03 mod, RF-EQP-04 mod, RF-PRB-01 mod).
 - [x] L6.7 `make` cero warnings; `bash tests/run_tests.sh` → **26 PASS, 0 FALLA** (23 casos + 2 probes); `verify-report.md` del change creado.
 
-## Lote L7 — Rediseño de pantalla (UI/UX, D19)
+## Lote L7 — Rediseño de pantalla (UI/UX, D19) — ✅ HECHO (2026-11-16)
 
-- [ ] L7.1 Migrar la clasificación (opción 7, `torneo_mostrar_clasificacion`) al estilo D19 (tabla por grupo con `Nombre (id N)`, cabeceras, reglas).
-- [ ] L7.2 Migrar los enfrentamientos/calendario (opción 8 → 2, `torneo_mostrar_enfrentamientos`) y el bracket (opción 10, `torneo_mostrar_resultados`).
-- [ ] L7.3 Migrar la Pokédex (opción 1: mostrar todas, ficha de especie), entrenadores (opción 4) y equipos (opción 5).
-- [ ] L7.4 Migrar la consulta del campeón (opción 11) y las posiciones finales con el mismo estilo.
-- [ ] L7.5 Regenerar los goldens afectados (001–004, 016–020 y los que toquen pantalla) y correr la batería completa verde.
+- [x] L7.1 Clasificación (opción 7): tabla por grupo con título ═, cabecera + regla ─, `Nombre (id N)`, V/E/D/Puntos/Derrotados.
+- [x] L7.2 Calendario (opción 8 → 2) y bracket (opción 10): tablas con `Nombre (id N)`; el bracket conserva los orígenes (1A/G49/P61) y añade subcabecera por ronda.
+- [x] L7.3 Pokédex (opción 1: tabla de 150 + ficha), entrenadores (opción 4) y equipos (opción 5): tablas con padding UTF-8.
+- [x] L7.4 Campeón (opción 11) y posiciones finales: recuadros centrados.
+- [x] L7.5 Goldens regenerados (001, 002, 003, 005, 009, 010, 018, 019, 020); batería **26 PASS, 0 FALLA**.
 
 ---
 

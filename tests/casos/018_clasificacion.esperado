@@ -16,46 +16,74 @@ Entrenadores cargados: 32, líneas rechazadas: 0.
 Seleccione una opción (1-12): 
 --- Consultar clasificación ---
 Torneo armado: 8 grupos de 4 entrenadores (combates 1-48).
-[GRUPO A]
-1;1;Ash;0;0;0;0;0
-2;2;Misty;0;0;0;0;0
-3;3;Brock;0;0;0;0;0
-4;4;Gary;0;0;0;0;0
-[GRUPO B]
-1;5;Jessie;0;0;0;0;0
-2;6;James;0;0;0;0;0
-3;7;Tracey;0;0;0;0;0
-4;8;May;0;0;0;0;0
-[GRUPO C]
-1;9;Max;0;0;0;0;0
-2;10;Dawn;0;0;0;0;0
-3;11;Paul;0;0;0;0;0
-4;12;Barry;0;0;0;0;0
-[GRUPO D]
-1;13;Cilan;0;0;0;0;0
-2;14;Chili;0;0;0;0;0
-3;15;Cress;0;0;0;0;0
-4;16;Serena;0;0;0;0;0
-[GRUPO E]
-1;17;Clemont;0;0;0;0;0
-2;18;Bonnie;0;0;0;0;0
-3;19;Tierno;0;0;0;0;0
-4;20;Trevor;0;0;0;0;0
-[GRUPO F]
-1;21;Shauna;0;0;0;0;0
-2;22;Korrina;0;0;0;0;0
-3;23;Ramos;0;0;0;0;0
-4;24;Valerie;0;0;0;0;0
-[GRUPO G]
-1;25;Olympia;0;0;0;0;0
-2;26;Wulfric;0;0;0;0;0
-3;27;Lillie;0;0;0;0;0
-4;28;Kiawe;0;0;0;0;0
-[GRUPO H]
-1;29;Mallow;0;0;0;0;0
-2;30;Lana;0;0;0;0;0
-3;31;Sophocles;0;0;0;0;0
-4;32;Gladion;0;0;0;0;0
+════════════════════════════════════════════════════════════════
+                         CLASIFICACIÓN
+════════════════════════════════════════════════════════════════
+
+ GRUPO A
+ Pos  Entrenador               V     E     D   Puntos  Derrotados
+────────────────────────────────────────────────────────────────
+   1  Ash (id 1)               0     0     0        0          0
+   2  Misty (id 2)             0     0     0        0          0
+   3  Brock (id 3)             0     0     0        0          0
+   4  Gary (id 4)              0     0     0        0          0
+
+ GRUPO B
+ Pos  Entrenador               V     E     D   Puntos  Derrotados
+────────────────────────────────────────────────────────────────
+   1  Jessie (id 5)            0     0     0        0          0
+   2  James (id 6)             0     0     0        0          0
+   3  Tracey (id 7)            0     0     0        0          0
+   4  May (id 8)               0     0     0        0          0
+
+ GRUPO C
+ Pos  Entrenador               V     E     D   Puntos  Derrotados
+────────────────────────────────────────────────────────────────
+   1  Max (id 9)               0     0     0        0          0
+   2  Dawn (id 10)             0     0     0        0          0
+   3  Paul (id 11)             0     0     0        0          0
+   4  Barry (id 12)            0     0     0        0          0
+
+ GRUPO D
+ Pos  Entrenador               V     E     D   Puntos  Derrotados
+────────────────────────────────────────────────────────────────
+   1  Cilan (id 13)            0     0     0        0          0
+   2  Chili (id 14)            0     0     0        0          0
+   3  Cress (id 15)            0     0     0        0          0
+   4  Serena (id 16)           0     0     0        0          0
+
+ GRUPO E
+ Pos  Entrenador               V     E     D   Puntos  Derrotados
+────────────────────────────────────────────────────────────────
+   1  Clemont (id 17)          0     0     0        0          0
+   2  Bonnie (id 18)           0     0     0        0          0
+   3  Tierno (id 19)           0     0     0        0          0
+   4  Trevor (id 20)           0     0     0        0          0
+
+ GRUPO F
+ Pos  Entrenador               V     E     D   Puntos  Derrotados
+────────────────────────────────────────────────────────────────
+   1  Shauna (id 21)           0     0     0        0          0
+   2  Korrina (id 22)          0     0     0        0          0
+   3  Ramos (id 23)            0     0     0        0          0
+   4  Valerie (id 24)          0     0     0        0          0
+
+ GRUPO G
+ Pos  Entrenador               V     E     D   Puntos  Derrotados
+────────────────────────────────────────────────────────────────
+   1  Olympia (id 25)          0     0     0        0          0
+   2  Wulfric (id 26)          0     0     0        0          0
+   3  Lillie (id 27)           0     0     0        0          0
+   4  Kiawe (id 28)            0     0     0        0          0
+
+ GRUPO H
+ Pos  Entrenador               V     E     D   Puntos  Derrotados
+────────────────────────────────────────────────────────────────
+   1  Mallow (id 29)           0     0     0        0          0
+   2  Lana (id 30)             0     0     0        0          0
+   3  Sophocles (id 31)        0     0     0        0          0
+   4  Gladion (id 32)          0     0     0        0          0
+────────────────────────────────────────────────────────────────
 Clasificación guardada en data/clasificacion.txt.
 
 === EL GRAN TORNEO POKÉMON ===

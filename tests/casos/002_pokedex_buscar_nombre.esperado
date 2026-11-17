@@ -20,7 +20,16 @@ Seleccione una opción (1-12):
 3. Buscar por nombre
 4. Consultar ficha completa
 0. Volver al menú principal
-Seleccione una opción: Ingrese el nombre de la especie: 025 Pikachu    Electrico  -          HP=35 ATQ=55 DEF=40 VEL=90
+Seleccione una opción: Ingrese el nombre de la especie: ════════════════════════════════════════════
+               #025  Pikachu
+════════════════════════════════════════════
+  Tipo 1:          Electrico
+  Tipo 2:          -
+  HP base:         35
+  Ataque base:     55
+  Defensa base:    40
+  Velocidad base:  90
+────────────────────────────────────────────
 
 --- Consultar Pokédex ---
 1. Mostrar todas las especies

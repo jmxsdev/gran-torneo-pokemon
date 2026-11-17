@@ -81,8 +81,8 @@ columnas y no 8.
 
 | Lote | Alcance |
 |------|---------|
-| **L3** | Opción 9 (historial de combates) — módulo piloto con este estilo |
-| **L7** | Opciones 1 (Pokédex), 4 (entrenadores), 5 (equipos), 7 (clasificación), 8 (calendario), 10 (bracket) y 11 (campeón) — con regeneración de los goldens afectados |
+| **L3** | Opción 9 (historial de combates) — módulo piloto con este estilo ✅ |
+| **L7** | Opciones 1 (Pokédex), 4 (entrenadores), 5 (equipos), 7 (clasificación), 8 (calendario), 10 (bracket) y 11 (campeón) — con regeneración de los goldens afectados ✅ |
 
 Cada pantalla conserva su **mensaje de rechazo** actual (p. ej. "El torneo no
 está armado.") sin terminar el programa (RF-TEC-03).

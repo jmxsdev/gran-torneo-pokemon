@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "pokedex.h"
+#include "pantalla.h"
 #include "validacion.h"
 
 /**
@@ -265,44 +266,78 @@ const Especie *pokedex_buscar_nombre(const Pokedex *pd, const char *nombre)
     return NULL;
 }
 
+/* Anchos de la tabla de la Pokédex (D19, columnas visibles UTF-8). */
+#define PDX_ANCHO_NUM    3
+#define PDX_ANCHO_NOMBRE 13
+#define PDX_ANCHO_TIPO   10
+#define PDX_ANCHO_TOTAL  (1 + PDX_ANCHO_NUM + 2 + PDX_ANCHO_NOMBRE + 2 + \
+                          PDX_ANCHO_TIPO + 2 + PDX_ANCHO_TIPO + 2 + 5 + 2 + \
+                          5 + 2 + 5 + 2 + 5)
+/* Ancho de la ficha individual de una especie. */
+#define PDX_ANCHO_FICHA  44
+
 /**
- * @brief Muestra por consola todas las especies de la Pokédex en orden.
+ * @brief Muestra por consola todas las especies de la Pokédex en una tabla.
  *
  * @param pd Puntero a la Pokédex cargada (no debe ser NULL).
  */
 void pokedex_mostrar_todas(const Pokedex *pd)
 {
     int i;
+    char titulo[64];
 
     if (pd == NULL) {
         return;
     }
 
-    printf("\n--- Pokédex (%d especies) ---\n", pd->cantidad);
+    snprintf(titulo, sizeof(titulo), "POKÉDEX (%d ESPECIES)", pd->cantidad);
+    pantalla_linea(PDX_ANCHO_TOTAL, "═");
+    pantalla_centro(titulo, PDX_ANCHO_TOTAL);
+    pantalla_linea(PDX_ANCHO_TOTAL, "═");
+    printf("   #  ");
+    pantalla_pad("Nombre", PDX_ANCHO_NOMBRE);
+    printf("  ");
+    pantalla_pad("Tipo 1", PDX_ANCHO_TIPO);
+    printf("  ");
+    pantalla_pad("Tipo 2", PDX_ANCHO_TIPO);
+    printf("  %5s  %5s  %5s  %5s\n", "HP", "ATQ", "DEF", "VEL");
+    pantalla_linea(PDX_ANCHO_TOTAL, "─");
     for (i = 0; i < pd->cantidad; ++i) {
         const Especie *e = &pd->especies[i];
-        pokedex_mostrar_especie(e);
+        printf(" %03d  ", e->numero);
+        pantalla_pad(e->nombre, PDX_ANCHO_NOMBRE);
+        printf("  ");
+        pantalla_pad(tipos_a_texto(e->tipo_primario), PDX_ANCHO_TIPO);
+        printf("  ");
+        pantalla_pad(tipos_a_texto(e->tipo_secundario), PDX_ANCHO_TIPO);
+        printf("  %5d  %5d  %5d  %5d\n", e->hp_base, e->ataque_base,
+               e->defensa_base, e->velocidad_base);
     }
+    pantalla_linea(PDX_ANCHO_TOTAL, "─");
 }
 
 /**
- * @brief Muestra por consola una especie (número, nombre y tipos).
+ * @brief Muestra por consola la ficha de una especie (D19).
  *
  * @param esp Puntero a la especie a mostrar (no debe ser NULL).
  */
 void pokedex_mostrar_especie(const Especie *esp)
 {
+    char titulo[48];
+
     if (esp == NULL) {
         return;
     }
 
-    printf("%03d %-10s %-10s %-10s HP=%d ATQ=%d DEF=%d VEL=%d\n",
-           esp->numero,
-           esp->nombre,
-           tipos_a_texto(esp->tipo_primario),
-           tipos_a_texto(esp->tipo_secundario),
-           esp->hp_base,
-           esp->ataque_base,
-           esp->defensa_base,
-           esp->velocidad_base);
+    snprintf(titulo, sizeof(titulo), "#%03d  %s", esp->numero, esp->nombre);
+    pantalla_linea(PDX_ANCHO_FICHA, "═");
+    pantalla_centro(titulo, PDX_ANCHO_FICHA);
+    pantalla_linea(PDX_ANCHO_FICHA, "═");
+    printf("  Tipo 1:          %s\n", tipos_a_texto(esp->tipo_primario));
+    printf("  Tipo 2:          %s\n", tipos_a_texto(esp->tipo_secundario));
+    printf("  HP base:         %d\n", esp->hp_base);
+    printf("  Ataque base:     %d\n", esp->ataque_base);
+    printf("  Defensa base:    %d\n", esp->defensa_base);
+    printf("  Velocidad base:  %d\n", esp->velocidad_base);
+    pantalla_linea(PDX_ANCHO_FICHA, "─");
 }

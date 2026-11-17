@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "entrenador.h"
+#include "pantalla.h"
 
 /* Implementación de entrenador_buscar: documentación canónica en entrenador.h. */
 Entrenador *entrenador_buscar(RegistroEntrenadores *reg, int id)
@@ -58,10 +59,18 @@ void entrenador_registrar(RegistroEntrenadores *reg, int id, const char *nombre,
     *exito = true;
 }
 
+/* Anchos de la tabla de entrenadores (D19, columnas visibles UTF-8). */
+#define ENT_ANCHO_ID     3
+#define ENT_ANCHO_NOMBRE 18
+#define ENT_ANCHO_EQUIPO 6
+#define ENT_ANCHO_TOTAL  (1 + ENT_ANCHO_ID + 2 + ENT_ANCHO_NOMBRE + 2 + 4 + \
+                          2 + 4 + 2 + 4 + 2 + 7 + 2 + ENT_ANCHO_EQUIPO)
+
 /* Implementación de entrenador_mostrar_todos: documentación canónica en entrenador.h. */
 void entrenador_mostrar_todos(const RegistroEntrenadores *reg)
 {
     int i;
+    char titulo[64];
 
     if (reg == NULL) {
         return;
@@ -70,12 +79,29 @@ void entrenador_mostrar_todos(const RegistroEntrenadores *reg)
         printf("No hay entrenadores registrados.\n");
         return;
     }
-    printf("--- Entrenadores registrados (%d/%d) ---\n",
-           reg->cantidad, MAX_ENTRENADORES);
+    snprintf(titulo, sizeof(titulo), "ENTRENADORES REGISTRADOS (%d/%d)",
+             reg->cantidad, MAX_ENTRENADORES);
+    pantalla_linea(ENT_ANCHO_TOTAL, "═");
+    pantalla_centro(titulo, ENT_ANCHO_TOTAL);
+    pantalla_linea(ENT_ANCHO_TOTAL, "═");
+    printf(" %3s  ", "ID");
+    pantalla_pad("Nombre", ENT_ANCHO_NOMBRE);
+    printf("  %4s  %4s  %4s  %7s  ", "V", "E", "D", "Puntos");
+    pantalla_pad("Equipo", ENT_ANCHO_EQUIPO);
+    printf("\n");
+    pantalla_linea(ENT_ANCHO_TOTAL, "─");
     for (i = 0; i < reg->cantidad; i++) {
         const Entrenador *ent = &reg->entrenadores[i];
-        printf("id %3d  %-20s  G:%d E:%d P:%d  Puntos:%d  Equipo:%d/%d\n",
-               ent->id, ent->nombre, ent->victorias, ent->empates,
-               ent->derrotas, ent->puntos, equipo_contar(ent), MAX_EQUIPO);
+        char equipo_txt[8];
+
+        snprintf(equipo_txt, sizeof(equipo_txt), "%d/%d",
+                 equipo_contar(ent), MAX_EQUIPO);
+        printf(" %3d  ", ent->id);
+        pantalla_pad(ent->nombre, ENT_ANCHO_NOMBRE);
+        printf("  %4d  %4d  %4d  %7d  ", ent->victorias, ent->empates,
+               ent->derrotas, ent->puntos);
+        pantalla_pad(equipo_txt, ENT_ANCHO_EQUIPO);
+        printf("\n");
     }
+    pantalla_linea(ENT_ANCHO_TOTAL, "─");
 }

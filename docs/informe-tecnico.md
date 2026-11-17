@@ -588,7 +588,9 @@ y corona al campeón, todo determinista (sin `srand`).
 
 La opción 9 (`torneo_mostrar_historial`) muestra los 64 combates en una tabla
 con título y reglas (D19). La guía completa vive en
-`docs/guia-estilo-pantalla.md`; el resto de pantallas se migra en L7.
+`docs/guia-estilo-pantalla.md`; en L7 se migraron al mismo estilo las opciones
+1 (Pokédex: tabla y ficha), 4 (entrenadores), 5 (equipos), 7 (clasificación),
+8 (calendario), 10 (bracket) y 11 (campeón/posiciones).
 
 ### 9.4 Verificación
 

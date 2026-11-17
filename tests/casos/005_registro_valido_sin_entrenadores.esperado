@@ -29,8 +29,13 @@ Seleccione una opción (1-12): Ingrese el id del entrenador: Ingrese el nombre d
 10. Mostrar resultados del torneo
 11. Mostrar campeón
 12. Salir
-Seleccione una opción (1-12): --- Entrenadores registrados (1/32) ---
-id   1  Rojo                  G:0 E:0 P:0  Puntos:0  Equipo:0/6
+Seleccione una opción (1-12): ═══════════════════════════════════════════════════════════
+              ENTRENADORES REGISTRADOS (1/32)
+═══════════════════════════════════════════════════════════
+  ID  Nombre                 V     E     D   Puntos  Equipo
+───────────────────────────────────────────────────────────
+   1  Rojo                   0     0     0        0  0/6   
+───────────────────────────────────────────────────────────
 
 === EL GRAN TORNEO POKÉMON ===
 1. Consultar Pokédex

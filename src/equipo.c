@@ -13,6 +13,7 @@
 #include <string.h>
 
 #include "equipo.h"
+#include "pantalla.h"
 #include "entrenador.h"   /* struct Entrenador completo (equipo.h solo adelanta) */
 
 /* Contador global de ids de ejemplar: único y monótono (diseño §2 y §5.2).
@@ -153,11 +154,26 @@ void equipo_liberar(Entrenador *ent)
     ent->equipo = NULL;
 }
 
+/* Anchos de la tabla del equipo (D19, columnas visibles UTF-8). */
+#define EQP_ANCHO_ID      4
+#define EQP_ANCHO_APODO   14
+#define EQP_ANCHO_ESPECIE 14
+#define EQP_ANCHO_NIVEL   4
+#define EQP_ANCHO_HP      9
+#define EQP_ANCHO_STAT    4
+#define EQP_ANCHO_TIPOS   16
+#define EQP_ANCHO_TOTAL   (1 + EQP_ANCHO_ID + 2 + EQP_ANCHO_APODO + 2 + \
+                           EQP_ANCHO_ESPECIE + 2 + EQP_ANCHO_NIVEL + 2 + \
+                           EQP_ANCHO_HP + 2 + EQP_ANCHO_STAT + 2 + \
+                           EQP_ANCHO_STAT + 2 + EQP_ANCHO_STAT + 2 + \
+                           EQP_ANCHO_TIPOS)
+
 /* Implementación de equipo_mostrar: documentación canónica en equipo.h. */
 void equipo_mostrar(const Pokedex *pd, const Entrenador *ent)
 {
     const Ejemplar *ej;
     int n;
+    char titulo[80];
 
     if (ent == NULL) {
         return;
@@ -168,19 +184,51 @@ void equipo_mostrar(const Pokedex *pd, const Entrenador *ent)
                ent->nombre, ent->id);
         return;
     }
-    printf("--- Equipo de %s (id %d): %d ejemplar(es) ---\n",
-           ent->nombre, ent->id, n);
+
+    snprintf(titulo, sizeof(titulo), "EQUIPO DE %s (ID %d) — %d/%d",
+             ent->nombre, ent->id, n, MAX_EQUIPO);
+    pantalla_linea(EQP_ANCHO_TOTAL, "═");
+    pantalla_centro(titulo, EQP_ANCHO_TOTAL);
+    pantalla_linea(EQP_ANCHO_TOTAL, "═");
+    printf("    #");
+    printf("  ");
+    pantalla_pad("Apodo", EQP_ANCHO_APODO);
+    printf("  ");
+    pantalla_pad("Especie", EQP_ANCHO_ESPECIE);
+    printf("  %4s", "Nivel");
+    printf("  ");
+    pantalla_pad("HP", EQP_ANCHO_HP);
+    printf("  %4s  %4s  %4s", "ATQ", "DEF", "VEL");
+    printf("  ");
+    pantalla_pad("Tipos", EQP_ANCHO_TIPOS);
+    printf("\n");
+    pantalla_linea(EQP_ANCHO_TOTAL, "─");
+
     for (ej = ent->equipo; ej != NULL; ej = ej->siguiente) {
         const Especie *esp = pokedex_buscar_numero(pd, ej->numero_especie);
-        printf("  #%d %s  (especie #%d %s, nivel %d)\n",
-               ej->id, ej->nombre, ej->numero_especie,
-               (esp != NULL) ? esp->nombre : "?",
-               ej->nivel);
-        printf("      HP %d/%d  Ataque %d  Defensa %d  Velocidad %d  %s/%s\n",
-               ej->hp_actual, ej->hp_max, ej->ataque, ej->defensa,
-               ej->velocidad, tipos_a_texto(ej->tipo_primario),
-               tipos_a_texto(ej->tipo_secundario));
+        char hp_txt[16];
+        char tipos_txt[24];
+
+        snprintf(hp_txt, sizeof(hp_txt), "%d/%d", ej->hp_actual,
+                 ej->hp_max);
+        snprintf(tipos_txt, sizeof(tipos_txt), "%s/%s",
+                 tipos_a_texto(ej->tipo_primario),
+                 tipos_a_texto(ej->tipo_secundario));
+        printf(" %4d", ej->id);
+        printf("  ");
+        pantalla_pad(ej->nombre, EQP_ANCHO_APODO);
+        printf("  ");
+        pantalla_pad(esp != NULL ? esp->nombre : "?",
+                     EQP_ANCHO_ESPECIE);
+        printf("  %4d", ej->nivel);
+        printf("  ");
+        pantalla_pad(hp_txt, EQP_ANCHO_HP);
+        printf("  %4d  %4d  %4d", ej->ataque, ej->defensa, ej->velocidad);
+        printf("  ");
+        pantalla_pad(tipos_txt, EQP_ANCHO_TIPOS);
+        printf("\n");
     }
+    pantalla_linea(EQP_ANCHO_TOTAL, "─");
 }
 
 /**

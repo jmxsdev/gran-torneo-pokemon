@@ -380,9 +380,12 @@ static void etiqueta_origen(const OrigenParticipante *o, char *buf, size_t n)
     }
 }
 
+/* Ancho del recuadro de posiciones finales y campeón (D19). */
+#define POS_ANCHO 55
+
 /**
  * Imprime las posiciones finales del torneo (RF-ELM-05): campeon = G64,
- * subcampeon = P64, tercero = G63, cuarto = P63.
+ * subcampeon = P64, tercero = G63, cuarto = P63, con estilo D19.
  */
 static void mostrar_posiciones(const Torneo *t,
                                const RegistroEntrenadores *reg)
@@ -398,15 +401,23 @@ static void mostrar_posiciones(const Torneo *t,
                      ? c63->id_entrenador2
                      : c63->id_entrenador1;
 
-    printf("Posiciones finales:\n");
-    printf("1. Campeón: %s (id %d)\n", nombre_entrenador(reg, campeon),
-           campeon);
-    printf("2. Subcampeón: %s (id %d)\n", nombre_entrenador(reg, subcampeon),
+    pantalla_linea(POS_ANCHO, "═");
+    pantalla_centro("POSICIONES FINALES", POS_ANCHO);
+    pantalla_linea(POS_ANCHO, "═");
+    printf("   1.  ");
+    pantalla_pad("Campeón", 14);
+    printf("  %s (id %d)\n", nombre_entrenador(reg, campeon), campeon);
+    printf("   2.  ");
+    pantalla_pad("Subcampeón", 14);
+    printf("  %s (id %d)\n", nombre_entrenador(reg, subcampeon),
            subcampeon);
-    printf("3. Tercer lugar: %s (id %d)\n", nombre_entrenador(reg, tercero),
-           tercero);
-    printf("4. Cuarto lugar: %s (id %d)\n", nombre_entrenador(reg, cuarto),
-           cuarto);
+    printf("   3.  ");
+    pantalla_pad("Tercer lugar", 14);
+    printf("  %s (id %d)\n", nombre_entrenador(reg, tercero), tercero);
+    printf("   4.  ");
+    pantalla_pad("Cuarto lugar", 14);
+    printf("  %s (id %d)\n", nombre_entrenador(reg, cuarto), cuarto);
+    pantalla_linea(POS_ANCHO, "─");
 }
 
 void torneo_armar_grupos(Torneo *t, const RegistroEntrenadores *reg,
@@ -702,6 +713,12 @@ void torneo_clasificacion_grupo(const Torneo *t, int grupo, int filas[4][7])
     }
 }
 
+/* Anchos de la tabla de clasificación (D19, columnas visibles UTF-8). */
+#define CLA_ANCHO_POS     3
+#define CLA_ANCHO_NOMBRE  20
+#define CLA_ANCHO_TOTAL   (1 + CLA_ANCHO_POS + 2 + CLA_ANCHO_NOMBRE + 2 + \
+                           4 + 2 + 4 + 2 + 4 + 2 + 7 + 2 + 9)
+
 void torneo_mostrar_clasificacion(const Torneo *t,
                                   const RegistroEntrenadores *reg)
 {
@@ -715,27 +732,51 @@ void torneo_mostrar_clasificacion(const Torneo *t,
         return;
     }
 
+    pantalla_linea(CLA_ANCHO_TOTAL, "═");
+    pantalla_centro("CLASIFICACIÓN", CLA_ANCHO_TOTAL);
+    pantalla_linea(CLA_ANCHO_TOTAL, "═");
     for (g = 0; g < CANT_GRUPOS; g++) {
         int ids[POR_GRUPO];
         ids_del_grupo(t, g, ids);
         ordenar_grupo(t, ids);
-        printf("[GRUPO %c]\n", letra_grupo(g));
+        printf("\n GRUPO %c\n", letra_grupo(g));
+        printf(" %3s  ", "Pos");
+        pantalla_pad("Entrenador", CLA_ANCHO_NOMBRE);
+        printf("  %4s  %4s  %4s  %7s  %9s\n", "V", "E", "D", "Puntos",
+               "Derrotados");
+        pantalla_linea(CLA_ANCHO_TOTAL, "─");
         for (p = 0; p < POR_GRUPO; p++) {
             const Entrenador *e = entrenador_por_id(reg, ids[p]);
             int puntos, victorias, empates, derrotas, derrotados;
+            char nombre_txt[64];
+
             stats_de_combates(t, ids[p], &puntos, &victorias, &empates,
                               &derrotas, &derrotados);
-            printf("%d;%d;%s;%d;%d;%d;%d;%d\n",
-                   p + 1, ids[p], e != NULL ? e->nombre : "?",
-                   victorias, empates, derrotas, puntos, derrotados);
+            snprintf(nombre_txt, sizeof(nombre_txt), "%s (id %d)",
+                     e != NULL ? e->nombre : "?", ids[p]);
+            printf(" %3d  ", p + 1);
+            pantalla_pad(nombre_txt, CLA_ANCHO_NOMBRE);
+            printf("  %4d  %4d  %4d  %7d  %9d\n", victorias, empates,
+                   derrotas, puntos, derrotados);
         }
     }
+    pantalla_linea(CLA_ANCHO_TOTAL, "─");
 }
+
+/* Anchos de la tabla del calendario (D19). */
+#define CAL_ANCHO_NUM     3
+#define CAL_ANCHO_GRUPO   7
+#define CAL_ANCHO_NOMBRE  22
+#define CAL_ANCHO_TOTAL   (1 + CAL_ANCHO_NUM + 2 + CAL_ANCHO_GRUPO + 2 + \
+                           CAL_ANCHO_NOMBRE + 2 + CAL_ANCHO_NOMBRE)
 
 void torneo_mostrar_enfrentamientos(const Torneo *t,
                                     const RegistroEntrenadores *reg)
 {
     int k;
+    char grupo_txt[8];
+    char nombre1[64];
+    char nombre2[64];
 
     if (t == NULL || reg == NULL) {
         return;
@@ -745,16 +786,37 @@ void torneo_mostrar_enfrentamientos(const Torneo *t,
         return;
     }
 
-    printf("=== Enfrentamientos de la fase de grupos (combates 1-48) ===\n");
+    pantalla_linea(CAL_ANCHO_TOTAL, "═");
+    pantalla_centro("ENFRENTAMIENTOS DE LA FASE DE GRUPOS (1-48)",
+                    CAL_ANCHO_TOTAL);
+    pantalla_linea(CAL_ANCHO_TOTAL, "═");
+    printf(" %3s  ", "#");
+    pantalla_pad("Grupo", CAL_ANCHO_GRUPO);
+    printf("  ");
+    pantalla_pad("Entrenador 1", CAL_ANCHO_NOMBRE);
+    printf("  ");
+    pantalla_pad("Entrenador 2", CAL_ANCHO_NOMBRE);
+    printf("\n");
+    pantalla_linea(CAL_ANCHO_TOTAL, "─");
     for (k = 0; k < COMBATES_GRUPO; k++) {
         const Combate *c = &t->combates[k];
-        const Entrenador *e1 = entrenador_por_id(reg, c->id_entrenador1);
-        const Entrenador *e2 = entrenador_por_id(reg, c->id_entrenador2);
-        printf("%d;%c;%d;%s;%d;%s\n", c->numero,
-               letra_grupo((c->numero - 1) / 6),
-               c->id_entrenador1, e1 != NULL ? e1->nombre : "?",
-               c->id_entrenador2, e2 != NULL ? e2->nombre : "?");
+        snprintf(grupo_txt, sizeof(grupo_txt), "%c",
+                 letra_grupo(c->numero / 6));
+        snprintf(nombre1, sizeof(nombre1), "%s (id %d)",
+                 nombre_entrenador(reg, c->id_entrenador1),
+                 c->id_entrenador1);
+        snprintf(nombre2, sizeof(nombre2), "%s (id %d)",
+                 nombre_entrenador(reg, c->id_entrenador2),
+                 c->id_entrenador2);
+        printf(" %3d  ", c->numero);
+        pantalla_pad(grupo_txt, CAL_ANCHO_GRUPO);
+        printf("  ");
+        pantalla_pad(nombre1, CAL_ANCHO_NOMBRE);
+        printf("  ");
+        pantalla_pad(nombre2, CAL_ANCHO_NOMBRE);
+        printf("\n");
     }
+    pantalla_linea(CAL_ANCHO_TOTAL, "─");
 }
 
 /* Anchos de la tabla del historial (D19, columnas visibles UTF-8). */
@@ -892,6 +954,14 @@ void torneo_mostrar_historial(const Torneo *t, const RegistroEntrenadores *reg)
     pantalla_centro(resumen, HIST_ANCHO_TOTAL);
 }
 
+/* Anchos de la tabla del bracket (D19, columnas visibles UTF-8). */
+#define BRI_ANCHO_NUM     3
+#define BRI_ANCHO_ORIGEN  8
+#define BRI_ANCHO_NOMBRE  20
+#define BRI_ANCHO_TOTAL   (1 + BRI_ANCHO_NUM + 2 + BRI_ANCHO_ORIGEN + 2 + \
+                           BRI_ANCHO_NOMBRE + 2 + BRI_ANCHO_ORIGEN + 2 + \
+                           BRI_ANCHO_NOMBRE + 2 + BRI_ANCHO_NOMBRE)
+
 void torneo_mostrar_resultados(const Torneo *t,
                                const RegistroEntrenadores *reg)
 {
@@ -906,7 +976,10 @@ void torneo_mostrar_resultados(const Torneo *t,
         return;
     }
 
-    printf("=== Resultados del torneo (combates 49-64) ===\n");
+    pantalla_linea(BRI_ANCHO_TOTAL, "═");
+    pantalla_centro("RESULTADOS DEL TORNEO (COMBATES 49-64)",
+                    BRI_ANCHO_TOTAL);
+    pantalla_linea(BRI_ANCHO_TOTAL, "═");
     ronda_prev = 0;
     for (numero = 49; numero <= TOTAL_COMBATES; numero++) {
         const Combate *c = &t->combates[numero - 1];
@@ -914,22 +987,64 @@ void torneo_mostrar_resultados(const Torneo *t,
         const OrigenParticipante *o2 = &ORIGEN_PARTICIPANTE[numero - 1][1];
         char et1[8];
         char et2[8];
+        char nombre1[64];
+        char nombre2[64];
+        char ganador[64];
         int id1;
         int id2;
         int ronda = ronda_de(numero);
 
         if (ronda != ronda_prev) {
-            printf("[%s]\n", ronda_a_texto(numero));
+            printf("\n [%s]\n", ronda_a_texto(numero));
+            printf(" %3s  ", "#");
+            pantalla_pad("Origen 1", BRI_ANCHO_ORIGEN);
+            printf("  ");
+            pantalla_pad("Entrenador 1", BRI_ANCHO_NOMBRE);
+            printf("  ");
+            pantalla_pad("Origen 2", BRI_ANCHO_ORIGEN);
+            printf("  ");
+            pantalla_pad("Entrenador 2", BRI_ANCHO_NOMBRE);
+            printf("  ");
+            pantalla_pad("Ganador", BRI_ANCHO_NOMBRE);
+            printf("\n");
+            pantalla_linea(BRI_ANCHO_TOTAL, "─");
             ronda_prev = ronda;
         }
         torneo_participantes(t, numero, &id1, &id2);
         etiqueta_origen(o1, et1, sizeof(et1));
         etiqueta_origen(o2, et2, sizeof(et2));
-        printf("%d;%s;%d;%s;%s;%d;%s;%d\n", numero, et1, id1,
-               id1 > 0 ? nombre_entrenador(reg, id1) : "?",
-               et2, id2, id2 > 0 ? nombre_entrenador(reg, id2) : "?",
-               c->estado == RES_PENDIENTE ? 0 : c->id_ganador);
+        if (id1 > 0) {
+            snprintf(nombre1, sizeof(nombre1), "%s (id %d)",
+                     nombre_entrenador(reg, id1), id1);
+        } else {
+            snprintf(nombre1, sizeof(nombre1), "(por definir)");
+        }
+        if (id2 > 0) {
+            snprintf(nombre2, sizeof(nombre2), "%s (id %d)",
+                     nombre_entrenador(reg, id2), id2);
+        } else {
+            snprintf(nombre2, sizeof(nombre2), "(por definir)");
+        }
+        if (c->estado != RES_PENDIENTE) {
+            snprintf(ganador, sizeof(ganador), "%s (id %d)",
+                     nombre_entrenador(reg, c->id_ganador),
+                     c->id_ganador);
+        } else {
+            snprintf(ganador, sizeof(ganador), "-");
+        }
+        printf(" %3d  ", numero);
+        pantalla_pad(et1, BRI_ANCHO_ORIGEN);
+        printf("  ");
+        pantalla_pad(nombre1, BRI_ANCHO_NOMBRE);
+        printf("  ");
+        pantalla_pad(et2, BRI_ANCHO_ORIGEN);
+        printf("  ");
+        pantalla_pad(nombre2, BRI_ANCHO_NOMBRE);
+        printf("  ");
+        pantalla_pad(ganador, BRI_ANCHO_NOMBRE);
+        printf("\n");
     }
+    pantalla_linea(BRI_ANCHO_TOTAL, "─");
 
     if (t->estado == TORNEO_FINALIZADO) {
         mostrar_posiciones(t, reg);
@@ -940,6 +1055,7 @@ void torneo_mostrar_campeon(const Torneo *t,
                             const RegistroEntrenadores *reg)
 {
     const Entrenador *campeon;
+    char nombre_txt[64];
 
     if (t == NULL || reg == NULL) {
         return;
@@ -949,9 +1065,14 @@ void torneo_mostrar_campeon(const Torneo *t,
         return;
     }
     campeon = entrenador_por_id(reg, t->combates[63].id_ganador);
-    printf("El campeón del torneo es %s (id %d).\n",
-           campeon != NULL ? campeon->nombre : "?",
-           t->combates[63].id_ganador);
+    snprintf(nombre_txt, sizeof(nombre_txt), "%s (id %d)",
+             campeon != NULL ? campeon->nombre : "?",
+             t->combates[63].id_ganador);
+    pantalla_linea(POS_ANCHO, "═");
+    pantalla_centro("CAMPEÓN DEL TORNEO", POS_ANCHO);
+    pantalla_linea(POS_ANCHO, "═");
+    pantalla_centro(nombre_txt, POS_ANCHO);
+    pantalla_linea(POS_ANCHO, "═");
 }
 
 void torneo_mostrar_posiciones_finales(const Torneo *t,
