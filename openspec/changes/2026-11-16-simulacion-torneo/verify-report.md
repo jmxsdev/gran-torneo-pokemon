@@ -15,6 +15,7 @@
 | L4 | Persistencia de resultados (D16) | Golden 023 PASS; round-trip 20+1 verificado en sandbox; goldens 016/017/019/022 regenerados |
 | L5 | Fix 63/64 (D14) + round-trip de orden (D15) | E2E 64→63 (mensaje + posiciones completas); 31 equipos intactos tras guardar; probe_torneo_completo 29/29 |
 | L6 | Tests de combate autónomos (D17) + cierre | 012–015 reescritos `_sin_entrenadores`; `data/entrenadores.txt` normalizado (equipo de Misty conservado, orden original); docs actualizados |
+| L7 | Rediseño de pantalla D19 (opciones 1/4/5/7/8/10/11) | 9 goldens regenerados (001/002/003/005/009/010/018/019/020); revisiones visuales de bracket y campeón; batería 26/26 |
 
 **Batería final**: `bash tests/run_tests.sh` → **BATERÍA F9: 26 PASS, 0 FALLA** (23 casos de menú + 2 probes). `make` con `gcc -std=c99 -Wall -Wextra` **cero warnings**.
 
