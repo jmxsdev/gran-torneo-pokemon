@@ -71,8 +71,7 @@ static void tipos_normalizar(const char *entrada, char *salida)
  * (juegos Rojo/Azul/Amarillo) para los 15 tipos nativos, completado con las
  * interacciones modernas de Siniestro, Acero y Hada introducidas en las
  * generaciones 2 y 6 (p. ej. Siniestro>Psíquico 2, Lucha>Hada 2,
- * Veneno>Hada 2, Acero>Hielo 2, Psíquico>Acero 0). Documentado en el
- * informe técnico (DOC-03) para la defensa oral.
+ * Veneno>Hada 2, Acero>Hielo 2, Psíquico>Acero 0).
  */
 static float efectividad[CANT_TIPOS][CANT_TIPOS];
 

@@ -247,7 +247,7 @@ void equipo_asignar(Entrenador *ent, Ejemplar *equipo)
 
 /* ------------------------------------------------------------------ */
 /* Formación automática por recursividad + backtracking. */
-/* Diseño: podas de cantidad, cota inferior de nivel, cota de tipos */
+/* Podas: cantidad, cota inferior de nivel, cota de tipos */
 /* con sufijo precomputado, restricciones de integrantes y salida */
 /* temprana; cada ejemplar descartado se libera al retroceder. */
 /* ------------------------------------------------------------------ */
