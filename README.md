@@ -8,6 +8,8 @@ clasificación y resuelve la fase eliminatoria hasta coronar al campeón.
 
 Proyecto final de **Programación I / Algoritmos I** (Universidad de Carabobo).
 
+**Repositorio**: https://github.com/jmxsdev/gran-torneo-pokemon/tree/main
+
 ## Compilar y ejecutar
 
 Requisitos: `gcc` y `make`.
